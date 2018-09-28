@@ -108,6 +108,7 @@ class Asteroid {
 };
 class Game {
 	public:
+		int astr_destroyed;
 		Ship ship;
 		Asteroid *ahead;
 		Bullet *barr;
@@ -118,6 +119,7 @@ class Game {
 		bool mouseThrustOn;
 	public:
 		Game() {
+			astr_destroyed=0;
 			ahead = NULL;
 			barr = new Bullet[MAX_BULLETS];
 			nasteroids = 0;
@@ -143,6 +145,7 @@ class Game {
 				a->angle = 0.0;
 				a->rotate = rnd() * 4.0 - 2.0;
 				a->color[0] = 0.8;
+				//a->color[1] = 0.8;
 				a->color[1] = 0.8;
 				a->color[2] = 0.7;
 				a->vel[0] = (Flt)(rnd()*2.0-1.0);
@@ -492,6 +495,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 	}
 	delete node;
 	node = NULL;
+		g->astr_destroyed+=1;
 }
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 {
@@ -767,7 +771,7 @@ void render()
 		ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
 		ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-		ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: ");
+		ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i ",g.astr_destroyed);
 		//
 		//-------------
 		//Draw the ship
