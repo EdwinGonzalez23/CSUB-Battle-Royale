@@ -10,7 +10,7 @@ void andrew_credits(int x, int y)
     r.left = y;
     ggprint8b(&r, 16, 0x00ff0000, "Andrew Burt");
 }
-void andrew_credits_picture(int x, int y, GLuint texid)
+void andrew_picture(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
     int w=50;
