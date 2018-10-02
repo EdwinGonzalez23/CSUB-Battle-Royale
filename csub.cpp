@@ -49,8 +49,67 @@ extern struct timespec timeStart, timeCurrent;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
+class Image {
+public:
+   int width, height;
+   unsigned char *data;
+   ~Image() { delete [] data; }
+   Image(const char *fname) {
+   if (fname[0] == '\0')
+   return;
+  //printf("fname **%s**\n", fname);
+   int ppmFlag = 0;
+   char name[40];
+  strcpy(name, fname);
+  int slen = strlen(name);
+   char ppmname[80];
+  if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+   ppmFlag = 1;
+  if (ppmFlag) {
+   strcpy(ppmname, name);
+  } else {
+   name[slen-4] = '\0';
+   //printf("name **%s**\n", name);
+   sprintf(ppmname,"%s.ppm", name);
+  //printf("ppmname **%s**\n", ppmname);
+   char ts[100];
+   //system("convert eball.jpg eball.ppm");
+  sprintf(ts, "convert %s %s", fname, ppmname);
+   system(ts);
+   }
+  //sprintf(ts, "%s", name);
+   FILE *fpi = fopen(ppmname, "r");
+   if (fpi) {
+   char line[200];
+   fgets(line, 200, fpi);
+   fgets(line, 200, fpi);
+  //skip comments and blank lines
+   while (line[0] == '#' || strlen(line) < 2)
+   fgets(line, 200, fpi);
+  sscanf(line, "%i %i", &width, &height);
+   fgets(line, 200, fpi);
+  //get pixel data
+   int n = width * height * 3;   
+   data = new unsigned char[n];   
+   for (int i=0; i<n; i++)
+   data[i] = fgetc(fpi);
+   fclose(fpi);
+  } else {
+   printf("ERROR opening image: %s\n",ppmname);
+  exit(0);
+   }
+   if (!ppmFlag)
+   unlink(ppmname);                                                                                                                                                                                                                                                                                                  
+  }
+};
+Image img[5]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg"};
 class Global {
 	public:
+	    GLuint artTexture;
+	    GLuint bryanTexture;
+	    GLuint joelTexture;
+	    GLuint andrewTexture;
+	    GLuint edwinTexture;
 		int xres, yres;
 		int credits;
 		char keys[65536];
@@ -307,11 +366,68 @@ int main()
 }
 void init_opengl()
 {
-	//OpenGL initialization
+// ART TEXTURE
+   //
+   glGenTextures(1,&gl.artTexture);
+   int w = img[0].width;
+   int h = img[0].height;
+   glBindTexture(GL_TEXTURE_2D, gl.artTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+// Bryan TEXTURE
+   //
+   glGenTextures(1,&gl.bryanTexture);
+    w = img[0].width;
+    h = img[0].height;
+   glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+// Andrew TEXTURE
+   //
+   glGenTextures(1,&gl.andrewTexture);
+    w = img[1].width;
+    h = img[1].height;
+   glBindTexture(GL_TEXTURE_2D, gl.andrewTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+// Joel TEXTURE
+   //
+   glGenTextures(1,&gl.joelTexture);
+    w = img[2].width;
+    h = img[2].height;
+   glBindTexture(GL_TEXTURE_2D, gl.joelTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+// edwin TEXTURE
+   //
+   glGenTextures(1,&gl.edwinTexture);
+    w = img[4].width;
+    h = img[4].height;
+   glBindTexture(GL_TEXTURE_2D, gl.edwinTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+	
+   //OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+
 	//This sets 2D mode (no perspective)
 	glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
 	//
@@ -457,7 +573,8 @@ int check_keys(XEvent *e)
 		case XK_f:
 			break;
 		case XK_c:
-			gl.credits ^=1;
+			extern void toggleCredits();
+			toggleCredits();
 			break;
 		case XK_s:
 			break;
@@ -740,8 +857,8 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 void show_credits()
 {
 	Rect r;
-	r.bot=(gl.yres/2)+100;
-	r.left=gl.xres/2;
+	r.bot=(gl.yres/2)+100+75;
+	r.left=gl.xres/2+75;
 	ggprint16(&r, 16, 0x00ff0000, "Members:");
 	extern void art_credits(int x, int y);
 	extern void edwin_credits(int x, int y);
@@ -749,10 +866,20 @@ void show_credits()
 	extern void bryan_credits(int x, int y);
 	extern void joel_credits(int x, int y);
 	art_credits( gl.xres/2,gl.yres/2);
-	edwin_credits(gl.xres/2,((gl.yres/2)+20));
-	andrew_credits(gl.xres/2,((gl.yres/2)+40));
-	bryan_credits(gl.xres/2,((gl.yres/2)+60));
-	joel_credits(gl.xres/2,((gl.yres/2)+80));
+	extern void art_picture(int x, int y, GLuint textid);
+	extern void edwin_picture(int x, int y, GLuint textid);
+	extern void andrew_picture(int x, int y, GLuint textid);
+	extern void bryan_picture(int x, int y, GLuint textid);
+	extern void joel_picture(int x, int y, GLuint textid);
+	art_picture(gl.xres/2,gl.yres/2-75,gl.artTexture);
+	edwin_credits(gl.xres/2,((gl.yres/2)+20+75));
+	edwin_picture(gl.xres, 400, gl.edwinTexture);
+	andrew_credits(gl.xres/2,((gl.yres/2)+40+75));
+	andrew_picture(gl.xres/2, 100, gl.andrewTexture);
+	bryan_credits(gl.xres/2,((gl.yres/2)+60+75));
+	bryan_picture(gl.xres/2, 500, gl.bryanTexture);
+	joel_credits(gl.xres/2,((gl.yres/2)+80+75));
+	joel_picture(gl.xres/2, 300, gl.joelTexture);
 }
 void render()
 {
@@ -764,9 +891,24 @@ void render()
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-
-	if (gl.credits){
-		show_credits();
+extern int  getCreditState();
+	if (getCreditState()){
+		show_credits();/*
+		glColor3ub(255,255,255);
+		int wid=40;
+		glPushMatrix();
+		glTranslatef(200,200,0);
+		glBindTexture(GL_TEXTURE_2D,gl.artTexture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f,0.0f); glVertex2i(-wid,-wid);
+		glTexCoord2f(1.0f,0.0f); glVertex2i(-wid,wid);
+		glTexCoord2f(1.0f,1.0f); glVertex2i(wid,wid);
+		glTexCoord2f(0.0f,1.0f); glVertex2i(wid,-wid);
+		glEnd();
+		glPopMatrix();
+		return;*/
+	//	extern void art_picture(int x, int y, GLuint textid);
+	//	art_picture(200,gl.yres-100,gl.artTexture);
 	} else{
 		ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
 		ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
