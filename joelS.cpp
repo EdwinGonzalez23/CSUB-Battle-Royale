@@ -19,7 +19,7 @@ void joel_picture(int x, int y, GLuint texture){
 
 
         glColor3ub(255,255,255);
-        int wid=100;
+        int wid=50;
         glPushMatrix();
         glTranslatef(x,y,0);
         glBindTexture(GL_TEXTURE_2D, texture);
