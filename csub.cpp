@@ -380,47 +380,47 @@ void init_opengl()
 // Bryan TEXTURE
    //
    glGenTextures(1,&gl.bryanTexture);
-    w = img[0].width;
-    h = img[0].height;
+    w = img[3].width;
+    h = img[3].height;
    glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-   GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+   GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
 // Andrew TEXTURE
    //
    glGenTextures(1,&gl.andrewTexture);
-    w = img[1].width;
-    h = img[1].height;
+    w = img[4].width;
+    h = img[4].height;
    glBindTexture(GL_TEXTURE_2D, gl.andrewTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-   GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+   GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
 // Joel TEXTURE
    //
    glGenTextures(1,&gl.joelTexture);
-    w = img[2].width;
-    h = img[2].height;
+    w = img[1].width;
+    h = img[1].height;
    glBindTexture(GL_TEXTURE_2D, gl.joelTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-   GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+   GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 // edwin TEXTURE
    //
    glGenTextures(1,&gl.edwinTexture);
-    w = img[4].width;
-    h = img[4].height;
+    w = img[2].width;
+    h = img[2].height;
    glBindTexture(GL_TEXTURE_2D, gl.edwinTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-   GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+   GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
 	
    //OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
@@ -871,15 +871,15 @@ void show_credits()
 	extern void andrew_picture(int x, int y, GLuint textid);
 	extern void bryan_picture(int x, int y, GLuint textid);
 	extern void joel_picture(int x, int y, GLuint textid);
-	art_picture(gl.xres/2,gl.yres/2-75,gl.artTexture);
+	art_picture(100,gl.yres/2-75,gl.artTexture);
 	edwin_credits(gl.xres/2,((gl.yres/2)+20+75));
-	edwin_picture(gl.xres, 400, gl.edwinTexture);
+	edwin_picture(200, 400, gl.edwinTexture);
 	andrew_credits(gl.xres/2,((gl.yres/2)+40+75));
-	andrew_picture(gl.xres/2, 100, gl.andrewTexture);
+	andrew_picture(300, 100, gl.andrewTexture);
 	bryan_credits(gl.xres/2,((gl.yres/2)+60+75));
-	bryan_picture(gl.xres/2, 500, gl.bryanTexture);
+	bryan_picture(400, 200, gl.bryanTexture);
 	joel_credits(gl.xres/2,((gl.yres/2)+80+75));
-	joel_picture(gl.xres/2, 300, gl.joelTexture);
+	joel_picture(500, 300, gl.joelTexture);
 }
 void render()
 {
