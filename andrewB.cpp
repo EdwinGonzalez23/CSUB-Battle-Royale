@@ -13,7 +13,7 @@ void andrew_credits(int x, int y)
 void andrew_credits_picture(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
-    int w=40;
+    int w=50;
     glPushMatrix();
     glTranslatef(x, y, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
