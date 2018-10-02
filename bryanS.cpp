@@ -11,7 +11,7 @@ void bryan_credits(int x, int y)
 }
 
 
-void show_bryan_credits(int x, int y, GLuint texid)
+void bryan_picture(int x, int y, GLuint texid)
 {
 	glColor3ub(255, 255, 255);
 	int wid = 50;
