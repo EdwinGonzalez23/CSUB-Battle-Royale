@@ -102,7 +102,7 @@ public:
    unlink(ppmname);                                                                                                                                                                                                                                                                                                  
   }
 };
-Image img[5]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg"};
+Image img[6]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg", "character.png"};
 class Global {
 	public:
 	    GLuint artTexture;
@@ -110,6 +110,7 @@ class Global {
 	    GLuint joelTexture;
 	    GLuint andrewTexture;
 	    GLuint edwinTexture;
+		GLuint characterTexture;
 		int xres, yres;
 		int credits;
 		char keys[65536];
@@ -421,7 +422,17 @@ void init_opengl()
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
    GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
-	
+   
+// Character Texture
+	glGenTextures(1,&gl.characterTexture);
+    w = img[6].width;
+    h = img[2].height;
+	glBindTexture(GL_TEXTURE_2D, gl.characterTexture);
+
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
    //OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -884,7 +895,6 @@ void show_credits()
 void render()
 {
 	x11.clear_screen();
-
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
@@ -934,6 +944,9 @@ extern int  getCreditState();
 		glVertex2f(0.0f, 0.0f);
 		glEnd();
 		glPopMatrix();
+		extern void character(int x, int y, int z, float angle, GLuint texid);
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.joelTexture);
+
 		if (gl.keys[XK_Up] || g.mouseThrustOn) {
 			int i;
 			//draw thrust
@@ -952,6 +965,8 @@ extern int  getCreditState();
 				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
 				glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
 				glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
+				extern void character(int x, int y, int z, float angle, GLuint texid);
+				character(g.ship.pos[0]+xs, g.ship.pos[1]+ys, g.ship.pos[2], g.ship.angle, gl.joelTexture);
 			}
 			glEnd();
 		}
