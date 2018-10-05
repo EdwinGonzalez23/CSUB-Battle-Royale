@@ -865,14 +865,14 @@ void show_credits()
 	extern void andrew_credits(int x, int y);
 	extern void bryan_credits(int x, int y);
 	extern void joel_credits(int x, int y);
-	art_credits( gl.xres/2,gl.yres/2);
+	art_credits( gl.xres/2,gl.yres/2-230);
 	extern void art_picture(int x, int y, GLuint textid);
 	extern void edwin_picture(int x, int y, GLuint textid);
 	extern void andrew_picture(int x, int y, GLuint textid);
 	extern void bryan_picture(int x, int y, GLuint textid);
 	extern void joel_picture(int x, int y, GLuint textid);
-	art_picture(100,gl.yres/2-75,gl.artTexture);
-	edwin_credits(gl.xres/2,((gl.yres/2)+20+75));
+	art_picture(gl.xres/2,gl.yres/2-320,gl.artTexture);
+	edwin_credits(gl.xres/2,gl.yres/2+100);
 	edwin_picture(200, 400, gl.edwinTexture);
 	andrew_credits(gl.xres/2,((gl.yres/2)+40+75));
 	andrew_picture(300, 100, gl.andrewTexture);
