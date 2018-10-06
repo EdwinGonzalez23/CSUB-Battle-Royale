@@ -102,7 +102,7 @@ public:
    unlink(ppmname);                                                                                                                                                                                                                                                                                                  
   }
 };
-Image img[6]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg", "character.png"};
+Image img[5]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg"};
 class Global {
 	public:
 	    GLuint artTexture;
@@ -110,7 +110,6 @@ class Global {
 	    GLuint joelTexture;
 	    GLuint andrewTexture;
 	    GLuint edwinTexture;
-		GLuint characterTexture;
 		int xres, yres;
 		int credits;
 		char keys[65536];
@@ -422,17 +421,7 @@ void init_opengl()
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
    GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
-   
-// Character Texture
-	glGenTextures(1,&gl.characterTexture);
-    w = img[6].width;
-    h = img[2].height;
-	glBindTexture(GL_TEXTURE_2D, gl.characterTexture);
-
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-	GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
+	
    //OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -876,14 +865,14 @@ void show_credits()
 	extern void andrew_credits(int x, int y);
 	extern void bryan_credits(int x, int y);
 	extern void joel_credits(int x, int y);
-	art_credits( gl.xres/2,gl.yres/2);
+	art_credits( gl.xres/2,gl.yres/2-230);
 	extern void art_picture(int x, int y, GLuint textid);
 	extern void edwin_picture(int x, int y, GLuint textid);
 	extern void andrew_picture(int x, int y, GLuint textid);
 	extern void bryan_picture(int x, int y, GLuint textid);
 	extern void joel_picture(int x, int y, GLuint textid);
-	art_picture(100,gl.yres/2-75,gl.artTexture);
-	edwin_credits(gl.xres/2,((gl.yres/2)+20+75));
+	art_picture(gl.xres/2,gl.yres/2-320,gl.artTexture);
+	edwin_credits(gl.xres/2,gl.yres/2+100);
 	edwin_picture(200, 400, gl.edwinTexture);
 	andrew_credits(gl.xres/2,((gl.yres/2)+40+75));
 	andrew_picture(300, 100, gl.andrewTexture);
@@ -895,6 +884,7 @@ void show_credits()
 void render()
 {
 	x11.clear_screen();
+
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
@@ -944,9 +934,6 @@ extern int  getCreditState();
 		glVertex2f(0.0f, 0.0f);
 		glEnd();
 		glPopMatrix();
-		extern void character(int x, int y, int z, float angle, GLuint texid);
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.joelTexture);
-
 		if (gl.keys[XK_Up] || g.mouseThrustOn) {
 			int i;
 			//draw thrust
@@ -965,8 +952,6 @@ extern int  getCreditState();
 				glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
 				glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
 				glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
-				extern void character(int x, int y, int z, float angle, GLuint texid);
-				character(g.ship.pos[0]+xs, g.ship.pos[1]+ys, g.ship.pos[2], g.ship.angle, gl.joelTexture);
 			}
 			glEnd();
 		}
