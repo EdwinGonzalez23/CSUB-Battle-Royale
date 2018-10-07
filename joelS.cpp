@@ -4,6 +4,58 @@
 #include <iostream>
 #include <GL/glx.h>
 #include "fonts.h"
+//Audio library
+//#include <AL/alut.h>
+#include <unistd.h>
+
+/*
+ *These audio functions work on my personal computer
+ *But I'd like to make sure everyone can run them before uncommenting.
+ *(Changes were made on older branch).
+ * /
+
+//Declare these globally.
+/*
+ALuint bulletSound;
+ALuint impactSound;
+ALuint bgm;
+ALuint buffers[3];
+*/
+
+//Declare this in main()
+/*
+alutInit (NULL, NULL);
+buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
+buffers[1] = alutCreateBufferFromFile ("./audio/impact.wav");
+buffers[2] = alutCreateBufferFromFile ("./audio/RaveOnRevised.wav");
+alGenSources (1, &impactSound);
+alGenSources (1, &bulletSound);
+alGenSources (1,&bgm);
+alSourcei (bulletSound, AL_BUFFER, buffers[0]);
+alSourcei (impactSound, AL_BUFFER, buffers[1]);
+alSourcei (bgm, AL_BUFFER, buffers[2]);
+thread tbgm(playBGM,bgm);
+tbgm.detach();
+*/
+
+/*
+void playSound(ALuint src){
+        alSourcePlay (src);
+        sleep (1);
+
+}
+
+void playBGM(ALuint bgmSrc){
+        while(1){
+                alSourcePlay(bgmSrc);
+                sleep(268);
+        }
+}
+*/
+//Put these in global scope with other prototypes.
+//extern void playBGM(ALuint bgmSrc);
+//extern void playSound(ALuint src);
+
 
 
 //Function required for lab 5
