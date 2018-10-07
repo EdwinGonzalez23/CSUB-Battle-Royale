@@ -834,6 +834,8 @@ void physics()
 			timeCopy(&g.bulletTimer, &bt);
 			if (g.nbullets < MAX_BULLETS) {
 				//shoot a bullet...
+				thread t1(play_sound, gl.bulletSound);
+				t1.detach();
 				//Bullet *b = new Bullet;
 				Bullet *b = &g.barr[g.nbullets];
 				timeCopy(&b->time, &bt);
