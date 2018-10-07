@@ -19,6 +19,9 @@ using namespace std;
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+//Audio library
+#include <AL/alut.h>
+#include <thread>
 #include "log.h"
 #include "fonts.h"
 //defined types
@@ -103,6 +106,10 @@ public:
   }
 };
 Image img[5]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg"};
+
+
+
+
 class Global {
 	public:
 	    GLuint artTexture;
@@ -110,6 +117,9 @@ class Global {
 	    GLuint joelTexture;
 	    GLuint andrewTexture;
 	    GLuint edwinTexture;
+	    //Store sound sources here.
+	    ALuint bulletSound;
+	    ALuint buffers[1];
 		int xres, yres;
 		int credits;
 		char keys[65536];
@@ -333,12 +343,23 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
+
+void setup_sound(Global &gl){
+        alutInit (NULL, NULL);
+        gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
+        alGenSources (1, &gl.bulletSound);
+        alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
+
+}
+
 //function prototypes
 void init_opengl();
 void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
+//Sound Prototypes
+extern void play_sound(ALuint src);
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -348,6 +369,13 @@ int main()
 	init_opengl();
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
+	/*
+	alutInit (NULL, NULL);
+	buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
+	alGenSources (1, &bulletSound);
+	alSourcei (bulletSound, AL_BUFFER, buffers[0]);
+	*/
+	setup_sound(gl);
 	int done=0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -477,6 +505,8 @@ void check_mouse(XEvent *e)
 				timeCopy(&g.bulletTimer, &bt);
 				//shoot a bullet...
 				if (g.nbullets < MAX_BULLETS) {
+					thread t1(play_sound, gl.bulletSound);
+					t1.detach();
 					Bullet *b = &g.barr[g.nbullets];
 					timeCopy(&b->time, &bt);
 					b->pos[0] = g.ship.pos[0];

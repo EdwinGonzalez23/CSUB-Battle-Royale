@@ -5,16 +5,18 @@
 #include <GL/glx.h>
 #include "fonts.h"
 //Audio library
-//#include <AL/alut.h>
+#include <AL/alut.h>
 #include <unistd.h>
 
 /*
- *These audio functions work on my personal computer
- *But I'd like to make sure everyone can run them before uncommenting.
- *(Changes were made on older branch).
- * /
+###READ THIS###
+These audio functions work on my personal computer
+but I'd like to make sure everyone in the group
+can run them before further implementation/uncommenting.
+This code is being tested on another branch.
+ */
 
-//Declare these globally.
+//Declare these in global
 /*
 ALuint bulletSound;
 ALuint impactSound;
@@ -34,18 +36,18 @@ alGenSources (1,&bgm);
 alSourcei (bulletSound, AL_BUFFER, buffers[0]);
 alSourcei (impactSound, AL_BUFFER, buffers[1]);
 alSourcei (bgm, AL_BUFFER, buffers[2]);
-thread tbgm(playBGM,bgm);
+thread tbgm(play_BGM,bgm);
 tbgm.detach();
 */
 
-/*
-void playSound(ALuint src){
+
+void play_sound(ALuint src){
         alSourcePlay (src);
         sleep (1);
 
 }
-
-void playBGM(ALuint bgmSrc){
+/*
+void play_BGM(ALuint bgmSrc){
         while(1){
                 alSourcePlay(bgmSrc);
                 sleep(268);
@@ -53,8 +55,8 @@ void playBGM(ALuint bgmSrc){
 }
 */
 //Put these in global scope with other prototypes.
-//extern void playBGM(ALuint bgmSrc);
-//extern void playSound(ALuint src);
+//extern void play_BGM(ALuint bgmSrc);
+//extern void play_sound(ALuint src);
 
 
 
