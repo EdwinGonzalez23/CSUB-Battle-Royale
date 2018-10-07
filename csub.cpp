@@ -369,12 +369,6 @@ int main()
 	init_opengl();
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
-	/*
-	alutInit (NULL, NULL);
-	buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
-	alGenSources (1, &bulletSound);
-	alSourcei (bulletSound, AL_BUFFER, buffers[0]);
-	*/
 	setup_sound(gl);
 	int done=0;
 	while (!done) {
