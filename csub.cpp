@@ -60,7 +60,6 @@ class Global {
 			xres = 1250;
 			yres = 900;
 			memset(keys, 0, 65536);
-			movBackwards = 0;
 		}
 } gl;
 class Ship {
@@ -197,7 +196,7 @@ class X11_wrapper {
 			set_title();
 			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 			glXMakeCurrent(dpy, win, glc);
-			show_mouse_cursor(1);
+			show_mouse_cursor(0);
 		}
 		~X11_wrapper() {
 			XDestroyWindow(dpy, win);
@@ -660,63 +659,27 @@ void physics()
 
 	//---------------------------------------------------
 	//check keys pressed now
+	extern float moveDownSpeed();
+	extern float moveUpSpeed();
+	extern float moveLeftSpeed();
+	extern float moveRightSpeed();
 	g.ship.vel[0] = 0;//0.02f
 	g.ship.vel[1] = 0;
 	//Left
 	if (gl.keys[XK_a]) {
-		// g.ship.angle += 4.0;
-		// if (g.ship.angle >= 360.0f)
-		// 	g.ship.angle -= 360.0f;
-		g.ship.vel[0] = -7;
+		g.ship.vel[0] = moveLeftSpeed();
 	}
 	//Right
 	if (gl.keys[XK_d]) {
-		// g.ship.angle -= 4.0;
-		// if (g.ship.angle < 0.0f)
-		// 	g.ship.angle += 360.0f;
-		g.ship.vel[0] = 7;
+		g.ship.vel[0] = moveRightSpeed();
 	}
 	//Up
 	if (gl.keys[XK_w]) {
-		 //apply thrust
-		 //convert ship angle to radians
-	     //Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-		 //convert angle to a vector
-		 //Flt xdir = cos(rad);
-		 //Flt ydir = sin(rad);
-		 //g.ship.vel[0] += xdir*5; //0.02f
-		 //g.ship.vel[1] += ydir*5;
-		 // Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-			//  	g.ship.vel[1]*g.ship.vel[1]);
-		g.ship.vel[1] = 7;
-
-		// if (speed > 10.0f) {
-		// 	speed = 10.0f;
-		// 	normalize2d(g.ship.vel);
-		// 	g.ship.vel[0] *= speed;
-		// 	g.ship.vel[1] *= speed;
-		// }
+		g.ship.vel[1] = moveUpSpeed();
 	}
 	//Down
 	if (gl.keys[XK_s]){
-		// //apply thrust
-		// //convert ship angle to radians
-		// Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-		// //convert angle to a vector
-		// Flt xdir = cos(rad);
-		// Flt ydir = sin(rad);
-		// g.ship.vel[0] -= xdir * 5;//0.02f
-		// g.ship.vel[1] -= ydir * 5;
-		// Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-		// 		g.ship.vel[1]*g.ship.vel[1]);
-		//
-		// if (speed > 10.0f) {
-		// 	speed = 10.0f;
-		// 	normalize2d(g.ship.vel);
-		// 	g.ship.vel[0] *= speed;
-		// 	g.ship.vel[1] *= speed;
-		// }
-		g.ship.vel[1] = -7;
+		g.ship.vel[1] = moveDownSpeed();
 	}
 
 	if (gl.keys[XK_space]) {
