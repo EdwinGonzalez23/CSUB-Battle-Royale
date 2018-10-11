@@ -54,11 +54,13 @@ class Global {
 		int xres, yres;
 		int credits;
 		char keys[65536];
+		int movBackwards;
 		Global() {
 			credits=0;
 			xres = 1250;
 			yres = 900;
 			memset(keys, 0, 65536);
+			movBackwards = 0;
 		}
 } gl;
 class Ship {
@@ -183,7 +185,7 @@ class X11_wrapper {
 			if (vi == NULL) {
 				std::cout << "\n\tno appropriate visual found\n" << std::endl;
 				exit(EXIT_FAILURE);
-			} 
+			}
 			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 			swa.colormap = cmap;
 			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
@@ -195,7 +197,7 @@ class X11_wrapper {
 			set_title();
 			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 			glXMakeCurrent(dpy, win, glc);
-			show_mouse_cursor(0);
+			show_mouse_cursor(1);
 		}
 		~X11_wrapper() {
 			XDestroyWindow(dpy, win);
@@ -244,7 +246,7 @@ class X11_wrapper {
 		void set_mouse_position(int x, int y) {
 			XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
 		}
-		void clear_screen() {                                               
+		void clear_screen() {
 			XClearWindow(dpy, win);
 		}
 		void show_mouse_cursor(const int onoff) {
@@ -360,10 +362,11 @@ void check_mouse(XEvent *e)
 				if (g.nbullets < MAX_BULLETS) {
 					Bullet *b = &g.barr[g.nbullets];
 					timeCopy(&b->time, &bt);
-					b->pos[0] = g.ship.pos[0];
+					b->pos[0] = g.ship.pos[0];//0
 					b->pos[1] = g.ship.pos[1];
-					b->vel[0] = g.ship.vel[0];
+					b->vel[0] = g.ship.vel[0];//0
 					b->vel[1] = g.ship.vel[1];
+
 					//convert ship angle to radians
 					Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
 					//convert angle to a vector
@@ -371,8 +374,9 @@ void check_mouse(XEvent *e)
 					Flt ydir = sin(rad);
 					b->pos[0] += xdir*20.0f;
 					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*0.1;
+					b->vel[0] += xdir*6.0f + rnd()*0.1; //6.0f
 					b->vel[1] += ydir*6.0f + rnd()*0.1;
+
 					b->color[0] = 1.0f;
 					b->color[1] = 1.0f;
 					b->color[2] = 1.0f;
@@ -388,9 +392,9 @@ void check_mouse(XEvent *e)
 		if (savex != e->xbutton.x || savey != e->xbutton.y) {
 			//Mouse moved
 			int xdiff = savex - e->xbutton.x;
-			int ydiff = savey - e->xbutton.y;
+			//int ydiff = savey - e->xbutton.y;
 			if (++ct < 10)
-				return;		
+				return;
 			if (xdiff > 0) {
 				//mouse moved along the x-axis.
 				g.ship.angle += 0.05f * (float)xdiff;
@@ -402,27 +406,27 @@ void check_mouse(XEvent *e)
 				if (g.ship.angle < 0.0f)
 					g.ship.angle += 360.0f;
 			}
-			if (ydiff > 0) {
-				//mouse moved along the y-axis.
-				//apply thrust
-				//convert ship angle to radians
-				Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-				//convert angle to a vector
-				Flt xdir = cos(rad);
-				Flt ydir = sin(rad);
-				g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
-				g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
-				Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-						g.ship.vel[1]*g.ship.vel[1]);
-				if (speed > 15.0f) {
-					speed = 15.0f;
-					normalize2d(g.ship.vel);
-					g.ship.vel[0] *= speed;
-					g.ship.vel[1] *= speed;
-				}
-				g.mouseThrustOn = true;
-				clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-			}
+			// if (ydiff > 0) {
+			// 	//mouse moved along the y-axis.
+			// 	//apply thrust
+			// 	//convert ship angle to radians
+			// 	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+			// 	//convert angle to a vector
+			// 	Flt xdir = cos(rad);
+			// 	Flt ydir = sin(rad);
+			// 	g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
+			// 	g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
+			// 	Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+			// 			g.ship.vel[1]*g.ship.vel[1]);
+			// 	if (speed > 15.0f) {
+			// 		speed = 15.0f;
+			// 		normalize2d(g.ship.vel);
+			// 		g.ship.vel[0] *= speed;
+			// 		g.ship.vel[1] *= speed;
+			// 	}
+			// 	g.mouseThrustOn = true;
+			// 	clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+			// }
 			x11.set_mouse_position(100, 100);
 			savex = savey = 100;
 		}
@@ -457,6 +461,7 @@ int check_keys(XEvent *e)
 			gl.credits ^=1;
 			break;
 		case XK_s:
+			gl.movBackwards ^=1;
 			break;
 		case XK_Down:
 			break;
@@ -521,8 +526,8 @@ void physics()
 {
 	Flt d0,d1,dist;
 	//Update ship position
-	g.ship.pos[0] += g.ship.vel[0];
-	g.ship.pos[1] += g.ship.vel[1];
+	 g.ship.pos[0] += g.ship.vel[0];
+	 g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	if (g.ship.pos[0] < 0.0) {
 		g.ship.pos[0] += (float)gl.xres;
@@ -536,7 +541,7 @@ void physics()
 	else if (g.ship.pos[1] > (float)gl.yres) {
 		g.ship.pos[1] -= (float)gl.yres;
 	}
-	//
+
 	//Update bullet positions
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
@@ -612,31 +617,31 @@ void physics()
 				//cout << "asteroid hit." << endl;
 				//this asteroid is hit.
 				if (a->radius > MINIMUM_ASTEROID_SIZE) {
-					//break it into pieces.
-					Asteroid *ta = a;
-					buildAsteroidFragment(ta, a);
-					int r = rand()%10+5;
-					for (int k=0; k<r; k++) {
-						//get the next asteroid position in the array
-						Asteroid *ta = new Asteroid;
-						buildAsteroidFragment(ta, a);
-						//add to front of asteroid linked list
-						ta->next = g.ahead;
-						if (g.ahead != NULL)
-							g.ahead->prev = ta;
-						g.ahead = ta;
-						g.nasteroids++;
-					}
-				} else {
-					a->color[0] = 1.0;
-					a->color[1] = 0.1;
-					a->color[2] = 0.1;
-					//asteroid is too small to break up
-					//delete the asteroid and bullet
-					Asteroid *savea = a->next;
-					deleteAsteroid(&g, a);
-					a = savea;
-					g.nasteroids--;
+				// 	//break it into pieces.
+				// 	Asteroid *ta = a;
+				// 	//buildAsteroidFragment(ta, a);
+				// 	int r = rand()%10+5;
+				// 	for (int k=0; k<0; k++) { // k<r
+				// 		//get the next asteroid position in the array
+				// 		Asteroid *ta = new Asteroid;
+				// 		buildAsteroidFragment(ta, a);
+				// 		//add to front of asteroid linked list
+				// 		ta->next = g.ahead;
+				// 		if (g.ahead != NULL)
+				// 			g.ahead->prev = ta;
+				// 		g.ahead = ta;
+				// 		g.nasteroids++;
+				// 	}
+				// } else {
+				 	a->color[0] = 1.0;
+				 	a->color[1] = 0.1;
+				 	a->color[2] = 0.1;
+				// 	//asteroid is too small to break up
+				// 	//delete the asteroid and bullet
+				 	Asteroid *savea = a->next;
+				 	deleteAsteroid(&g, a);
+				 	a = savea;
+				 	g.nasteroids--;
 				}
 				//delete the bullet...
 				memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
@@ -650,36 +655,70 @@ void physics()
 			break;
 		a = a->next;
 	}
+	//Asteroid shoot bullet test
+
+
 	//---------------------------------------------------
 	//check keys pressed now
-	if (gl.keys[XK_Left]) {
-		g.ship.angle += 4.0;
-		if (g.ship.angle >= 360.0f)
-			g.ship.angle -= 360.0f;
+	g.ship.vel[0] = 0;//0.02f
+	g.ship.vel[1] = 0;
+	//Left
+	if (gl.keys[XK_a]) {
+		// g.ship.angle += 4.0;
+		// if (g.ship.angle >= 360.0f)
+		// 	g.ship.angle -= 360.0f;
+		g.ship.vel[0] = -7;
 	}
-	if (gl.keys[XK_Right]) {
-		g.ship.angle -= 4.0;
-		if (g.ship.angle < 0.0f)
-			g.ship.angle += 360.0f;
+	//Right
+	if (gl.keys[XK_d]) {
+		// g.ship.angle -= 4.0;
+		// if (g.ship.angle < 0.0f)
+		// 	g.ship.angle += 360.0f;
+		g.ship.vel[0] = 7;
 	}
-	if (gl.keys[XK_Up]) {
-		//apply thrust
-		//convert ship angle to radians
-		Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		g.ship.vel[0] += xdir*0.02f;
-		g.ship.vel[1] += ydir*0.02f;
-		Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-				g.ship.vel[1]*g.ship.vel[1]);
-		if (speed > 10.0f) {
-			speed = 10.0f;
-			normalize2d(g.ship.vel);
-			g.ship.vel[0] *= speed;
-			g.ship.vel[1] *= speed;
-		}
+	//Up
+	if (gl.keys[XK_w]) {
+		 //apply thrust
+		 //convert ship angle to radians
+	     //Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+		 //convert angle to a vector
+		 //Flt xdir = cos(rad);
+		 //Flt ydir = sin(rad);
+		 //g.ship.vel[0] += xdir*5; //0.02f
+		 //g.ship.vel[1] += ydir*5;
+		 // Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+			//  	g.ship.vel[1]*g.ship.vel[1]);
+		g.ship.vel[1] = 7;
+
+		// if (speed > 10.0f) {
+		// 	speed = 10.0f;
+		// 	normalize2d(g.ship.vel);
+		// 	g.ship.vel[0] *= speed;
+		// 	g.ship.vel[1] *= speed;
+		// }
 	}
+	//Down
+	if (gl.keys[XK_s]){
+		// //apply thrust
+		// //convert ship angle to radians
+		// Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+		// //convert angle to a vector
+		// Flt xdir = cos(rad);
+		// Flt ydir = sin(rad);
+		// g.ship.vel[0] -= xdir * 5;//0.02f
+		// g.ship.vel[1] -= ydir * 5;
+		// Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+		// 		g.ship.vel[1]*g.ship.vel[1]);
+		//
+		// if (speed > 10.0f) {
+		// 	speed = 10.0f;
+		// 	normalize2d(g.ship.vel);
+		// 	g.ship.vel[0] *= speed;
+		// 	g.ship.vel[1] *= speed;
+		// }
+		g.ship.vel[1] = -7;
+	}
+
 	if (gl.keys[XK_space]) {
 		//a little time between each bullet
 		struct timespec bt;
@@ -721,17 +760,17 @@ void physics()
 			g.mouseThrustOn = false;
 	}
 }
-void DrawCircle(float cx, float cy, float r, int num_segments) 
-{ 
-	glBegin(GL_LINE_LOOP); 
-	for(int ii = 0; ii < num_segments; ii++) 
-	{ 
-		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle 
-		float x = r * cosf(theta);//calculate the x component 
-		float y = r * sinf(theta);//calculate the y component 
-		glVertex2f(x + cx, y + cy);//output vertex 
-	} 
-	glEnd(); 
+void DrawCircle(float cx, float cy, float r, int num_segments)
+{
+	glBegin(GL_LINE_LOOP);
+	for(int ii = 0; ii < num_segments; ii++)
+	{
+		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+		float x = r * cosf(theta);//calculate the x component
+		float y = r * sinf(theta);//calculate the y component
+		glVertex2f(x + cx, y + cy);//output vertex
+	}
+	glEnd();
 }
 void show_credits()
 {
