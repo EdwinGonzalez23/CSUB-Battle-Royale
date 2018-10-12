@@ -5,15 +5,19 @@
 #include <GL/glx.h>
 #include "fonts.h"
 //Audio library
-//#include <AL/alut.h>
+#include <AL/alut.h>
 #include <unistd.h>
-
+#include <cstring>
 /*
 ###READ THIS###
 These audio functions work on my personal computer
 but I'd like to make sure everyone in the group
 can run them before further implementation/uncommenting.
 This code is being tested on another branch.
+ */
+
+//Declare these in global
+/*
 I also use several variables for sources instead of
 using an array as it makes the function calls easier
 to read (play_sound(bulletSound) vs. play_sound(src[i])).
@@ -39,7 +43,7 @@ alGenSources (1,&bgm);
 alSourcei (bulletSound, AL_BUFFER, buffers[0]);
 alSourcei (impactSound, AL_BUFFER, buffers[1]);
 alSourcei (bgm, AL_BUFFER, buffers[2]);
-thread tbgm(playBGM,bgm);
+thread tbgm(play_BGM,bgm);
 tbgm.detach();
 */
 /*
@@ -54,7 +58,44 @@ void setup_sound(Global &gl)
         alGenSources (1, &gl.bulletSound);
         alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
 }
+*/
+static int currentWeapon=1;
 
+void play_sound(ALuint src){
+	alSourcePlay (src);
+	sleep (1);
+}
+
+void setCurrentWeapon(int newWeapon){
+	currentWeapon=newWeapon;
+}
+
+int getCurrentWeapon(){
+	return currentWeapon;
+}
+
+void printCurrentWeapon(int weap, Rect r){
+	switch (weap){
+		case 1:
+			ggprint8b(&r,34,0x00ffff00, "Weapon mode: Pistol");
+			break;
+		case 2: 
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Rifle");
+			break;
+		case 3:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Shotgun");
+			break;
+		case 4:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Machine Gun");
+			break;
+		default:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Unknown");
+	}
+}
+
+/*
+void play_BGM(ALuint bgmSrc){
+}
 */
 /*
 void play_sound(ALuint src)
