@@ -7,7 +7,7 @@
 //Audio library
 #include <AL/alut.h>
 #include <unistd.h>
-
+#include <cstring>
 /*
 ###READ THIS###
 These audio functions work on my personal computer
@@ -40,12 +40,40 @@ thread tbgm(play_BGM,bgm);
 tbgm.detach();
 */
 
+static int currentWeapon=1;
 
 void play_sound(ALuint src){
-        alSourcePlay (src);
-        sleep (1);
-
+	alSourcePlay (src);
+	sleep (1);
 }
+
+void setCurrentWeapon(int newWeapon){
+	currentWeapon=newWeapon;
+}
+
+int getCurrentWeapon(){
+	return currentWeapon;
+}
+
+void printCurrentWeapon(int weap, Rect r){
+	switch (weap){
+		case 1:
+			ggprint8b(&r,34,0x00ffff00, "Weapon mode: Pistol");
+			break;
+		case 2: 
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Rifle");
+			break;
+		case 3:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Shotgun");
+			break;
+		case 4:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Machine Gun");
+			break;
+		default:
+			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Unknown");
+	}
+}
+
 /*
 void play_BGM(ALuint bgmSrc){
         while(1){
