@@ -368,6 +368,9 @@ extern void play_sound(ALuint src);
 extern void setCurrentWeapon(int newWeapon);
 extern void printCurrentWeapon(int weapon, Rect r);
 extern int getCurrentWeapon();
+extern void health_bar(int x, int y);
+extern void damagePlayer();
+extern void healPlayer();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -866,6 +869,7 @@ void firePistol(){
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
 	if(ts>0.2){
+	    	damagePlayer();
 		timeCopy(&g.bulletTimer, &bt);
                 if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
@@ -900,6 +904,7 @@ void fireRifle(){
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
 	if(ts>0.5){
+	    	healPlayer();
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
@@ -1054,7 +1059,7 @@ void render()
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
-	r.bot = gl.yres - 20;
+	r.bot = gl.yres - 45;
 	r.left = 10;
 	r.center = 0;
 extern int  getCreditState();
@@ -1076,6 +1081,7 @@ extern int  getCreditState();
 	//	extern void art_picture(int x, int y, GLuint textid);
 	//	art_picture(200,gl.yres-100,gl.artTexture);
 	} else{
+		health_bar(gl.xres,gl.yres);
 		ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
 		ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
