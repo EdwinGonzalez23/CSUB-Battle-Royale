@@ -60,6 +60,66 @@ void setup_sound(Global &gl)
 }
 */
 static int currentWeapon=1;
+static int playerMaxHP = 100;
+static int playerCurrentHP = 100;
+static int playerHPMissing = 0;
+static bool playerAliveStatus = 1;
+
+bool playerIsAlive()
+{
+	return playerAliveStatus;
+}
+
+void killPlayer()
+{
+	playerAliveStatus=0;
+	std::cout<<"You Died!\n";
+}
+void setPlayerHPMissing()
+{
+	playerHPMissing = playerMaxHP-playerCurrentHP;
+}
+
+void damagePlayer()
+{
+	playerCurrentHP-=10;
+	playerHPMissing+=10;
+	if(playerCurrentHP<=0){
+		killPlayer();
+	}
+}
+
+void healPlayer(){
+	playerCurrentHP=playerMaxHP;
+	playerHPMissing=0;
+}
+
+void health_bar(int x,int y)
+{
+	//Current Player HP
+	glColor3f(0,1,0.3f);
+	glPushMatrix();
+	glTranslatef(0, 0, 0);
+	glBegin(GL_QUAD_STRIP);
+	glVertex2f(10,y);
+	glVertex2f(10, y-30);
+	glVertex2f(310, y);
+	glVertex2f(310,y-30);
+	glEnd();
+	glPopMatrix();
+	//Current MISSING player HP
+	glColor3f(0.5f,0,0);
+	glPushMatrix();
+	glTranslatef(0, 0, 0);
+	glBegin(GL_QUAD_STRIP);
+	glVertex2f(310-playerHPMissing*3,y);
+	glVertex2f(310-playerHPMissing*3, y-30);
+	glVertex2f(310, y);
+	glVertex2f(310,y-30);
+	glEnd();
+	glPopMatrix();
+}
+
 
 void play_sound(ALuint src){
 	alSourcePlay (src);
