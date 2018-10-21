@@ -105,8 +105,8 @@ public:
    unlink(ppmname);                                                                                                                                                                                                                                                                                                  
   }
 };
-Image img[6]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
-	"crate2.png"};
+Image img[8]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+	"rCrate2.jpg","sCrate2.jpg","mgCrate2.jpg"};
 
 
 
@@ -117,7 +117,9 @@ class Global {
 	    GLuint joelTexture;
 	    GLuint andrewTexture;
 	    GLuint edwinTexture;
-	    GLuint akTexture;
+	    GLuint rTexture;
+	    GLuint sTexture;
+	    GLuint mgTexture;
 	    //Store sound sources here.
 	    ALuint bulletSound;
 	    ALuint buffers[1];
@@ -376,11 +378,22 @@ extern void damagePlayer();
 extern void healPlayer();
 extern void gunSpawnManager(struct timespec &it);
 extern void timeInit(struct timespec &it);
-extern void genBox(GLuint texture);
+extern void genRifle(GLuint texture);
+extern void genShotgun(GLuint texture);
+extern void genMachineGun(GLuint texture);
 extern void setItemBoundary(int x, int y);
-extern bool boxIsOnScreen();
-extern void getBoxPosition(int x[2]);
-extern void pickUpBox();
+extern bool rifleIsOnScreen();
+extern bool shotgunIsOnScreen();
+extern bool machineGunIsOnScreen();
+extern void getRiflePosition(int x[2]);
+extern void getShotgunPosition(int x[2]);
+extern void getMachineGunPosition(int x[2]);
+extern void pickUpRifle();
+extern void pickUpShotgun();
+extern void pickUpMachineGun();
+extern bool doesPlayerHaveRifle();
+extern bool doesPlayerHaveShotgun();
+extern bool doesPlayerHaveMachineGun();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -412,18 +425,38 @@ int main()
 }
 void init_opengl()
 {
-//AK TEXTURE
-   glGenTextures(1,&gl.akTexture);
+//RIFLE TEXTURE
+   glGenTextures(1,&gl.rTexture);
    int w = img[5].width;
    int h = img[5].height;
-   glBindTexture(GL_TEXTURE_2D, gl.akTexture);
+   glBindTexture(GL_TEXTURE_2D, gl.rTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
    GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
 
+//SHOTGUN TEXTURE
+   glGenTextures(1,&gl.sTexture);
+   w = img[6].width;
+   h = img[6].height;
+   glBindTexture(GL_TEXTURE_2D, gl.sTexture);
 
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[6].data);
+
+//MACHINE GUN TEXTURE
+   glGenTextures(1,&gl.mgTexture);
+   w = img[7].width;
+   h = img[7].height;
+   glBindTexture(GL_TEXTURE_2D, gl.mgTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
 
 
 // ART TEXTURE
@@ -633,13 +666,19 @@ int check_keys(XEvent *e)
 			setCurrentWeapon(1);
 			break;
 		case XK_2:
-			setCurrentWeapon(2);
+			if(doesPlayerHaveRifle()){
+				setCurrentWeapon(2);
+			}
 			break;
 		case XK_3:
-			setCurrentWeapon(3);
+			if(doesPlayerHaveShotgun()){
+				setCurrentWeapon(3);
+			}
 			break;
 		case XK_4:
-			setCurrentWeapon(4);
+			if(doesPlayerHaveMachineGun()){
+				setCurrentWeapon(4);
+			}
 			break;
 	}
 	return 0;
@@ -715,17 +754,33 @@ void physics()
 		g.ship.pos[1] -= (float)gl.yres;
 	}
 
-	//Check for collisions with powerups.
+	//Check for collisions with weapon boxes.
 	int boxLoc[2];
-	getBoxPosition(boxLoc);
-	cout<<"Box"<<boxLoc[0]<<" ";
-	cout<<boxLoc[1]<<endl;
-	cout<<"Ship"<<g.ship.pos[0]<<" ";
-        cout<<g.ship.pos[1]<<endl;;
-	
-	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
-	   (g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
-		pickUpBox();
+	if(rifleIsOnScreen()){
+		getRiflePosition(boxLoc);
+		
+		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+	   	(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+			pickUpRifle();
+		}
+	}
+
+	if(shotgunIsOnScreen()){
+		getShotgunPosition(boxLoc);
+
+		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+		(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+			pickUpShotgun();
+		}
+	}
+
+	if(machineGunIsOnScreen()){
+		getMachineGunPosition(boxLoc);
+
+		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+		(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+			pickUpMachineGun();
+		}
 	}
 
 	//
@@ -1089,7 +1144,7 @@ void show_credits()
 	bryan_credits(gl.xres/2,((gl.yres/2)+60+75));
 	bryan_picture(400, 200, gl.bryanTexture);
 	joel_credits(gl.xres/2,((gl.yres/2)+80+75));
-	joel_picture(500, 300, gl.akTexture);
+	joel_picture(500, 300, gl.sTexture);
 }
 void render()
 {
@@ -1127,7 +1182,9 @@ extern int  getCreditState();
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i ",g.astr_destroyed);
 		printCurrentWeapon(getCurrentWeapon(),r);
 		gunSpawnManager(g.itemTimer);
-		genBox(gl.akTexture);
+		genRifle(gl.rTexture);
+		genShotgun(gl.sTexture);
+		genMachineGun(gl.mgTexture);
 		//-------------
 		//Draw the ship
 		glColor3fv(g.ship.color);

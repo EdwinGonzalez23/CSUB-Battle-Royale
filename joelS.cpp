@@ -1,14 +1,16 @@
 //joelS.cpp
 //Author: Joel Staggs
 
+
+//I am using ALL of these.
+
+//Debugging
 #include <iostream>
 #include <GL/glx.h>
 #include "fonts.h"
-//Audio library
 #include <AL/alut.h>
+//Sleep function.
 #include <unistd.h>
-#include <cstring>
-#include <vector>
 static int currentWeapon=1;
 static int playerMaxHP = 100;
 static int playerCurrentHP = 100;
@@ -16,58 +18,113 @@ static int playerHPMissing = 0;
 static bool playerAliveStatus = 1;
 static int xBoundary = 0;
 static int yBoundary = 0;
-static int itemPosX = 0;
-static int itemPosY = 0;
-static bool boxSpawned = 0;
-static bool boxOnScreen = 0;
+//Item Locations.
+static int riflePosX = 0;
+static int riflePosY = 0;
+static int shotgunPosX = 0;
+static int shotgunPosY = 0;
+static int machineGunPosX = 0;
+static int machineGunPosY = 0;
+static int gunsSpawned = 0;
+static bool rifleOnScreen = 0;
+static bool shotgunOnScreen = 0;
+static bool machineGunOnScreen = 0;
+//Player's Stats.
+static bool playerHasRifle = 0;
+static bool playerHasShotgun = 0;
+static bool playerHasMachineGun = 0;
 static struct timespec currentItemTime;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 
 
-
-void setItemBoundary(int x, int y){
+//Vim defaults to an indentation of 8,
+//So I'm using that.
+void setItemBoundary(int x, int y)
+{
 	xBoundary = x;
 	yBoundary = y;
 }
 
-void setItemLocation(){
-	itemPosX = rand() % (xBoundary-50);
-	itemPosY = rand() % (yBoundary-50);
+void setGunLocation(int &x, int &y)
+{
+	x = rand() % (xBoundary-300)+50;
+	y = rand() % (yBoundary-300)+50;
 }
 
-void getBoxPosition(int x[2]){
-	x[0] = itemPosX;
-	x[1] = itemPosY;	
+void getRiflePosition(int x[2])
+{
+	x[0] = riflePosX;
+	x[1] = riflePosY;	
 }
 
-bool boxIsOnScreen(){
-	return boxOnScreen;	
+void getShotgunPosition(int x[2])
+{
+	x[0] = shotgunPosX;
+	x[1] = shotgunPosY;
 }
 
-void pickUpBox(){
-	boxOnScreen=0;
+void getMachineGunPosition(int x[2])
+{
+	x[0] = machineGunPosX;
+	x[1] = machineGunPosY;
 }
 
-void genBox(GLuint texture){
-	if(boxOnScreen==1){
-		/*
-		glColor3f(1.0f,1.0f,1.0f);
-		glPushMatrix();
-		glTranslatef(0, 0, 0);
-		glBegin(GL_QUAD_STRIP);
-		glVertex2f(itemPosX,itemPosY+50);
-		glVertex2f(itemPosX,itemPosY);
-		glVertex2f(itemPosX+50,itemPosY+50);
-		glVertex2f(itemPosX+50,itemPosY);
-		glEnd();
-		glPopMatrix();
-		*/
+bool rifleIsOnScreen()
+{
+	return rifleOnScreen;	
+}
 
+bool shotgunIsOnScreen()
+{
+	return shotgunOnScreen;
+}
+
+bool machineGunIsOnScreen()
+{
+	return machineGunOnScreen;
+}
+
+bool doesPlayerHaveRifle()
+{
+	return playerHasRifle;
+}
+
+bool doesPlayerHaveShotgun()
+{
+	return playerHasShotgun;
+}
+
+bool doesPlayerHaveMachineGun()
+{
+	return playerHasMachineGun;
+}
+
+void pickUpRifle()
+{
+	rifleOnScreen = 0;
+	playerHasRifle = 1;
+}
+
+void pickUpShotgun()
+{
+	shotgunOnScreen = 0;
+	playerHasShotgun = 1;
+}
+
+void pickUpMachineGun()
+{
+	machineGunOnScreen = 0;
+	playerHasMachineGun = 1;
+}
+
+void genRifle(GLuint texture)
+{
+	if (rifleOnScreen == 1) {
 		glColor3ub(255,255,255);
 		int wid=25;
 		glPushMatrix();
-		glTranslatef(itemPosX,itemPosY,0);
+		glTranslatef(riflePosX,riflePosY,0);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
@@ -78,6 +135,43 @@ void genBox(GLuint texture){
 		glPopMatrix();
 	}
 }
+
+void genShotgun(GLuint texture)
+{
+        if (shotgunOnScreen == 1) {
+                glColor3ub(255,255,255);
+                int wid=25;
+                glPushMatrix();
+                glTranslatef(shotgunPosX,shotgunPosY,0);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+                glEnd();
+                glPopMatrix();
+        }
+}
+
+void genMachineGun(GLuint texture){
+        if (machineGunOnScreen == 1) {
+                glColor3ub(255,255,255);
+                int wid=25;
+                glPushMatrix();
+                glTranslatef(machineGunPosX,machineGunPosY,0);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+                glEnd();
+                glPopMatrix();
+        }
+}
+
+
 //This makes sure that the timers have a short gap at runtime.
 void timeInit(struct timespec &lastItemTime){
 	clock_gettime(CLOCK_REALTIME, &currentItemTime);
@@ -87,14 +181,27 @@ void timeInit(struct timespec &lastItemTime){
 void gunSpawnManager(struct timespec &lastItemTime){
 	clock_gettime(CLOCK_REALTIME, &currentItemTime);
 	double timeDifference = timeDiff(&lastItemTime, &currentItemTime);
-	std::cout<<timeDifference<<std::endl;
-	if(timeDifference>3){
+	//std::cout<<timeDifference<<std::endl;
+	if (timeDifference > 3) {
 		timeCopy(&lastItemTime, &currentItemTime);
-		if(!boxOnScreen&&!boxSpawned){
-			boxSpawned=1;
-			setItemLocation();
-			boxOnScreen=1;
+		switch (gunsSpawned) {
+			case 0:
+				setGunLocation(riflePosX, riflePosY);
+				rifleOnScreen = 1;
+				break;
+			case 1:
+				setGunLocation(shotgunPosX, shotgunPosY);
+				shotgunOnScreen = 1;
+				break;
+			case 2:
+				setGunLocation(machineGunPosX,machineGunPosY);
+				machineGunOnScreen = 1;
+				break;
+			default:
+				break;
+
 		}
+		gunsSpawned++;
 	}
 }
 
@@ -122,7 +229,8 @@ void damagePlayer()
 	}
 }
 
-void healPlayer(){
+void healPlayer()
+{
 	playerCurrentHP=playerMaxHP;
 	playerHPMissing=0;
 }
@@ -130,13 +238,13 @@ void healPlayer(){
 void health_bar(int x,int y)
 {
 	//Current Player HP
-	glColor3f(0,1,0.3f);
+	glColor3f((double)playerHPMissing*.08,(double)playerCurrentHP*.01,.4f);
 	glPushMatrix();
 	glTranslatef(0, 0, 0);
 	glBegin(GL_QUAD_STRIP);
-	glVertex2f(10,y);
+	glVertex2f(10,y-10);
 	glVertex2f(10, y-30);
-	glVertex2f(310, y);
+	glVertex2f(310, y-10);
 	glVertex2f(310,y-30);
 	glEnd();
 	glPopMatrix();
@@ -145,30 +253,34 @@ void health_bar(int x,int y)
 	glPushMatrix();
 	glTranslatef(0, 0, 0);
 	glBegin(GL_QUAD_STRIP);
-	glVertex2f(310-playerHPMissing*3,y);
+	glVertex2f(310-playerHPMissing*3,y-10);
 	glVertex2f(310-playerHPMissing*3, y-30);
-	glVertex2f(310, y);
+	glVertex2f(310, y-10);
 	glVertex2f(310,y-30);
 	glEnd();
 	glPopMatrix();
 }
 
 
-void play_sound(ALuint src){
+void play_sound(ALuint src)
+{
 	alSourcePlay (src);
 	sleep (1);
 }
 
-void setCurrentWeapon(int newWeapon){
+void setCurrentWeapon(int newWeapon)
+{
 	currentWeapon=newWeapon;
 }
 
-int getCurrentWeapon(){
+int getCurrentWeapon()
+{
 	return currentWeapon;
 }
 
-void printCurrentWeapon(int weap, Rect r){
-	switch (weap){
+void printCurrentWeapon(int weap, Rect r)
+{
+	switch (weap) {
 		case 1:
 			ggprint8b(&r,34,0x00ffff00, "Weapon mode: Pistol");
 			break;
@@ -187,10 +299,6 @@ void printCurrentWeapon(int weap, Rect r){
 }
 
 /*
-void play_BGM(ALuint bgmSrc){
-}
-*/
-/*
 void play_sound(ALuint src)
 {
         alSourcePlay (src);
@@ -205,12 +313,6 @@ void play_BGM(ALuint bgmSrc)
         }
 }
 */
-//Put these in global scope with other prototypes.
-//extern void play_BGM(ALuint bgmSrc);
-//extern void play_sound(ALuint src);
-
-
-
 //Function required for lab 5
 void joel_credits(int x, int y)
 {
