@@ -8,62 +8,95 @@
 #include <AL/alut.h>
 #include <unistd.h>
 #include <cstring>
-/*
-###READ THIS###
-These audio functions work on my personal computer
-but I'd like to make sure everyone in the group
-can run them before further implementation/uncommenting.
-This code is being tested on another branch.
- */
-
-//Declare these in global
-/*
-I also use several variables for sources instead of
-using an array as it makes the function calls easier
-to read (play_sound(bulletSound) vs. play_sound(src[i])).
- */
-
-//Declare these globally.
-/*
-ALuint bulletSound;
-ALuint impactSound;
-ALuint bgm;
-ALuint buffers[3];
-*/
-
-//Declare this in main(), easy to implement but cluttered.
-/*
-alutInit (NULL, NULL);
-buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
-buffers[1] = alutCreateBufferFromFile ("./audio/impact.wav");
-buffers[2] = alutCreateBufferFromFile ("./audio/RaveOnRevised.wav");
-alGenSources (1, &impactSound);
-alGenSources (1, &bulletSound);
-alGenSources (1,&bgm);
-alSourcei (bulletSound, AL_BUFFER, buffers[0]);
-alSourcei (impactSound, AL_BUFFER, buffers[1]);
-alSourcei (bgm, AL_BUFFER, buffers[2]);
-thread tbgm(play_BGM,bgm);
-tbgm.detach();
-*/
-/*
-OR use this cleaner solution,
-it requires adding the ALuints into Global gl
-but results in a much more organized main.
-Put this in csub.cpp and run it in main().
-void setup_sound(Global &gl)
-{
-        alutInit (NULL, NULL);
-        gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
-        alGenSources (1, &gl.bulletSound);
-        alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
-}
-*/
+#include <vector>
 static int currentWeapon=1;
 static int playerMaxHP = 100;
 static int playerCurrentHP = 100;
 static int playerHPMissing = 0;
 static bool playerAliveStatus = 1;
+static int xBoundary = 0;
+static int yBoundary = 0;
+static int itemPosX = 0;
+static int itemPosY = 0;
+static bool boxSpawned = 0;
+static bool boxOnScreen = 0;
+static struct timespec currentItemTime;
+extern double timeDiff(struct timespec *start, struct timespec *end);
+extern void timeCopy(struct timespec *dest, struct timespec *source);
+
+
+
+void setItemBoundary(int x, int y){
+	xBoundary = x;
+	yBoundary = y;
+}
+
+void setItemLocation(){
+	itemPosX = rand() % (xBoundary-50);
+	itemPosY = rand() % (yBoundary-50);
+}
+
+void getBoxPosition(int x[2]){
+	x[0] = itemPosX;
+	x[1] = itemPosY;	
+}
+
+bool boxIsOnScreen(){
+	return boxOnScreen;	
+}
+
+void pickUpBox(){
+	boxOnScreen=0;
+}
+
+void genBox(GLuint texture){
+	if(boxOnScreen==1){
+		/*
+		glColor3f(1.0f,1.0f,1.0f);
+		glPushMatrix();
+		glTranslatef(0, 0, 0);
+		glBegin(GL_QUAD_STRIP);
+		glVertex2f(itemPosX,itemPosY+50);
+		glVertex2f(itemPosX,itemPosY);
+		glVertex2f(itemPosX+50,itemPosY+50);
+		glVertex2f(itemPosX+50,itemPosY);
+		glEnd();
+		glPopMatrix();
+		*/
+
+		glColor3ub(255,255,255);
+		int wid=25;
+		glPushMatrix();
+		glTranslatef(itemPosX,itemPosY,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+		glEnd();
+		glPopMatrix();
+	}
+}
+//This makes sure that the timers have a short gap at runtime.
+void timeInit(struct timespec &lastItemTime){
+	clock_gettime(CLOCK_REALTIME, &currentItemTime);
+	timeCopy(&lastItemTime, &currentItemTime);	
+}
+
+void gunSpawnManager(struct timespec &lastItemTime){
+	clock_gettime(CLOCK_REALTIME, &currentItemTime);
+	double timeDifference = timeDiff(&lastItemTime, &currentItemTime);
+	std::cout<<timeDifference<<std::endl;
+	if(timeDifference>3){
+		timeCopy(&lastItemTime, &currentItemTime);
+		if(!boxOnScreen&&!boxSpawned){
+			boxSpawned=1;
+			setItemLocation();
+			boxOnScreen=1;
+		}
+	}
+}
 
 bool playerIsAlive()
 {
