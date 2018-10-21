@@ -32,8 +32,8 @@ void setItemBoundary(int x, int y){
 }
 
 void setItemLocation(){
-	itemPosX = rand() % xBoundary;
-	itemPosY = rand() % yBoundary;
+	itemPosX = rand() % (xBoundary-50);
+	itemPosY = rand() % (yBoundary-50);
 }
 
 void getBoxPosition(int x[2]){
@@ -49,8 +49,9 @@ void pickUpBox(){
 	boxOnScreen=0;
 }
 
-void genBox(){
+void genBox(GLuint texture){
 	if(boxOnScreen==1){
+		/*
 		glColor3f(1.0f,1.0f,1.0f);
 		glPushMatrix();
 		glTranslatef(0, 0, 0);
@@ -59,6 +60,20 @@ void genBox(){
 		glVertex2f(itemPosX,itemPosY);
 		glVertex2f(itemPosX+50,itemPosY+50);
 		glVertex2f(itemPosX+50,itemPosY);
+		glEnd();
+		glPopMatrix();
+		*/
+
+		glColor3ub(255,255,255);
+		int wid=25;
+		glPushMatrix();
+		glTranslatef(itemPosX,itemPosY,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
 		glEnd();
 		glPopMatrix();
 	}

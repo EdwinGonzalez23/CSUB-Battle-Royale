@@ -105,7 +105,8 @@ public:
    unlink(ppmname);                                                                                                                                                                                                                                                                                                  
   }
 };
-Image img[5]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg"};
+Image img[6]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+	"crate2.png"};
 
 
 
@@ -116,6 +117,7 @@ class Global {
 	    GLuint joelTexture;
 	    GLuint andrewTexture;
 	    GLuint edwinTexture;
+	    GLuint akTexture;
 	    //Store sound sources here.
 	    ALuint bulletSound;
 	    ALuint buffers[1];
@@ -374,7 +376,7 @@ extern void damagePlayer();
 extern void healPlayer();
 extern void gunSpawnManager(struct timespec &it);
 extern void timeInit(struct timespec &it);
-extern void genBox();
+extern void genBox(GLuint texture);
 extern void setItemBoundary(int x, int y);
 extern bool boxIsOnScreen();
 extern void getBoxPosition(int x[2]);
@@ -410,11 +412,25 @@ int main()
 }
 void init_opengl()
 {
+//AK TEXTURE
+   glGenTextures(1,&gl.akTexture);
+   int w = img[5].width;
+   int h = img[5].height;
+   glBindTexture(GL_TEXTURE_2D, gl.akTexture);
+
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+   GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
+
+
+
+
 // ART TEXTURE
    //
    glGenTextures(1,&gl.artTexture);
-   int w = img[0].width;
-   int h = img[0].height;
+   w = img[0].width;
+   h = img[0].height;
    glBindTexture(GL_TEXTURE_2D, gl.artTexture);
 
    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -707,8 +723,8 @@ void physics()
 	cout<<"Ship"<<g.ship.pos[0]<<" ";
         cout<<g.ship.pos[1]<<endl;;
 	
-	if((g.ship.pos[0]>=boxLoc[0]&&g.ship.pos[0]<=boxLoc[0]+50)&&
-	   (g.ship.pos[1]>=boxLoc[1]&&g.ship.pos[1]<=boxLoc[1]+50)){
+	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+	   (g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
 		pickUpBox();
 	}
 
@@ -1073,7 +1089,7 @@ void show_credits()
 	bryan_credits(gl.xres/2,((gl.yres/2)+60+75));
 	bryan_picture(400, 200, gl.bryanTexture);
 	joel_credits(gl.xres/2,((gl.yres/2)+80+75));
-	joel_picture(500, 300, gl.joelTexture);
+	joel_picture(500, 300, gl.akTexture);
 }
 void render()
 {
@@ -1111,7 +1127,7 @@ extern int  getCreditState();
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i ",g.astr_destroyed);
 		printCurrentWeapon(getCurrentWeapon(),r);
 		gunSpawnManager(g.itemTimer);
-		genBox();
+		genBox(gl.akTexture);
 		//-------------
 		//Draw the ship
 		glColor3fv(g.ship.color);
