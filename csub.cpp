@@ -183,6 +183,7 @@ class Game {
 		int nasteroids;
 		int nbullets;
 		struct timespec bulletTimer;
+		struct timespec itemTimer;
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 	public:
@@ -371,6 +372,13 @@ extern int getCurrentWeapon();
 extern void health_bar(int x, int y);
 extern void damagePlayer();
 extern void healPlayer();
+extern void gunSpawnManager(struct timespec &it);
+extern void timeInit(struct timespec &it);
+extern void genBox();
+extern void setItemBoundary(int x, int y);
+extern bool boxIsOnScreen();
+extern void getBoxPosition(int x[2]);
+extern void pickUpBox();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -381,8 +389,9 @@ int main()
 	srand(time(NULL));
 	x11.set_mouse_position(100, 100);
 	setup_sound(gl);
+	timeInit(g.itemTimer);
+	setItemBoundary(gl.xres,gl.yres);
 	int done=0;
-	
 	while (!done) {
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
@@ -689,6 +698,20 @@ void physics()
 	else if (g.ship.pos[1] > (float)gl.yres) {
 		g.ship.pos[1] -= (float)gl.yres;
 	}
+
+	//Check for collisions with powerups.
+	int boxLoc[2];
+	getBoxPosition(boxLoc);
+	cout<<"Box"<<boxLoc[0]<<" ";
+	cout<<boxLoc[1]<<endl;
+	cout<<"Ship"<<g.ship.pos[0]<<" ";
+        cout<<g.ship.pos[1]<<endl;;
+	
+	if((g.ship.pos[0]>=boxLoc[0]&&g.ship.pos[0]<=boxLoc[0]+50)&&
+	   (g.ship.pos[1]>=boxLoc[1]&&g.ship.pos[1]<=boxLoc[1]+50)){
+		pickUpBox();
+	}
+
 	//
 	//Update bullet positions
 	struct timespec bt;
@@ -1087,6 +1110,8 @@ extern int  getCreditState();
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 		ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i ",g.astr_destroyed);
 		printCurrentWeapon(getCurrentWeapon(),r);
+		gunSpawnManager(g.itemTimer);
+		genBox();
 		//-------------
 		//Draw the ship
 		glColor3fv(g.ship.color);
@@ -1174,3 +1199,5 @@ extern int  getCreditState();
 		}
 	}
 }
+
+
