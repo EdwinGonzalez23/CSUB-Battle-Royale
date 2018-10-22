@@ -177,7 +177,7 @@ class Game {
 		int nbullets;
 		int astBull;
 		struct timespec bulletTimer;
-		struct timespec enemyBulletTimer;
+		struct timespec enemyBulletTimer[3];
 		struct timespec mouseThrustTimer;
 		bool mouseThrustOn;
 	public:
@@ -224,7 +224,7 @@ class Game {
 				++nasteroids;
 			}
 			clock_gettime(CLOCK_REALTIME, &bulletTimer);
-			clock_gettime(CLOCK_REALTIME, &enemyBulletTimer);
+			clock_gettime(CLOCK_REALTIME, &enemyBulletTimer[3]);
 		}
 		~Game() {
 			delete [] barr;
@@ -297,8 +297,8 @@ class X11_wrapper {
 			set_title();
 		}
 		void setup_screen_res(const int w, const int h) {
-			gl.xres = w;
-			gl.yres = h;
+			gl.xres = w + 1000;
+			gl.yres = h + 1000;
 		}
 		void swapBuffers() {
 			glXSwapBuffers(dpy, win);
@@ -721,9 +721,10 @@ void physics()
 	extern float setTrigger(float, float, float, float);
 	float angleLockOn, trigger;
 	float accuracy = 90;
-	float triggerDist = 200;
+	float triggerDist = 600;
 	Asteroid *a = g.ahead;
 	a->angle = unitLock(a->angle);
+	int k = 0;
 	while (a) {
 		a->pos[0] += a->vel[0];
 		a->pos[1] += a->vel[1];
@@ -749,9 +750,9 @@ void physics()
 			angleLockOn = lockOnAngle(g.ship.pos[0], a->pos[0], g.ship.pos[1], a->pos[1]);
 			a->angle = angleLockOn - accuracy;
 			//a little time between each bullet
-			double ts = timeDiff(&g.enemyBulletTimer, &bt);
+			double ts = timeDiff(&g.enemyBulletTimer[3], &bt);
 			if (ts > 0.1) {
-				timeCopy(&g.enemyBulletTimer, &bt);
+				timeCopy(&g.enemyBulletTimer[k], &bt);
 				if (g.astBull < MAX_BULLETS) {
 					//shoot a bullet...
 					timeCopy(&bAst->time, &bt);
@@ -776,7 +777,7 @@ void physics()
 					if (g.astBull == MAX_BULLETS) {
 						g.astBull = 0;
 					}
-				}
+				} k++;
 			}
 		}
 			a = a->next;
@@ -996,7 +997,7 @@ extern int  getCreditState();
 		glEnd();
 		glPopMatrix();
         extern void character(int x, int y, int z, float angle, GLuint texid);
-        character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterTexture);
+       // character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterTexture);
 		if (gl.keys[XK_Up] || g.mouseThrustOn) {
 			int i;
 			//draw thrust
