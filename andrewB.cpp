@@ -28,9 +28,9 @@ void andrew_picture(int x, int y, GLuint texid)
 }
 void character(int x, int y, int z, float angle, GLuint texid)
 {
-    glColor3ub(255, 255, 255);
-    int w = 50;
     glPushMatrix();
+    glColor3ub(255, 255, 255);
+    int w = 50; 
 	glTranslatef(x, y, z);
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
     glBindTexture(GL_TEXTURE_2D, texid);

@@ -1,6 +1,9 @@
 //Arturo Urbina
 //date:September 25, 2018
 //defined variables and functions to toggle Credits
+//TO DO LIST:
+//	Add functions to  create random objects
+//	Add function for player health.
 #include <iostream>
 #include <GL/glu.h>
 #include "fonts.h"
@@ -21,7 +24,6 @@ void  art_credits(int x, int y)
 	r.left=x;
 	ggprint8b(&r,16,0x00FFFF00,"Arturo Urbina");
 }
-
 void art_picture(int x,int y,GLuint textid)
 {
 	static float angle=0.0f;
