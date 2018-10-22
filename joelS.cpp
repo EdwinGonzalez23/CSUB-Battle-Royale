@@ -261,7 +261,6 @@ void health_bar(int x,int y)
 	glPopMatrix();
 }
 
-
 void play_sound(ALuint src)
 {
 	alSourcePlay (src);
@@ -297,7 +296,6 @@ void printCurrentWeapon(int weap, Rect r)
 			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Unknown");
 	}
 }
-
 /*
 void play_sound(ALuint src)
 {
@@ -316,6 +314,7 @@ void play_BGM(ALuint bgmSrc)
 //Function required for lab 5
 void joel_credits(int x, int y)
 {
+
         Rect r;
         r.bot = y;
         r.left = x;
