@@ -9,10 +9,10 @@
 #include <math.h>
 
 void edwin_credits(int x, int y) {
-	Rect r;
+    Rect r;
     r.bot = y;
-	r.left = x;
-	ggprint8b(&r, 16, 0x00ff0000, "Edwin Gonzalez");
+    r.left = x;
+    ggprint8b(&r, 16, 0x00ff0000, "Edwin Gonzalez");
 }
 void edwin_picture(int x, int y, GLuint texture)
 {
@@ -33,64 +33,64 @@ void edwin_picture(int x, int y, GLuint texture)
 
 int checkDistApart(int X1, int X2, int Y1, int Y2)
 {
-		//int X1, X2, Y1, Y2;
-		int X = abs(X2 - X1);
-		int Y = abs(Y2 - Y1);
-		return sqrt((pow(X, 2)) - (pow(Y, 2)));
+    //int X1, X2, Y1, Y2;
+    int X = abs(X2 - X1);
+    int Y = abs(Y2 - Y1);
+    return sqrt((pow(X, 2)) - (pow(Y, 2)));
 }
 
 float moveDownSpeed()
 {
-	return -7.0f;
+    return -7.0f;
 }
 
 float moveUpSpeed()
 {
-	return 7.0f;
+    return 7.0f;
 }
 
 float moveLeftSpeed()
 {
-	return -7.0f;
+    return -7.0f;
 }
 
 float moveRightSpeed()
 {
-	return 7.0f;
+    return 7.0f;
 }
 
 float unitLock(float angle)
 {
-	if (angle >= 360.0f)
-		return angle - 360.0f;
+    if (angle >= 360.0f)
+	return angle - 360.0f;
 }
 
 float lockOnAngle(float xShipPos, float xAstPos, float yShipPos, float yAstPos)
 {
-	float x = (xShipPos - xAstPos);
-	float y = (yShipPos - yAstPos);
-	float divTan = (y/x);
-	float lockOnAngle;
-	if (x < 0 && y >= 0) {
-		lockOnAngle = (atan(divTan) * 180 / 3.1415) + 180;
-	}
-	else if (x < 0 && y < 0) {
-		lockOnAngle = (atan(divTan) * 180 / 3.1415) + 180;
-	}
-	else if (x >= 0 && y <= 0) {
-		lockOnAngle = (atan(divTan) * 180 / 3.1415) + 360;
-	} else {
-		lockOnAngle = abs(atan(divTan) * 180 / 3.1415);
-	}
-	return lockOnAngle;
+    float x = (xShipPos - xAstPos);
+    float y = (yShipPos - yAstPos);
+    float divTan = (y/x);
+    float lockOnAngle;
+    if (x < 0 && y >= 0) {
+	lockOnAngle = (atan(divTan) * 180 / 3.1415) + 180;
+    }
+    else if (x < 0 && y < 0) {
+	lockOnAngle = (atan(divTan) * 180 / 3.1415) + 180;
+    }
+    else if (x >= 0 && y <= 0) {
+	lockOnAngle = (atan(divTan) * 180 / 3.1415) + 360;
+    } else {
+	lockOnAngle = abs(atan(divTan) * 180 / 3.1415);
+    }
+    return lockOnAngle;
 }
 
 float setTrigger(float xAstPos, float yAstPos, float xShipPos, float yShipPos)
 {
-	float astXY, shipXY, trigger;
- 	astXY = xAstPos + yAstPos;
-	shipXY = xShipPos + yShipPos;
-	return trigger = abs(astXY - shipXY);
+    float astXY, shipXY, trigger;
+    astXY = xAstPos + yAstPos;
+    shipXY = xShipPos + yShipPos;
+    return trigger = abs(astXY - shipXY);
 }
 
 
