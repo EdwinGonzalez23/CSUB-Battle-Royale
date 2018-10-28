@@ -26,7 +26,7 @@
 #include "csub.h"
 using namespace std;
 Image img[8]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
-	"rCrate2.jpg","sCrate2.jpg","mgCrate2.jpg"};
+	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -405,7 +405,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 }
 void physics()
 {
-	Flt d0,d1,dist;
+	//Flt d0,d1,dist;
 	//Update ship position
 	g.ship.pos[0] += g.ship.vel[0];
 	g.ship.pos[1] += g.ship.vel[1];
@@ -814,29 +814,29 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 void show_credits()
 {
 	Rect r;
-	r.bot=(gl.yres/2)+100+75;
-	r.left=gl.xres/2+75;
+	r.bot=(gl.yres/5)+600;
+	r.left=gl.xres/2;
 	ggprint16(&r, 16, 0x00ff0000, "Members:");
 	extern void art_credits(int x, int y);
 	extern void edwin_credits(int x, int y);
 	extern void andrew_credits(int x, int y);
 	extern void bryan_credits(int x, int y);
 	extern void joel_credits(int x, int y);
-	art_credits( gl.xres/2,gl.yres/2-230);
+	art_credits( gl.xres/2-100,gl.yres/5+500);
 	extern void art_picture(int x, int y, GLuint textid);
 	extern void edwin_picture(int x, int y, GLuint textid);
 	extern void andrew_picture(int x, int y, GLuint textid);
 	extern void bryan_picture(int x, int y, GLuint textid);
 	extern void joel_picture(int x, int y, GLuint textid);
-	art_picture(gl.xres/2,gl.yres/2-320,gl.artTexture);
-	edwin_credits(gl.xres/2,gl.yres/2+100);
-	edwin_picture(200, 400, gl.edwinTexture);
-	andrew_credits(gl.xres/2,((gl.yres/2)+40+75));
-	andrew_picture(300, 100, gl.andrewTexture);
-	bryan_credits(gl.xres/2,((gl.yres/2)+60+75));
-	bryan_picture(400, 200, gl.bryanTexture);
-	joel_credits(gl.xres/2,((gl.yres/2)+80+75));
-	joel_picture(500, 300, gl.sTexture);
+	art_picture(gl.xres/2,gl.yres/5+500,gl.artTexture);
+	edwin_credits(gl.xres/2-100,gl.yres/5+400);
+	edwin_picture(gl.xres/2, gl.yres/5+400, gl.edwinTexture);
+	andrew_credits(gl.yres/5+300,gl.xres/2-100);
+	andrew_picture(gl.xres/2, gl.yres/5+300, gl.andrewTexture);
+	bryan_credits(gl.xres/2-100,gl.yres/5+200);
+	bryan_picture(gl.xres/2, gl.yres/5+200, gl.bryanTexture);
+	joel_credits(gl.xres/2-100,gl.yres/5+100);
+	joel_picture(gl.xres/2, gl.yres/5+100, gl.sTexture);
 }
 void render()
 {
@@ -849,7 +849,7 @@ void render()
 		Rect r;
 		glClear(GL_COLOR_BUFFER_BIT);
 		//
-		r.bot = gl.yres - 45;
+		r.bot = gl.yres - 55;
 		r.left = 10;
 		r.center = 0;
 		extern int  getCreditState();
@@ -872,10 +872,10 @@ void render()
 			//	art_picture(200,gl.yres-100,gl.artTexture);
 		} else{
 			health_bar(gl.xres,gl.yres);
-			ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
-			ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
-			ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-			ggprint8b(&r, 16, 0x00ffff00, "n asteroids destroyed: %i ",g.astr_destroyed);
+			ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
+			ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
+			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Defeated: %i ",g.astr_destroyed);
 			printCurrentWeapon(getCurrentWeapon(),r);
 			gunSpawnManager(g.itemTimer);
 			genRifle(gl.rTexture);

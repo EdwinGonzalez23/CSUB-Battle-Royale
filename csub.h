@@ -297,8 +297,8 @@ class X11_wrapper {
 			set_title();
 		}
 		void setup_screen_res(const int w, const int h) {
-			gl.xres = w + 1000;
-			gl.yres = h + 1000;
+			gl.xres = w + 480;
+			gl.yres = h + 270;
 		}
 		void swapBuffers() {
 			glXSwapBuffers(dpy, win);

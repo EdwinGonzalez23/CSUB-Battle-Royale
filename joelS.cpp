@@ -133,6 +133,7 @@ void genRifle(GLuint texture)
 		glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
 		glEnd();
 		glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }
 
@@ -151,6 +152,7 @@ void genShotgun(GLuint texture)
                 glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
                 glEnd();
                 glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
         }
 }
 
@@ -168,6 +170,7 @@ void genMachineGun(GLuint texture){
                 glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
                 glEnd();
                 glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
         }
 }
 
@@ -281,19 +284,19 @@ void printCurrentWeapon(int weap, Rect r)
 {
 	switch (weap) {
 		case 1:
-			ggprint8b(&r,34,0x00ffff00, "Weapon mode: Pistol");
+			ggprint16(&r,34,0x00bbbbbb, "Weapon mode: Pistol");
 			break;
 		case 2: 
-			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Rifle");
+			ggprint16(&r,16,0x00bbbbbb, "Weapon mode: Rifle");
 			break;
 		case 3:
-			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Shotgun");
+			ggprint16(&r,16,0x00bbbbbb, "Weapon mode: Shotgun");
 			break;
 		case 4:
-			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Machine Gun");
+			ggprint16(&r,16,0x00bbbbbb, "Weapon mode: Machine Gun");
 			break;
 		default:
-			ggprint8b(&r,16,0x00ffff00, "Weapon mode: Unknown");
+			ggprint16(&r,16,0x00bbbbbb, "Weapon mode: Unknown");
 	}
 }
 /*
