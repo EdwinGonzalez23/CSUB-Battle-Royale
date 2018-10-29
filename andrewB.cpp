@@ -4,7 +4,7 @@
 #include <iostream>
 #include "fonts.h"
 #include <GL/glx.h>
-#include "game.h"
+//#include "game.h"
 
 using namespace std;
 
@@ -31,6 +31,7 @@ void andrew_picture(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
+/*
 unsigned char *buildAlphaData(Image *img)
 {
 	//add 4th component to RGB stream...
@@ -163,7 +164,7 @@ void enemy(int x, int y, int z, float angle, GLuint texid)
     glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-/*
+
 int numberofwalls = 0;
 //Structures for Shapes
 struct Vect {
