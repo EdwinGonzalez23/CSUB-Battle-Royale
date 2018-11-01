@@ -138,6 +138,7 @@ class Global {
 	    GLuint rTexture;
 	    GLuint sTexture;
 	    GLuint mgTexture;
+	    GLuint bulletTexture;
 		GLuint characterHandgun;
 		GLuint characterRifle;
 		GLuint characterShotgun;

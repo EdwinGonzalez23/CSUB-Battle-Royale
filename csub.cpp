@@ -25,9 +25,9 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Image img[12]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+Image img[13]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
-	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png"};
+	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png","bullet2.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -72,6 +72,11 @@ extern void pickUpMachineGun();
 extern bool doesPlayerHaveRifle();
 extern bool doesPlayerHaveShotgun();
 extern bool doesPlayerHaveMachineGun();
+extern void printAmmo();
+extern void decrementAmmo();
+extern void genAmmo(GLuint texture);
+extern void reloadAmmunition();
+extern int hasBulletsLoaded(int x);
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -233,6 +238,19 @@ void init_opengl()
 	unsigned char *KnifeData = buildAlphaData(&img[11]);	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, KnifeData);
+
+	//Bullet Icon
+	glGenTextures(1, &gl.bulletTexture);
+	w = img[12].width;
+	h = img[12].height;
+	
+	glBindTexture(GL_TEXTURE_2D, gl.bulletTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *bulletData = buildAlphaData(&img[12]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, bulletData);
+
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -280,17 +298,25 @@ void check_mouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			switch(getCurrentWeapon()){
-				case 1:
-					firePistol();
+				case 1:	
+					if(hasBulletsLoaded(getCurrentWeapon())){
+						firePistol();
+					}
 					break;
 				case 2:
-					fireRifle();
+					if(hasBulletsLoaded(getCurrentWeapon())){
+						fireRifle();
+					}
 					break;
 				case 3:
-					fireShotgun();
+					if(hasBulletsLoaded(getCurrentWeapon())){
+						fireShotgun();
+					}
 					break;
 				case 4:
-					fireMachineGun();
+					if(hasBulletsLoaded(getCurrentWeapon())){
+						fireMachineGun();
+					}
 					break;
 			}
 		}
@@ -742,6 +768,7 @@ void firePistol(){
 			b->color[1] = 1.0f;
 			b->color[2] = 1.0f;
 			g.nbullets++;
+			decrementAmmo();
 		}
 	}
 }
@@ -802,6 +829,8 @@ void fireRifle(){
 			b->color[1] = 1.0f;
 			b->color[2] = 1.0f;
 			g.nbullets++;
+			decrementAmmo();
+		
 		}
 	}
 }
@@ -843,6 +872,8 @@ void fireShotgun(){
 			generatePellet(bt);	
 			generatePellet(bt);
 			generatePellet(bt);
+			decrementAmmo();
+			
 		}
 	}
 }
@@ -876,6 +907,7 @@ void fireMachineGun(){
 			b->color[1] = 1.0f;
 			b->color[2] = 1.0f;
 			g.nbullets++;
+			decrementAmmo();
 		}
 	}
 }
@@ -956,6 +988,8 @@ void render()
 			ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
 			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
 			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Defeated: %i ",g.astr_destroyed);
+			genAmmo(gl.bulletTexture);
+			reloadAmmunition();	
 			printCurrentWeapon(getCurrentWeapon(),r);
 			gunSpawnManager(g.itemTimer);
 			genRifle(gl.rTexture);
