@@ -4,7 +4,7 @@
 #include <iostream>
 #include "fonts.h"
 #include <GL/glx.h>
-//#include "game.h"
+//#include "csub.h"
 
 using namespace std;
 
@@ -35,6 +35,7 @@ void andrew_picture(int x, int y, GLuint texid)
 
 void character(int x, int y, int z, float angle, GLuint texid)
 {
+	
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
     int w = 25; 

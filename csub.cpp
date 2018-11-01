@@ -745,6 +745,32 @@ void firePistol(){
 		}
 	}
 }
+void getCharacter()
+{
+	extern void character(int x, int y, int z, float angle, GLuint texid);
+	extern int getCurrentWeapon();
+	string texid;
+	if (getCurrentWeapon() == 0){
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
+		//texid = "characterPistol";
+	}
+	if (getCurrentWeapon() == 1){
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
+		//texid = "characterPistol";
+	}
+	if (getCurrentWeapon() == 2){
+		//texid = "characterRifle";
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
+	}
+	if (getCurrentWeapon() == 3) {
+		//texid = "characterShotgun";
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterShotgun);
+	}
+	if (getCurrentWeapon() == 4){
+		//texid = "characterRifle";
+		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
+	}
+}
 void fireRifle(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
@@ -956,8 +982,8 @@ void render()
 			glEnd();
 			glPopMatrix();
 			
-			extern void character(int x, int y, int z, float angle, GLuint texid);
-			character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterKnife);
+			getCharacter();
+			
 			if (gl.keys[XK_Up] || g.mouseThrustOn) {
 				int i;
 				//draw thrust
@@ -1001,8 +1027,8 @@ void render()
 				glVertex2f(0.0f, 0.0f);
 				glEnd();
 				glPopMatrix();
-				extern void character(int x, int y, int z, float angle, GLuint texid);
-				character(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
+				extern void enemy(int x, int y, int z, float angle, GLuint texid);
+				enemy(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
 				// if (gl.keys[XK_Up] || g.mouseThrustOn) {
 				// 	int i;
 				// 	//draw thrust
