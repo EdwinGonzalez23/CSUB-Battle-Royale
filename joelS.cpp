@@ -34,8 +34,87 @@ static bool playerHasRifle = 0;
 static bool playerHasShotgun = 0;
 static bool playerHasMachineGun = 0;
 static struct timespec currentItemTime;
+
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
+//Ammunition Variables.
+static int ammo = 10;
+static int ammoCounts[] = {0,10,5,4,20};
+static int hasBullets[] = {0,1,1,1,1};
+static struct timespec reloadTimers[5];
+
+int hasBulletsLoaded(int weap){
+	return hasBullets[weap];	
+}
+
+void printAmmo(){
+	Rect r;
+	r.left = 20;
+	r.bot  = yBoundary-400;
+
+	for(int i = 0;i<ammo;i++){
+		ggprint16(&r,0,0x00bbbb00, " o ");
+		r.left+=20;
+	}
+}
+
+void reloadAmmunition(){
+	struct timespec reloadComparison;
+	clock_gettime(CLOCK_REALTIME, &reloadComparison);
+	double timeDifference;
+	for(int i = 1; i<5;i++){
+		if(hasBullets[i]==0){
+		        timeDifference = timeDiff(&reloadTimers[i], &reloadComparison);
+			if(timeDifference>3){
+				hasBullets[i]=1;
+				if(i==1){
+					ammoCounts[i] = 10;
+				}else if(i==2){
+					ammoCounts[i] = 5;
+				}else if(i==3){
+					ammoCounts[i] = 4;
+				}else if(i==4){
+					ammoCounts[i] = 20;
+				}
+			}	
+		}
+	}
+}
+
+void decrementAmmo(){
+	ammoCounts[currentWeapon]--;
+	if(ammoCounts[currentWeapon]==0){
+		hasBullets[currentWeapon]=0;
+		clock_gettime(CLOCK_REALTIME, &reloadTimers[currentWeapon]);
+	}
+}
+
+void genAmmo(GLuint texture)
+{
+	int x = 0;
+	for(int i = 0; i < ammoCounts[currentWeapon];i++) {
+		glColor3ub(255,255,255);
+		int w=12;
+		int h=16;
+		glPushMatrix();
+		glTranslatef(x+h,yBoundary-300,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glColor4ub(255,255,255,255);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-h);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, h);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( w, h);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-h);
+		glEnd();
+		glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
+		x+=20;
+
+	}
+
+}
 
 
 //Vim defaults to an indentation of 8,
