@@ -31,92 +31,7 @@ void andrew_picture(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
-/*
-unsigned char *buildAlphaData(Image *img)
-{
-	//add 4th component to RGB stream...
-	int i;
-	unsigned char *newdata, *ptr;
-	unsigned char *data = (unsigned char *)img->data;
-	newdata = (unsigned char *)malloc(img->width * img->height * 4);
-	ptr = newdata;
-	unsigned char a,b,c;
-	//use the first pixel in the image as the transparent color.
-	unsigned char t0 = *(data+0);
-	unsigned char t1 = *(data+1);
-	unsigned char t2 = *(data+2);
-	for (i=0; i<img->width * img->height * 3; i+=3) {
-		a = *(data+0);
-		b = *(data+1);
-		c = *(data+2);
-		*(ptr+0) = a;
-		*(ptr+1) = b;
-		*(ptr+2) = c;
-		*(ptr+3) = 1;
-		if (a==t0 && b==t1 && c==t2)
-			*(ptr+3) = 0;
-		//-----------------------------------------------
-		ptr += 4;
-		data += 3;
-	}
-return newdata;
-}
 
-void genCharacters()
-{
-	
-	//Handgun Model
-	glGenTextures(1, &gl.characterHandgun);
-	int w = img[0].width;
-	int h = img[0].height;
-	
-	glBindTexture(GL_TEXTURE_2D, gl.characterHandgun);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	
-	unsigned char *HandgunData = buildAlphaData(&img[0]);	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, HandgunData);
-	
-	//Rifle Model
-	glGenTextures(1, &gl.characterRifle);
-	w = img[1].width;
-	h = img[1].height;
-	
-	glBindTexture(GL_TEXTURE_2D, gl.characterRifle);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	unsigned char *RifleData = buildAlphaData(&img[1]);	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, RifleData);
-	
-	//Shotgun Model
-	glGenTextures(1, &gl.characterShotgun);
-	w = img[2].width;
-	h = img[2].height;
-	
-	glBindTexture(GL_TEXTURE_2D, gl.characterShotgun);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	unsigned char *ShotgunData = buildAlphaData(&img[2]);	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, ShotgunData);
-		
-	//Knife Model
-	glGenTextures(1, &gl.characterKnife);
-	w = img[2].width;
-	h = img[2].height;
-	
-	glBindTexture(GL_TEXTURE_2D, gl.characterKnife);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-	unsigned char *KnifeData = buildAlphaData(&img[2]);	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, KnifeData);
-}
 
 void character(int x, int y, int z, float angle, GLuint texid)
 {
@@ -164,7 +79,7 @@ void enemy(int x, int y, int z, float angle, GLuint texid)
     glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-
+/*
 int numberofwalls = 0;
 //Structures for Shapes
 struct Vect {

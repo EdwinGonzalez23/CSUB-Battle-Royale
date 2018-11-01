@@ -25,8 +25,9 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Image img[8]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
-	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png"};
+Image img[12]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
+	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -100,6 +101,7 @@ int main()
 	logClose();
 	return 0;
 }
+
 void init_opengl()
 {
 	//RIFLE TEXTURE
@@ -179,6 +181,58 @@ void init_opengl()
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+			
+	//Handgun Model
+	glGenTextures(1, &gl.characterHandgun);
+	w = img[8].width;
+	h = img[8].height;
+	
+	glBindTexture(GL_TEXTURE_2D, gl.characterHandgun);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	
+	unsigned char *HandgunData = buildAlphaData(&img[9]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, HandgunData);
+	
+	//Rifle Model
+	glGenTextures(1, &gl.characterRifle);
+	w = img[9].width;
+	h = img[9].height;
+	
+	glBindTexture(GL_TEXTURE_2D, gl.characterRifle);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+	unsigned char *RifleData = buildAlphaData(&img[9]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, RifleData);
+	
+	//Shotgun Model
+	glGenTextures(1, &gl.characterShotgun);
+	w = img[10].width;
+	h = img[10].height;
+	
+	glBindTexture(GL_TEXTURE_2D, gl.characterShotgun);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+	unsigned char *ShotgunData = buildAlphaData(&img[10]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, ShotgunData);
+		
+	//Knife Model
+	glGenTextures(1, &gl.characterKnife);
+	w = img[11].width;
+	h = img[11].height;
+	
+	glBindTexture(GL_TEXTURE_2D, gl.characterKnife);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+	unsigned char *KnifeData = buildAlphaData(&img[11]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, KnifeData);
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -883,25 +937,27 @@ void render()
 			genMachineGun(gl.mgTexture);
 			//-------------
 			//Draw the ship
+			
 			glColor3fv(g.ship.color);
 			glPushMatrix();
 			glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 			glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_TRIANGLE_FAN);
-			glVertex2f(-12.0f, -10.0f);
-			glVertex2f(  0.0f, 20.0f);
-			glVertex2f(  0.0f, -6.0f);
-			glVertex2f(  0.0f, -6.0f);
-			glVertex2f(  0.0f, 20.0f);
-			glVertex2f( 12.0f, -10.0f);
+			glVertex2f(-2.0f, -0.0f);
+			glVertex2f(  0.0f, 2.0f);
+			glVertex2f(  0.0f, -1.0f);
+			glVertex2f(  0.0f, -1.0f);
+			glVertex2f(  0.0f, 2.0f);
+			glVertex2f( 2.0f, -1.0f);
 			glEnd();
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glBegin(GL_POINTS);
 			glVertex2f(0.0f, 0.0f);
 			glEnd();
 			glPopMatrix();
+			
 			extern void character(int x, int y, int z, float angle, GLuint texid);
-			// character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterTexture);
+			character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterKnife);
 			if (gl.keys[XK_Up] || g.mouseThrustOn) {
 				int i;
 				//draw thrust
@@ -933,12 +989,12 @@ void render()
 				glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 				glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 				glBegin(GL_TRIANGLE_FAN);
-				glVertex2f(-12.0f, -10.0f);
-				glVertex2f(  0.0f, 20.0f);
-				glVertex2f(  0.0f, -6.0f);
-				glVertex2f(  0.0f, -6.0f);
-				glVertex2f(  0.0f, 20.0f);
-				glVertex2f( 12.0f, -10.0f);
+				glVertex2f(-1.0f, -1.0f);
+				glVertex2f(  0.0f, 2.0f);
+				glVertex2f(  0.0f, -1.0f);
+				glVertex2f(  0.0f, -1.0f);
+				glVertex2f(  0.0f, 2.0f);
+				glVertex2f( 2.0f, -1.0f);
 				glEnd();
 				glColor3f(1.0f, 0.0f, 0.0f);
 				glBegin(GL_POINTS);
@@ -946,7 +1002,7 @@ void render()
 				glEnd();
 				glPopMatrix();
 				extern void character(int x, int y, int z, float angle, GLuint texid);
-				//character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterTexture);
+				character(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
 				// if (gl.keys[XK_Up] || g.mouseThrustOn) {
 				// 	int i;
 				// 	//draw thrust
