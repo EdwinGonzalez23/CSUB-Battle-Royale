@@ -8,12 +8,26 @@
 #include <GL/glu.h>
 #include "fonts.h"
 #include<math.h>
+#include "csub.h"
 typedef float Flt;
 static int creditsState;
 static int menuState=1;
-struct Vec{
-	Flt x, y, z;
+//struct Vec{
+//	Flt x, y, z;
+//};
+struct HP{
+	int life=100;
+	int shield=0;
 };
+int Get_HP_life(HP value)
+{
+	return value.life;
+}
+int Get_HP_shield(HP value)
+{
+	return value.shield;
+}
+
 struct Shape{
 	Flt width, height;
 	Vec center;

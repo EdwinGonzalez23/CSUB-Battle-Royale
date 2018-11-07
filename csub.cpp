@@ -25,6 +25,9 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
+Global gl;
+Game g;
+X11_wrapper x11;
 Image img[8]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
 	"rCrate2.jpg","sCrate2.jpg","mgCrate2.jpg"};
 void setup_sound(Global &gl){

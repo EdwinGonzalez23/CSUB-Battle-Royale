@@ -15,6 +15,15 @@
  *
  * =====================================================================================
  */
+#include<iostream>
+#include<AL/alut.h>
+#include "fonts.h"
+#include<X11/keysym.h>
+#include<X11/Xlib.h>
+#include<GL/glx.h>
+#include<cstdlib>
+#include<unistd.h>
+#include<cstring>
 
 //defined types
 typedef float Flt;
@@ -119,7 +128,8 @@ class Global {
 			yres = 900;
 			memset(keys, 0, 65536);
 		}
-} gl;
+} ;
+extern Global gl;
 class Ship {
 	public:
 		Vec dir;
@@ -230,7 +240,7 @@ class Game {
 			delete [] barr;
 			delete [] barrAst;
 		}
-} g;
+} ;
 //X Windows variables
 class X11_wrapper {
 	private:
@@ -340,4 +350,7 @@ class X11_wrapper {
 			//it will undo the last change done by XDefineCursor
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
-} x11;
+} ;
+
+extern Game g;
+extern X11_wrapper x11;
