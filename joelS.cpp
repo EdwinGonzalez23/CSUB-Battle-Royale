@@ -43,6 +43,67 @@ static int ammoCounts[] = {0,10,5,4,20};
 static int hasBullets[] = {0,1,1,1,1};
 static struct timespec reloadTimers[5];
 
+//static int bgPosX = 0;
+//static int bgPosY = 0;
+
+void genTree(GLuint texture, int x, int y){
+	int w = 150;
+	//int h = 150;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(255,255,255,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
+void genBackground(GLuint texture){
+
+	glColor3f(0.01,0.45,0.15);
+        glPushMatrix();
+        glTranslatef(0, 0, 0);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(0,yBoundary);
+        glVertex2f(0, 0);
+        glVertex2f(xBoundary+25, yBoundary);
+        glVertex2f(xBoundary+25,0);
+        glEnd();
+        glPopMatrix();
+
+	/*
+	bgPosX=0;	
+        for(bgPosX = 0; bgPosX<xBoundary;) {
+		bgPosY=0;
+		for(bgPosY=0;bgPosY<yBoundary;){
+			glColor3ub(255,255,255);
+			int wid=100;
+			glPushMatrix();
+			glTranslatef(bgPosX,bgPosY,0);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+			glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+			glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+			glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+			glEnd();
+			glPopMatrix();
+			glBindTexture(GL_TEXTURE_2D, 0);
+			bgPosY+=200;
+		}
+		bgPosX+=190;
+	}*/
+}
+
+
 int hasBulletsLoaded(int weap){
 	return hasBullets[weap];	
 }
@@ -304,11 +365,16 @@ void setPlayerHPMissing()
 
 void damagePlayer()
 {
+	if(playerCurrentHP-10<=0){
+		playerCurrentHP = 0;
+		playerHPMissing = playerMaxHP; 
+		killPlayer();
+		return;
+	}
 	playerCurrentHP-=10;
 	playerHPMissing+=10;
-	if(playerCurrentHP<=0){
-		killPlayer();
-	}
+	std::cout<<playerCurrentHP<<std::endl;
+		
 }
 
 void healPlayer()

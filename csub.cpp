@@ -25,9 +25,10 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Image img[13]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+Image img[15]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
-	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png","bullet2.png"};
+	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
+	"bullet2.png","bg2.jpeg","tree2.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -77,6 +78,8 @@ extern void decrementAmmo();
 extern void genAmmo(GLuint texture);
 extern void reloadAmmunition();
 extern int hasBulletsLoaded(int x);
+extern void genBackground(GLuint bg);
+extern void genTree(GLuint tree,int x, int y);
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -250,6 +253,30 @@ void init_opengl()
 	unsigned char *bulletData = buildAlphaData(&img[12]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, bulletData);
+
+        //Background image
+	glGenTextures(1,&gl.bgTexture);
+        w = img[13].width;
+        h = img[13].height;
+        glBindTexture(GL_TEXTURE_2D, gl.bgTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+                        GL_RGB, GL_UNSIGNED_BYTE, img[13].data);
+
+        //Tree Image
+        glGenTextures(1, &gl.treeTexture);
+        w = img[14].width;
+        h = img[14].height;
+
+        glBindTexture(GL_TEXTURE_2D, gl.treeTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *treeData = buildAlphaData(&img[14]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, treeData);
+
+
 
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
@@ -983,6 +1010,7 @@ void render()
 			//	extern void art_picture(int x, int y, GLuint textid);
 			//	art_picture(200,gl.yres-100,gl.artTexture);
 		} else{
+			genBackground(gl.bgTexture);
 			health_bar(gl.xres,gl.yres);
 			ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 			ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
@@ -1017,6 +1045,7 @@ void render()
 			glPopMatrix();
 			
 			getCharacter();
+
 			
 			if (gl.keys[XK_Up] || g.mouseThrustOn) {
 				int i;
@@ -1148,5 +1177,11 @@ void render()
 				++bAst;
 			}
 			}
+		genTree(gl.treeTexture,100,550);
+		genTree(gl.treeTexture,1100,700);
+		genTree(gl.treeTexture,900,250);
+
+
 		}
+
 	}
