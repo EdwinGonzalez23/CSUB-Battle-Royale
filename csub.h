@@ -84,8 +84,8 @@ public:
   sscanf(line, "%i %i", &width, &height);
    fgets(line, 200, fpi);
   //get pixel data
-   int n = width * height * 3;   
-   data = new unsigned char[n];   
+   int n = width * height * 3;
+   data = new unsigned char[n];
    for (int i=0; i<n; i++)
    data[i] = fgetc(fpi);
    fclose(fpi);
@@ -94,7 +94,7 @@ public:
   exit(0);
    }
    if (!ppmFlag)
-   unlink(ppmname);                                                                                                                                                                                                                                                                                                  
+   unlink(ppmname);
   }
 };
 
@@ -335,8 +335,8 @@ class X11_wrapper {
 			set_title();
 		}
 		void setup_screen_res(const int w, const int h) {
-			gl.xres = w + 480;
-			gl.yres = h + 270;
+			gl.xres = w + 1000;
+			gl.yres = h + 1000;
 		}
 		void swapBuffers() {
 			glXSwapBuffers(dpy, win);
