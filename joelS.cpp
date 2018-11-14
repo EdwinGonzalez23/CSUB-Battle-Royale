@@ -43,8 +43,8 @@ static int ammoCounts[] = {0,10,5,4,20};
 static int hasBullets[] = {0,1,1,1,1};
 static struct timespec reloadTimers[5];
 
-//static int bgPosX = 0;
-//static int bgPosY = 0;
+static int bgPosX = 0;
+static int bgPosY = 0;
 
 void genTree(GLuint texture, int x, int y){
 	int w = 150;
@@ -67,7 +67,7 @@ void genTree(GLuint texture, int x, int y){
 }
 
 void genBackground(GLuint texture){
-
+/*
 	glColor3f(0.01,0.45,0.15);
         glPushMatrix();
         glTranslatef(0, 0, 0);
@@ -78,12 +78,12 @@ void genBackground(GLuint texture){
         glVertex2f(xBoundary+25,0);
         glEnd();
         glPopMatrix();
-
-	/*
+*/
+	
 	bgPosX=0;	
-        for(bgPosX = 0; bgPosX<xBoundary;) {
+        for(bgPosX = -1000; bgPosX<xBoundary*2;) {
 		bgPosY=0;
-		for(bgPosY=0;bgPosY<yBoundary;){
+		for(bgPosY=-1000;bgPosY<yBoundary*2;){
 			glColor3ub(255,255,255);
 			int wid=100;
 			glPushMatrix();
@@ -100,7 +100,7 @@ void genBackground(GLuint texture){
 			bgPosY+=200;
 		}
 		bgPosX+=190;
-	}*/
+	}
 }
 
 

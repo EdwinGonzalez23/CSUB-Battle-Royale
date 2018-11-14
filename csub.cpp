@@ -25,7 +25,7 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Image img[15]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","andrew_picture.jpg",
+Image img[15]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
 	"bullet2.png","bg2.jpeg","tree2.png"};
@@ -1111,7 +1111,7 @@ void render()
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 			glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
-			genBackground(gl.bgTexture);
+			genBackground(gl.andrewTexture);
 			health_bar(gl.xres,gl.yres);
 			ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 			ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
