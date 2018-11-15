@@ -34,7 +34,6 @@ static bool playerHasRifle = 0;
 static bool playerHasShotgun = 0;
 static bool playerHasMachineGun = 0;
 static struct timespec currentItemTime;
-
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //Ammunition Variables.
@@ -42,9 +41,88 @@ static int ammo = 10;
 static int ammoCounts[] = {0,10,5,4,20};
 static int hasBullets[] = {0,1,1,1,1};
 static struct timespec reloadTimers[5];
-
+//Background variables.
 static int bgPosX = 0;
 static int bgPosY = 0;
+
+static bool deathSoundHasBeenPlayed = 0;
+static int wdW = 500;
+static GLfloat alpha=1;
+static float color = 0.1;
+static bool fadeIn = 1;
+static bool fadeOut = 0;
+static double screenFade = 1;
+static bool fadeToBlackComplete = 0;
+
+bool deathSoundPlayed(){
+	if(deathSoundHasBeenPlayed==0){
+		deathSoundHasBeenPlayed = 1;
+		return false;
+	}
+	return true;
+}
+
+
+void drawYouDied(GLuint texture, int x, int y){
+	//int w = 500;
+	//int h = 500;
+
+	if(wdW<700){
+		wdW+=1;
+	}
+
+
+        glPushMatrix();
+        glTranslatef(x,y,0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        //glColor4ub(255,255,255,255);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(-wdW,-wdW);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(-wdW, wdW);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i( wdW, wdW);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i( wdW,-wdW);
+        glEnd();
+        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
+void drawYouDied2(GLuint texture,int x, int y){
+       
+	
+        glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glColor4f(color, color, color, alpha);
+       	drawYouDied(texture, x, y);	
+	//alpha-=0.001f;
+	if(fadeIn){	
+		color+=0.01;
+	}else if(fadeOut){
+		color-=0.01;
+	}
+	if(color>=1.0){
+		fadeIn=0;
+		fadeOut=1;
+	}
+}
+
+void fadeToBlack(){
+	glColor3f(screenFade,screenFade,screenFade);
+	screenFade-=0.01;
+
+	if(screenFade<=0){
+		fadeToBlackComplete = 1;
+	}
+}
+
+bool doneFading(){
+	if(fadeToBlackComplete==0){
+		return false;
+	}
+	return true;
+}
 
 void genTree(GLuint texture, int x, int y){
 	int w = 150;
