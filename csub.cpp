@@ -25,6 +25,9 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
+Global gl;
+Game g;
+X11_wrapper x11;
 Image img[15]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
