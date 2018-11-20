@@ -66,6 +66,12 @@ void genTree(GLuint texture, int x, int y){
 
 }
 
+extern void toggleMenu();
+extern void beginFade();
+extern bool fadeBegin();
+extern int getColors();
+
+
 void genBackground(GLuint texture){
 /*
 	glColor3f(0.01,0.45,0.15);
@@ -84,7 +90,7 @@ void genBackground(GLuint texture){
         for(bgPosX = -1000; bgPosX<xBoundary*2;) {
 		bgPosY=0;
 		for(bgPosY=-1000;bgPosY<yBoundary*2;){
-			glColor3ub(255,255,255);
+			glColor3ub(getColors(),getColors(),getColors());
 			int wid=100;
 			glPushMatrix();
 			glTranslatef(bgPosX,bgPosY,0);

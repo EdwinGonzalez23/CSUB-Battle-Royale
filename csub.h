@@ -141,7 +141,10 @@ class Global {
 	    GLuint bulletTexture;
 	    GLuint bgTexture;
 	    GLuint treeTexture;
-		GLuint characterHandgun;
+	        GLuint tileTexture;
+                GLuint logoTexture;
+                GLuint textTexture;
+    		GLuint characterHandgun;
 		GLuint characterRifle;
 		GLuint characterShotgun;
 		GLuint characterKnife;
@@ -379,3 +382,72 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
+static int colors = 255;
+int getColors(){
+        return colors;
+}
+
+static bool faded = 0;
+static bool fadeOutBegin = 0;
+extern void toggleMenu();
+bool menuFadedOut(){
+        return faded;
+}
+
+void beginFade(){
+        fadeOutBegin=1;
+}
+
+bool fadeBegin(){
+        return fadeOutBegin;
+}
+
+void setColors(int x){
+        colors=x;
+}
+void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
+        int w = 800;
+        //int h = 150;
+        glPushMatrix();
+        glTranslatef(x,y+500,0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(colors,colors,colors,255);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+        glEnd();
+        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+
+        w = 350;
+        glPushMatrix();
+        glTranslatef(x,y,0);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(colors,colors,colors,255);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+        glEnd();
+        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        if(fadeOutBegin==1&&colors>0){
+                colors-=1;
+        }
+        if(colors==0){
+                faded =1;
+                toggleMenu();
+                colors=255;
+
+        }
+}
+
