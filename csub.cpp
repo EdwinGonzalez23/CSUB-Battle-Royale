@@ -94,11 +94,12 @@ extern void drawYouDied2(GLuint texture, int x, int y);
 extern bool deathSoundPlayed();
 extern void fadeToBlack();
 extern bool doneFading();
-
 extern void genTitleScreen(GLuint texture,GLuint texture2, int x, int y);
 extern bool menuFadedOut();
 extern void beginFade();
 extern void setColors();
+extern void invuln();
+extern bool playerIsInvulnerable();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -604,6 +605,8 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 	ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
 	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 }
+
+
 extern int spawnRand_XSection(int x, int y);
 extern int spawnRand_YSection(int x, int y);
 extern bool spawned();
@@ -666,6 +669,7 @@ void physics()
 
 	//Flt d0,d1,dist;
 	//Update ship position
+	invuln();
 	g.ship.pos[0] += g.ship.vel[0];
 	g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
@@ -745,6 +749,14 @@ void physics()
 		}
 		bAst->pos[0] += bAst->vel[0];
 		bAst->pos[1] += bAst->vel[1];
+		if((bAst->pos[0]>=g.ship.pos[0]-25&&bAst->pos[0]<=g.ship.pos[0]+25)&&
+		(bAst->pos[1]>=g.ship.pos[1]-25&&bAst->pos[1]<=g.ship.pos[1]+25)){
+			if(playerIsInvulnerable()==0&&playerIsAlive()){
+				thread t1(play_sound, gl.playerHitSound);
+				t1.detach();
+			}
+			damagePlayer();
+		}
 		j++;
 	}
 	//
@@ -951,9 +963,6 @@ void firePistol(){
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
 	if(ts>0.2){
-		damagePlayer();
-		thread ph(play_sound, gl.playerHitSound);
-		ph.detach();
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...

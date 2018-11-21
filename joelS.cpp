@@ -54,6 +54,20 @@ static bool fadeOut = 0;
 static double screenFade = 1;
 static bool fadeToBlackComplete = 0;
 
+
+static bool playerInvuln = 0;
+static struct timespec invulnTimer;
+void invuln(){
+	struct timespec invulnComparison;
+        clock_gettime(CLOCK_REALTIME, &invulnComparison);
+
+	double timeDifference = timeDiff(&invulnTimer, &invulnComparison);
+	std::cout<<timeDifference<<std::endl;
+	if(timeDifference>1){
+		playerInvuln=0;			
+	}
+}
+
 bool deathSoundPlayed(){
 	if(deathSoundHasBeenPlayed==0){
 		deathSoundHasBeenPlayed = 1;
@@ -447,8 +461,17 @@ void setPlayerHPMissing()
 	playerHPMissing = playerMaxHP-playerCurrentHP;
 }
 
+bool playerIsInvulnerable(){
+	return playerInvuln;
+}
+
 void damagePlayer()
 {
+
+    	if(playerInvuln==1){
+		return;
+	}
+
 	if(playerCurrentHP-10<=0){
 		playerCurrentHP = 0;
 		playerHPMissing = playerMaxHP; 
@@ -457,7 +480,8 @@ void damagePlayer()
 	}
 	playerCurrentHP-=10;
 	playerHPMissing+=10;
-	std::cout<<playerCurrentHP<<std::endl;
+	clock_gettime(CLOCK_REALTIME, &invulnTimer);
+	playerInvuln=1;
 		
 }
 
