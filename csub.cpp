@@ -26,10 +26,10 @@
 #include "csub.h"
 using namespace std;
 
-Image img[18]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[19]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png","csubbattlegrounds.png","text.png","tile.png"};
+	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -338,37 +338,37 @@ void init_opengl()
                         GL_RGBA, GL_UNSIGNED_BYTE, ydData);
 	//Logo Image
         glGenTextures(1, &gl.logoTexture);
-        w = img[15].width;
-        h = img[15].height;
+        w = img[16].width;
+        h = img[16].height;
         glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *logoData = buildAlphaData(&img[15]);
+        unsigned char *logoData = buildAlphaData(&img[16]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, logoData);
 
 
         //Intro Text
         glGenTextures(1, &gl.textTexture);
-        w = img[16].width;
-        h = img[16].height;
+        w = img[17].width;
+        h = img[17].height;
 
         glBindTexture(GL_TEXTURE_2D, gl.textTexture);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *textData = buildAlphaData(&img[16]);
+        unsigned char *textData = buildAlphaData(&img[17]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, textData);
 
         // green tile TEXTURE
         glGenTextures(1,&gl.tileTexture);
-        w = img[17].width;
-        h = img[17].height;
+        w = img[18].width;
+        h = img[18].height;
         glBindTexture(GL_TEXTURE_2D, gl.tileTexture);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-	GL_RGB, GL_UNSIGNED_BYTE, img[17].data);
+	GL_RGB, GL_UNSIGNED_BYTE, img[18].data);
 
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
