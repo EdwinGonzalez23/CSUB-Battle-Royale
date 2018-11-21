@@ -25,10 +25,11 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Image img[16]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+
+Image img[18]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png","you_died.png"};
+	"bullet2.png","bg2.jpeg","tree2.png","csubbattlegrounds.png","text.png","tile.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -93,6 +94,11 @@ extern void drawYouDied2(GLuint texture, int x, int y);
 extern bool deathSoundPlayed();
 extern void fadeToBlack();
 extern bool doneFading();
+
+extern void genTitleScreen(GLuint texture,GLuint texture2, int x, int y);
+extern bool menuFadedOut();
+extern void beginFade();
+extern void setColors();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -121,6 +127,36 @@ int main()
 	alutExit();
 	logClose();
 	return 0;
+}
+
+unsigned char *buildAlphaData(Image *img)
+{
+	//add 4th component to RGB stream...
+	int i;
+	unsigned char *newdata, *ptr;
+	unsigned char *data = (unsigned char *)img->data;
+	newdata = (unsigned char *)malloc(img->width * img->height * 4);
+	ptr = newdata;
+	unsigned char a,b,c;
+	//use the first pixel in the image as the transparent color.
+	unsigned char t0 = *(data+0);
+	unsigned char t1 = *(data+1);
+	unsigned char t2 = *(data+2);
+	for (i=0; i<img->width * img->height * 3; i+=3) {
+		a = *(data+0);
+		b = *(data+1);
+		c = *(data+2);
+		*(ptr+0) = a;
+		*(ptr+1) = b;
+		*(ptr+2) = c;
+		*(ptr+3) = 1;
+		if (a==t0 && b==t1 && c==t2)
+			*(ptr+3) = 0;
+		//-----------------------------------------------
+		ptr += 4;
+		data += 3;
+	}
+return newdata;
 }
 
 void init_opengl()
@@ -300,7 +336,39 @@ void init_opengl()
         unsigned char *ydData = buildAlphaData(&img[15]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, ydData);
+	//Logo Image
+        glGenTextures(1, &gl.logoTexture);
+        w = img[15].width;
+        h = img[15].height;
+        glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *logoData = buildAlphaData(&img[15]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, logoData);
 
+
+        //Intro Text
+        glGenTextures(1, &gl.textTexture);
+        w = img[16].width;
+        h = img[16].height;
+
+        glBindTexture(GL_TEXTURE_2D, gl.textTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *textData = buildAlphaData(&img[16]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, textData);
+
+        // green tile TEXTURE
+        glGenTextures(1,&gl.tileTexture);
+        w = img[17].width;
+        h = img[17].height;
+        glBindTexture(GL_TEXTURE_2D, gl.tileTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	GL_RGB, GL_UNSIGNED_BYTE, img[17].data);
 
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
@@ -449,11 +517,13 @@ int check_keys(XEvent *e)
 			toggleCredits();
 			break;
 		case XK_m:
+			beginFade();
+			/*
 			int getMenuState();
 			if(getMenuState()){
 				void toggleMenu();
 				toggleMenu();
-			}
+			}*/
 		case XK_s:
 			break;
 		case XK_Down:
@@ -1105,7 +1175,8 @@ void render()
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-
+		genBackground(gl.tileTexture);
+		genTitleScreen(gl.logoTexture,gl.textTexture, gl.xres/2,gl.yres/2);
 		extern void main_menu(int x, int y);
 		main_menu(gl.xres/2,gl.yres/2);
 	}
@@ -1288,8 +1359,8 @@ void render()
 				++bAst;
 			}
 			genTree(gl.treeTexture,100,550);
-                	genTree(gl.treeTexture,1100,700);
-                	genTree(gl.treeTexture,900,250);
+      genTree(gl.treeTexture,1100,700);
+      genTree(gl.treeTexture,900,250);
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -1306,5 +1377,4 @@ void render()
 			drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
 			}
 		}
-		
 }
