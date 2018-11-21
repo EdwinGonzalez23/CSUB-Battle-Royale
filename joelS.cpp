@@ -46,6 +46,14 @@ static struct timespec reloadTimers[5];
 static int bgPosX = 0;
 static int bgPosY = 0;
 
+//Externs
+//csub.h
+extern void toggleMenu();
+extern void beginFade();
+extern bool fadeBegin();
+extern int getColors();
+
+
 void genTree(GLuint texture, int x, int y){
 	int w = 150;
 	//int h = 150;
@@ -84,7 +92,7 @@ void genBackground(GLuint texture){
         for(bgPosX = -1000; bgPosX<xBoundary*2;) {
 		bgPosY=0;
 		for(bgPosY=-1000;bgPosY<yBoundary*2;){
-			glColor3ub(255,255,255);
+			glColor3ub(getColors(),getColors(),getColors());
 			int wid=100;
 			glPushMatrix();
 			glTranslatef(bgPosX,bgPosY,0);
