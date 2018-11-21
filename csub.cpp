@@ -25,13 +25,10 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
-Global gl;
-Game g;
-X11_wrapper x11;
-Image img[15]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[18]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png"};
+	"bullet2.png","bg2.jpeg","tree2.png","csubbattlegrounds.png","text.png","tile.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -83,6 +80,10 @@ extern void reloadAmmunition();
 extern int hasBulletsLoaded(int x);
 extern void genBackground(GLuint bg);
 extern void genTree(GLuint tree,int x, int y);
+extern void genTitleScreen(GLuint texture,GLuint texture2, int x, int y);
+extern bool menuFadedOut();
+extern void beginFade();
+extern void setColors();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -309,7 +310,40 @@ void init_opengl()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, treeData);
 
+	//Logo Image
+        glGenTextures(1, &gl.logoTexture);
+        w = img[15].width;
+        h = img[15].height;
 
+        glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *logoData = buildAlphaData(&img[15]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, logoData);
+
+
+        //Intro Text
+        glGenTextures(1, &gl.textTexture);
+        w = img[16].width;
+        h = img[16].height;
+
+        glBindTexture(GL_TEXTURE_2D, gl.textTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *textData = buildAlphaData(&img[16]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, textData);
+
+        // green tile TEXTURE
+        glGenTextures(1,&gl.tileTexture);
+        w = img[17].width;
+        h = img[17].height;
+        glBindTexture(GL_TEXTURE_2D, gl.tileTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	GL_RGB, GL_UNSIGNED_BYTE, img[17].data);
 
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
@@ -458,11 +492,13 @@ int check_keys(XEvent *e)
 			toggleCredits();
 			break;
 		case XK_m:
+			beginFade();
+			/*
 			int getMenuState();
 			if(getMenuState()){
 				void toggleMenu();
 				toggleMenu();
-			}
+			}*/
 		case XK_s:
 			break;
 		case XK_Down:
@@ -1112,7 +1148,8 @@ void render()
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-
+		genBackground(gl.tileTexture);
+		genTitleScreen(gl.logoTexture,gl.textTexture, gl.xres/2,gl.yres/2);
 		extern void main_menu(int x, int y);
 		main_menu(gl.xres/2,gl.yres/2);
 	}
@@ -1310,8 +1347,8 @@ void render()
 				glEnd();
 				++bAst;
 			}
-		}
 		genTree(gl.treeTexture,100,550);
-		genTree(gl.treeTexture,1100,700);
-		genTree(gl.treeTexture,900,250);
+                genTree(gl.treeTexture,1100,700);
+                genTree(gl.treeTexture,900,250);
+		}
 }
