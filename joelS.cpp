@@ -57,12 +57,24 @@ static bool fadeToBlackComplete = 0;
 
 static bool playerInvuln = 0;
 static struct timespec invulnTimer;
+
+static bool winState = 0;
+
+bool playerHasWon(){
+	return winState;
+}
+
+void win(){
+	winState = 1;
+}
+
+
 void invuln(){
 	struct timespec invulnComparison;
         clock_gettime(CLOCK_REALTIME, &invulnComparison);
 
 	double timeDifference = timeDiff(&invulnTimer, &invulnComparison);
-	std::cout<<timeDifference<<std::endl;
+	//std::cout<<timeDifference<<std::endl;
 	if(timeDifference>1){
 		playerInvuln=0;			
 	}

@@ -166,6 +166,7 @@ class Asteroid {
 	public:
 		Vec pos;
 		Vec vel;
+		int health = 100;
 		int nverts;
 		Flt radius;
 		Vec vert[8];

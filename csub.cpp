@@ -100,6 +100,8 @@ extern void beginFade();
 extern void setColors();
 extern void invuln();
 extern bool playerIsInvulnerable();
+extern void win();
+extern bool playerHasWon();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -809,6 +811,34 @@ void physics()
 			} else
 				flipVel[velSwitchCounter] = 1;
 		}
+
+		//This code checks for player bullet and enemy collision. 
+		int bulls=0;
+		while (bulls < g.nbullets) {
+                	Bullet *b = &g.barr[bulls];
+			if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
+			(b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)){
+					thread t1(play_sound, gl.playerHitSound);
+                        		t1.detach();
+					a->health-=10;
+
+					if(a->health<=0){
+					    	if(a->next!=nullptr&&g.nasteroids>1){
+						Asteroid *savea = a->next;
+						deleteAsteroid(&g, a);
+						a = savea;
+						g.nasteroids--;
+						}else{
+						cout<<"You Win!"<<endl;
+						win();
+						}
+
+					}
+				}
+			bulls++;
+        	}
+
+
 		Bullet *bAst = &g.barrAst[g.astBull];
 		//trigger = setTrigger(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1]);
 		//bool inSector = isInSector(xLen, yLen, enemyTracker, xLen, yLen);
@@ -1196,7 +1226,7 @@ void render()
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
 		//if (getCreditState()){
 			show_credits();
-		} else if(playerIsAlive()){
+		} else if(playerIsAlive()&&playerHasWon()==0){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -1368,8 +1398,8 @@ void render()
 				++bAst;
 			}
 			genTree(gl.treeTexture,100,550);
-      genTree(gl.treeTexture,1100,700);
-      genTree(gl.treeTexture,900,250);
+      			genTree(gl.treeTexture,1100,700);
+      			genTree(gl.treeTexture,900,250);
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -1383,7 +1413,9 @@ void render()
 					thread td(play_sound,gl.youDiedSound);
 					td.detach();
 				}
-			drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
+				drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
 			}
+		}else if(playerHasWon()==1){
+			genBackground(gl.tileTexture);
 		}
 }
