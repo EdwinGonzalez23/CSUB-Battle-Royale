@@ -823,16 +823,25 @@ void physics()
 					a->health-=10;
 
 					if(a->health<=0){
-					    	if(a->next!=nullptr&&g.nasteroids>1){
-						Asteroid *savea = a->next;
-						deleteAsteroid(&g, a);
-						a = savea;
-						g.nasteroids--;
+					    	if(g.nasteroids==1){
+						   	cout<<"You Win!"<<endl;
+							win();
+						}else if(a->next==nullptr){
+							Asteroid *savea = a->prev;
+							deleteAsteroid(&g, a);
+							a = savea;
+							g.nasteroids--;
+						}else if(a->prev==nullptr){
+							Asteroid *savea = a->next;
+                                                        deleteAsteroid(&g, a);
+                                                        a = savea;
+                                                        g.nasteroids--;
 						}else{
-						cout<<"You Win!"<<endl;
-						win();
+							Asteroid *savea = a->next;
+                                                        deleteAsteroid(&g, a);
+                                                        a = savea;
+                                                        g.nasteroids--;
 						}
-
 					}
 				}
 			bulls++;
