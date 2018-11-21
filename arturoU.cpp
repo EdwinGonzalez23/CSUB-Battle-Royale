@@ -8,13 +8,12 @@
 #include <GL/glu.h>
 #include "fonts.h"
 #include<math.h>
-#include "csub.h"
 typedef float Flt;
 static int creditsState;
 static int menuState=1;
-//struct Vec{
-//	Flt x, y, z;
-//};
+struct Vec{
+	Flt x, y, z;
+};
 struct HP{
 	int life=100;
 	int shield=0;
@@ -69,10 +68,12 @@ main_menu (int x,int y )
 	Rect r;
 	r.bot =y;
 	r.left=x;
+	/*
 	ggprint16(&r,16,0x0001FF00,"MAIN MENU");
 	ggprint16(&r,16,0x0001FF00,"");
 	ggprint16(&r,16,0x00FFFF00,"In future here you will be able to enable options for game");
 	ggprint16(&r,16,0x00FF0F00,"Press M to start game");
+	*/
 }		/* -----  end of function main_menu  ----- */
 void art_picture(int x,int y,GLuint textid)
 {
