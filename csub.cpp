@@ -25,6 +25,7 @@
 #include "fonts.h"
 #include "csub.h"
 using namespace std;
+
 Image img[18]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
@@ -32,8 +33,15 @@ Image img[18]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jp
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
+	gl.buffers[1] = alutCreateBufferFromFile ("./audio/You_Died.wav");
+	gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
 	alGenSources (1, &gl.bulletSound);
+	alGenSources (1, &gl.youDiedSound);
+	alGenSources (1, &gl.playerHitSound);
 	alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
+	alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
+	alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
+
 }
 //function prototypes
 void init_opengl();
@@ -80,6 +88,13 @@ extern void reloadAmmunition();
 extern int hasBulletsLoaded(int x);
 extern void genBackground(GLuint bg);
 extern void genTree(GLuint tree,int x, int y);
+extern bool playerIsAlive();
+extern void drawYouDied(GLuint texture,int x, int y);
+extern void drawYouDied2(GLuint texture, int x, int y);
+extern bool deathSoundPlayed();
+extern void fadeToBlack();
+extern bool doneFading();
+
 extern void genTitleScreen(GLuint texture,GLuint texture2, int x, int y);
 extern bool menuFadedOut();
 extern void beginFade();
@@ -310,11 +325,21 @@ void init_opengl()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, treeData);
 
+	//You Died Image
+        glGenTextures(1, &gl.ydTexture);
+        w = img[15].width;
+        h = img[15].height;
+
+        glBindTexture(GL_TEXTURE_2D, gl.ydTexture);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        unsigned char *ydData = buildAlphaData(&img[15]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, ydData);
 	//Logo Image
         glGenTextures(1, &gl.logoTexture);
         w = img[15].width;
         h = img[15].height;
-
         glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -927,6 +952,8 @@ void firePistol(){
 	double ts = timeDiff(&g.bulletTimer, &bt);
 	if(ts>0.2){
 		damagePlayer();
+		thread ph(play_sound, gl.playerHitSound);
+		ph.detach();
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
@@ -1159,24 +1186,8 @@ void render()
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
 		//if (getCreditState()){
-			show_credits();/*
-							  glColor3ub(255,255,255);
-							  int wid=40;
-							  glPushMatrix();
-							  glTranslatef(200,200,0);
-							  glBindTexture(GL_TEXTURE_2D,gl.artTexture);
-							  glBegin(GL_QUADS);
-							  glTexCoord2f(0.0f,0.0f); glVertex2i(-wid,-wid);
-							  glTexCoord2f(1.0f,0.0f); glVertex2i(-wid,wid);
-							  glTexCoord2f(1.0f,1.0f); glVertex2i(wid,wid);
-							  glTexCoord2f(0.0f,1.0f); glVertex2i(wid,-wid);
-							  glEnd();
-							  glPopMatrix();
-							  return;*/
-			//	extern void art_picture(int x, int y, GLuint textid);
-			//	art_picture(200,gl.yres-100,gl.artTexture);
-			//}
-		} else {
+			show_credits();
+		} else if(playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -1347,8 +1358,23 @@ void render()
 				glEnd();
 				++bAst;
 			}
-		genTree(gl.treeTexture,100,550);
-                genTree(gl.treeTexture,1100,700);
-                genTree(gl.treeTexture,900,250);
+			genTree(gl.treeTexture,100,550);
+      genTree(gl.treeTexture,1100,700);
+      genTree(gl.treeTexture,900,250);
+		}else if(!playerIsAlive()){
+			glClear(GL_COLOR_BUFFER_BIT);
+			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+                        glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+			
+			if(!doneFading()){
+				fadeToBlack();
+			}else{
+				glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+				if(deathSoundPlayed()==0){
+					thread td(play_sound,gl.youDiedSound);
+					td.detach();
+				}
+			drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
+			}
 		}
 }

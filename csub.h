@@ -112,6 +112,7 @@ class Global {
 	    GLuint bulletTexture;
 	    GLuint bgTexture;
 	    GLuint treeTexture;
+	    GLuint ydTexture;
 		GLuint tileTexture;
 		GLuint logoTexture;
 		GLuint textTexture;
@@ -121,7 +122,9 @@ class Global {
 		GLuint characterKnife;
 	    //Store sound sources here.
 	    ALuint bulletSound;
-	    ALuint buffers[1];
+	    ALuint youDiedSound;
+	    ALuint playerHitSound;
+	    ALuint buffers[3];
 		int xres, yres;
 		int credits;
 		char keys[65536];
