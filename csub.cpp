@@ -680,15 +680,15 @@ void physics()
 		//g.ship.pos[0] += (float)gl.xres;
 		g.ship.pos[0] = 0.0;
 	}
-	else if (g.ship.pos[0] > (float)gl.xres) {
+	if (g.ship.pos[0] > (float)gl.xres) {
 		//g.ship.pos[0] -= (float)gl.xres;
 		g.ship.pos[0] = (float)gl.xres;
 	}
-	else if (g.ship.pos[1] < 0.0) {
+	if (g.ship.pos[1] < 0.0) {
 		//g.ship.pos[1] += (float)gl.yres;
 		g.ship.pos[1] = 0.0;
 	}
-	else if (g.ship.pos[1] > (float)gl.yres) {
+	if (g.ship.pos[1] > (float)gl.yres) {
 		//g.ship.pos[1] -= (float)gl.yres;
 		g.ship.pos[1] = gl.yres;
 	}
@@ -812,7 +812,7 @@ void physics()
 				flipVel[velSwitchCounter] = 1;
 		}
 
-		//This code checks for player bullet and enemy collision. 
+		//This code checks for player bullet and enemy collision.
 		int bulls=0;
 		while (bulls < g.nbullets) {
                 	Bullet *b = &g.barr[bulls];
@@ -1406,14 +1406,14 @@ void render()
 				glEnd();
 				++bAst;
 			}
-			genTree(gl.treeTexture,100,550);
-      			genTree(gl.treeTexture,1100,700);
-      			genTree(gl.treeTexture,900,250);
+			genTree(gl.treeTexture,100,100);
+      			//genTree(gl.treeTexture,1100,700);
+      			//genTree(gl.treeTexture,900,250);
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
                         glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-			
+
 			if(!doneFading()){
 				fadeToBlack();
 			}else{
