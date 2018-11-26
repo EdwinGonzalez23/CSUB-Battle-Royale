@@ -418,22 +418,22 @@ void init_opengl()
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, wallBData);
 		//wallL Icon
-		glGenTextures(1, &gl.wallB);
+		glGenTextures(1, &gl.wallL);
 		w = img[23].width;
 		h = img[23].height;
 
-		glBindTexture(GL_TEXTURE_2D, gl.wallB);
+		glBindTexture(GL_TEXTURE_2D, gl.wallL);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		unsigned char *wallLData = buildAlphaData(&img[23]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, wallLData);
 		//wallR Icon
-		glGenTextures(1, &gl.wallB);
+		glGenTextures(1, &gl.wallR);
 		w = img[24].width;
 		h = img[24].height;
 
-		glBindTexture(GL_TEXTURE_2D, gl.wallB);
+		glBindTexture(GL_TEXTURE_2D, gl.wallR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		unsigned char *wallRData = buildAlphaData(&img[24]);
@@ -461,13 +461,13 @@ void init_opengl()
 			GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
 		//House Floor Empty Image
 		glGenTextures(1,&gl.wallEmpty);
-        w = img[26].width;
-		h = img[26].height;
+        w = img[27].width;
+		h = img[27].height;
 		glBindTexture(GL_TEXTURE_2D, gl.wallEmpty);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
+			GL_RGB, GL_UNSIGNED_BYTE, img[27].data);
 
 
 	//OpenGL initialization
@@ -1381,6 +1381,25 @@ void render()
 			genWall(768, 768, gl.wallT);
 			genWallCorner(832, 768, 270, gl.wallCorner);
 			genWall(832, 704, gl.wallR);
+			genWall(832, 640, gl.wallR);
+			genWall(832, 576, gl.wallEmpty);
+			genWallCorner(832, 512, 180, gl.wallCorner);
+			genWall(704, 512, gl.wallB);
+			genWall(768, 512, gl.wallB);
+			genWallCorner(640, 512, 90, gl.wallCorner);
+			genWall(640, 704, gl.wallL);
+			genWall(640, 640, gl.wallL);
+			genWall(640, 576, gl.wallL);
+
+			genWall(768, 576, gl.wallEmpty);
+			genWall(704, 576, gl.wallEmpty);
+			genWall(768, 640, gl.wallEmpty);
+			genWall(704, 640, gl.wallEmpty);
+			genWall(768, 704, gl.wallEmpty);
+			genWall(704, 704, gl.wallEmpty);
+
+
+
 			//for (int i = 0; i)
 			gunSpawnManager(g.itemTimer);
 			genRifle(gl.rTexture);
