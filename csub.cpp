@@ -1376,6 +1376,30 @@ void render()
 			extern void genWall(int x, int y, GLuint texid);
 			extern void genWallCorner(int x, int y, int angle, GLuint texid);
 
+			//House 1
+			genWallCorner(1640, 768+412, 0, gl.wallCorner);
+			genWall(1704, 768+412, gl.wallT);
+			genWall(1768, 768+412, gl.wallEmpty);
+			genWallCorner(1832, 768+412, 270, gl.wallCorner);
+			genWall(1832, 704+412, gl.wallR);
+			genWall(1832, 640+412, gl.wallR);
+			genWall(1832, 576+412, gl.wallR);
+			genWallCorner(1832, 512+412, 180, gl.wallCorner);
+			genWall(1704, 512+412, gl.wallB);
+			genWall(1768, 512+412, gl.wallB);
+			genWallCorner(1640, 512+412, 90, gl.wallCorner);
+			genWall(1640, 704+412,gl.wallL);
+			genWall(1640, 640+412, gl.wallL);
+			genWall(1640, 576+412, gl.wallL);
+
+			genWall(1768, 576+412, gl.wallEmpty);
+			genWall(1704, 576+412, gl.wallEmpty);
+			genWall(1768, 640+412, gl.wallEmpty);
+			genWall(1704, 640+412, gl.wallEmpty);
+			genWall(1768, 704+412, gl.wallEmpty);
+			genWall(1704, 704+412, gl.wallEmpty);
+
+			//House 2
 			genWallCorner(640, 768, 0, gl.wallCorner);
 			genWall(704, 768, gl.wallT);
 			genWall(768, 768, gl.wallT);
@@ -1397,7 +1421,29 @@ void render()
 			genWall(704, 640, gl.wallEmpty);
 			genWall(768, 704, gl.wallEmpty);
 			genWall(704, 704, gl.wallEmpty);
+			
+			//House 3
+			genWallCorner(640-576, 768+468, 0, gl.wallCorner);
+			genWall(704-576, 768+468, gl.wallT);
+			genWall(768-576, 768+468, gl.wallT);
+			genWallCorner(832-576, 768+468, 270, gl.wallCorner);
+			genWall(832-576, 704+468, gl.wallR);
+			genWall(832-576, 640+468, gl.wallR);
+			genWall(832-576, 576+468, gl.wallEmpty);
+			genWallCorner(832-576, 512+468, 180, gl.wallCorner);
+			genWall(704-576, 512+468, gl.wallB);
+			genWall(768-576, 512+468, gl.wallB);
+			genWallCorner(640-576, 512+468, 90, gl.wallCorner);
+			genWall(640-576, 704+468, gl.wallL);
+			genWall(640-576, 640+468, gl.wallL);
+			genWall(640-576, 576+468, gl.wallL);
 
+			genWall(768-576, 576+468, gl.wallEmpty);
+			genWall(704-576, 576+468, gl.wallEmpty);
+			genWall(768-576, 640+468, gl.wallEmpty);
+			genWall(704-576, 640+468, gl.wallEmpty);
+			genWall(768-576, 704+468, gl.wallEmpty);
+			genWall(704-576, 704+468, gl.wallEmpty);
 
 
 			//for (int i = 0; i)
