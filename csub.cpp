@@ -26,10 +26,13 @@
 #include "csub.h"
 using namespace std;
 
-Image img[19]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[28]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png"};
+	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
+	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
+	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
+	"images/tiles/wallCenter.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -371,7 +374,101 @@ void init_opengl()
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-	GL_RGB, GL_UNSIGNED_BYTE, img[18].data);
+		GL_RGB, GL_UNSIGNED_BYTE, img[18].data);
+
+		//Road Image
+		glGenTextures(1,&gl.roadTexture);
+        w = img[19].width;
+		h = img[19].height;
+		glBindTexture(GL_TEXTURE_2D, gl.roadTexture);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[19].data);
+
+		//Grass Image
+		glGenTextures(1,&gl.grassTexture);
+        w = img[20].width;
+		h = img[20].height;
+		glBindTexture(GL_TEXTURE_2D, gl.grassTexture);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[20].data);
+
+		//House Floor Image
+		glGenTextures(1,&gl.floorTexture);
+        w = img[21].width;
+		h = img[21].height;
+		glBindTexture(GL_TEXTURE_2D, gl.floorTexture);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[21].data);
+
+		//wallB Icon
+		glGenTextures(1, &gl.wallB);
+		w = img[22].width;
+		h = img[22].height;
+		
+		glBindTexture(GL_TEXTURE_2D, gl.wallB);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		unsigned char *wallBData = buildAlphaData(&img[22]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, wallBData);
+		//wallL Icon
+		glGenTextures(1, &gl.wallB);
+		w = img[23].width;
+		h = img[23].height;
+
+		glBindTexture(GL_TEXTURE_2D, gl.wallB);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		unsigned char *wallLData = buildAlphaData(&img[23]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, wallLData);
+		//wallR Icon
+		glGenTextures(1, &gl.wallB);
+		w = img[24].width;
+		h = img[24].height;
+
+		glBindTexture(GL_TEXTURE_2D, gl.wallB);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		unsigned char *wallRData = buildAlphaData(&img[24]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, wallRData);
+		//wallT Icon
+		glGenTextures(1, &gl.wallT);
+		w = img[25].width;
+		h = img[25].height;
+
+		glBindTexture(GL_TEXTURE_2D, gl.wallT);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		unsigned char *wallTData = buildAlphaData(&img[25]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, wallTData);
+		//House Corner Image
+		glGenTextures(1,&gl.wallCorner);
+        w = img[26].width;
+		h = img[26].height;
+		glBindTexture(GL_TEXTURE_2D, gl.wallCorner);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
+		//House Floor Empty Image
+		glGenTextures(1,&gl.wallEmpty);
+        w = img[26].width;
+		h = img[26].height;
+		glBindTexture(GL_TEXTURE_2D, gl.wallEmpty);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
+
 
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
@@ -1249,10 +1346,47 @@ void render()
 			genAmmo(gl.bulletTexture);
 			reloadAmmunition();
 			printCurrentWeapon(getCurrentWeapon(),r);
+			
+			//Draw Map
+
+			//Draw Roads
+			extern void genRoadHorizontal(int x, int y, GLuint texid);
+			extern void genRoadVertical(int x, int y, GLuint texid);
+			for (int i = -7; i < 35; i++) {
+				genRoadHorizontal((i*128), 192, gl.roadTexture);
+			}
+
+			for (int i = -7; i < 35; i++) {
+				genRoadHorizontal((i*128), 1408, gl.roadTexture);
+			}
+
+			for (int i = -7; i < 35; i++) {
+				genRoadVertical(512, (i*128), gl.roadTexture);
+			}
+			for (int i = -7; i < 35; i++) {
+				genRoadVertical(1024, (i*128), gl.roadTexture);
+			}
+
+			for (int i = -7; i < 35; i++) {
+				genRoadVertical(512, (i*128), gl.roadTexture);
+			}
+
+			
+			//Draw Walls
+			extern void genWall(int x, int y, GLuint texid);
+			extern void genWallCorner(int x, int y, int angle, GLuint texid);
+
+			genWallCorner(640, 768, 0, gl.wallCorner);
+			genWall(704, 768, gl.wallT);
+			genWall(768, 768, gl.wallT);
+			genWallCorner(832, 768, 270, gl.wallCorner);
+			genWall(832, 704, gl.wallR);
+			//for (int i = 0; i)
 			gunSpawnManager(g.itemTimer);
 			genRifle(gl.rTexture);
 			genShotgun(gl.sTexture);
 			genMachineGun(gl.mgTexture);
+
 			//-------------
 			//Draw the ship
 
@@ -1273,6 +1407,9 @@ void render()
 			glVertex2f(0.0f, 0.0f);
 			glEnd();
 			glPopMatrix();
+			cout << "X: " <<g.ship.pos[0] << endl;
+			cout << "Y: " <<g.ship.pos[1] << endl;
+
 
 			getCharacter();
 

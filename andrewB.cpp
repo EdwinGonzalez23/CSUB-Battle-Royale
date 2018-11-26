@@ -18,6 +18,7 @@ void andrew_credits(int x, int y)
 
 void andrew_picture(int x, int y, GLuint texid)
 {
+
     glColor3ub(255, 255, 255);
     int w=50;
     glPushMatrix();
@@ -35,7 +36,6 @@ void andrew_picture(int x, int y, GLuint texid)
 
 void character(int x, int y, int z, float angle, GLuint texid)
 {
-	
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
     int w = 25; 
@@ -80,78 +80,67 @@ void enemy(int x, int y, int z, float angle, GLuint texid)
     glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-/*
-int numberofwalls = 0;
-//Structures for Shapes
-struct Vect {
-    float x;
-    float y;
-    float z;
-};
 
-    struct Color {
-    int r;
-    int g;
-    int b;
-};
-
-    struct Shape {
-    float height;
-    float width;
-    float radius;
-    Vect center;
-    Color color;
-};
-
-void draw_wall(struct Vect walls, struct Color walls, struct Shape Walls) {
-    Shape *walls;
-    float w = width;
-    float h = height;
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glColor3ub(1.0,0.0,0.0);
-    glPushMatrix();
-    glTranslatef(s->center.x, s->center.y, s->center.z);
-    glBegin(GL_QUADS);
-    glVertex2i(-w, -h);
-    glVertex2i(-w,  h);
-    glVertex2i( w,  h);
-    glVertex2i( w, -h);
-    glEnd();
-    glPopMatrix();
-    walls = &g.walls[]
-    }
-};
-
-void draw_wall()
+void genRoadHorizontal(int x, int y, GLuint texid)
 {
-    Shape *s;
-    float w, h;
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glColor3ub(1.0,0.0,0.0);
+    glColor3ub(255, 255, 255);
+    int w=64;
     glPushMatrix();
-    glTranslatef(s->center.x, s->center.y, s->center.z);
-    w = s->width;
-    h = s->height;
+    glTranslatef(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-    glVertex2i(-w, -h);
-    glVertex2i(-w,  h);
-    glVertex2i( w,  h);
-    glVertex2i( w, -h);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
     glEnd();
-    glPopMatrix();
-    s = &g.wall[0];
+    glPopMatrix(); 
+}
+void genRoadVertical(int x, int y, GLuint texid)
+{
+    glColor3ub(255, 255, 255);
+    int w=64;
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glRotatef(90, 0.0f, 0.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
+    glEnd();
+    glPopMatrix(); 
 }
 
-void setup_house()
+void genWall(int x, int y, GLuint texid)
 {
-    wall[0].width = 60;
-    wall[0].height = 5;
-    wall[0].center.x = gl.xres * 0.20;
-    wall[0].center.y = gl.yres * 0.80;
-    wall[0].color.r = 1.0;
-    wall[0].color.g = 0.0;
-    wall[0].color.b = 0.0;
-    
- }
-*/
-
+    glColor3ub(255, 255, 255);
+    int w=32;
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
+    glEnd();
+    glPopMatrix(); 
+}
+void genWallCorner(int x, int y, int angle, GLuint texid)
+{
+    glColor3ub(255, 255, 255);
+    int w=32;
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glRotatef(angle, 0.0f, 0.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
+    glEnd();
+    glPopMatrix(); 
+}

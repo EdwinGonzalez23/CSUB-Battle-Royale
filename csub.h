@@ -120,6 +120,15 @@ class Global {
 		GLuint characterRifle;
 		GLuint characterShotgun;
 		GLuint characterKnife;
+		GLuint roadTexture;
+		GLuint grassTexture;
+		GLuint floorTexture;
+		GLuint wallB;
+		GLuint wallL;
+		GLuint wallR;
+		GLuint wallT;
+		GLuint wallCorner;
+		GLuint wallEmpty;
 	    //Store sound sources here.
 	    ALuint bulletSound;
 	    ALuint youDiedSound;
