@@ -27,23 +27,23 @@
 using namespace std;
 
 Image img[28]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
-	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
-	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
-	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
-	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
-	"images/tiles/wallCenter.png"};
+    "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
+    "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
+    "bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
+    "images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
+    "images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
+    "images/tiles/wallCenter.png"};
 void setup_sound(Global &gl){
-	alutInit (NULL, NULL);
-	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
-	gl.buffers[1] = alutCreateBufferFromFile ("./audio/You_Died.wav");
-	gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
-	alGenSources (1, &gl.bulletSound);
-	alGenSources (1, &gl.youDiedSound);
-	alGenSources (1, &gl.playerHitSound);
-	alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
-	alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
-	alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
+    alutInit (NULL, NULL);
+    gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
+    gl.buffers[1] = alutCreateBufferFromFile ("./audio/You_Died.wav");
+    gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
+    alGenSources (1, &gl.bulletSound);
+    alGenSources (1, &gl.youDiedSound);
+    alGenSources (1, &gl.playerHitSound);
+    alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
+    alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
+    alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
 
 }
 //function prototypes
@@ -55,6 +55,9 @@ void render();
 //Added Function prototypes
 void firePistol();
 void fireRifle();
+void eFireRifle(Asteroid *a, int);
+void eFireMachineGun(Asteroid *a, int);
+void eFirePistol(Asteroid *a, int);
 void fireShotgun();
 void generatePellet();
 void fireMachineGun();
@@ -110,599 +113,599 @@ extern bool playerHasWon();
 //==========================================================================
 int main()
 {
-	logOpen();
-	init_opengl();
-	srand(time(NULL));
-	x11.set_mouse_position(100, 100);
-	setup_sound(gl);
-	timeInit(g.itemTimer);
-	setItemBoundary(gl.xres,gl.yres);
-	int done=0;
-	while (!done) {
-		while (x11.getXPending()) {
-			XEvent e = x11.getXNextEvent();
-			x11.check_resize(&e);
-			check_mouse(&e);
-			done = check_keys(&e);
-		}
-		physics();
-		render();
-		x11.swapBuffers();
+    logOpen();
+    init_opengl();
+    srand(time(NULL));
+    x11.set_mouse_position(100, 100);
+    setup_sound(gl);
+    timeInit(g.itemTimer);
+    setItemBoundary(gl.xres,gl.yres);
+    int done=0;
+    while (!done) {
+	while (x11.getXPending()) {
+	    XEvent e = x11.getXNextEvent();
+	    x11.check_resize(&e);
+	    check_mouse(&e);
+	    done = check_keys(&e);
 	}
-	cleanup_fonts();
-	alutExit();
-	logClose();
-	return 0;
+	physics();
+	render();
+	x11.swapBuffers();
+    }
+    cleanup_fonts();
+    alutExit();
+    logClose();
+    return 0;
 }
 
 unsigned char *buildAlphaData(Image *img)
 {
-	//add 4th component to RGB stream...
-	int i;
-	unsigned char *newdata, *ptr;
-	unsigned char *data = (unsigned char *)img->data;
-	newdata = (unsigned char *)malloc(img->width * img->height * 4);
-	ptr = newdata;
-	unsigned char a,b,c;
-	//use the first pixel in the image as the transparent color.
-	unsigned char t0 = *(data+0);
-	unsigned char t1 = *(data+1);
-	unsigned char t2 = *(data+2);
-	for (i=0; i<img->width * img->height * 3; i+=3) {
-		a = *(data+0);
-		b = *(data+1);
-		c = *(data+2);
-		*(ptr+0) = a;
-		*(ptr+1) = b;
-		*(ptr+2) = c;
-		*(ptr+3) = 1;
-		if (a==t0 && b==t1 && c==t2)
-			*(ptr+3) = 0;
-		//-----------------------------------------------
-		ptr += 4;
-		data += 3;
-	}
-return newdata;
+    //add 4th component to RGB stream...
+    int i;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    unsigned char a,b,c;
+    //use the first pixel in the image as the transparent color.
+    unsigned char t0 = *(data+0);
+    unsigned char t1 = *(data+1);
+    unsigned char t2 = *(data+2);
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+	a = *(data+0);
+	b = *(data+1);
+	c = *(data+2);
+	*(ptr+0) = a;
+	*(ptr+1) = b;
+	*(ptr+2) = c;
+	*(ptr+3) = 1;
+	if (a==t0 && b==t1 && c==t2)
+	    *(ptr+3) = 0;
+	//-----------------------------------------------
+	ptr += 4;
+	data += 3;
+    }
+    return newdata;
 }
 
 void init_opengl()
 {
-	//RIFLE TEXTURE
-	glGenTextures(1,&gl.rTexture);
-	int w = img[5].width;
-	int h = img[5].height;
-	glBindTexture(GL_TEXTURE_2D, gl.rTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
-	//SHOTGUN TEXTURE
-	glGenTextures(1,&gl.sTexture);
-	w = img[6].width;
-	h = img[6].height;
-	glBindTexture(GL_TEXTURE_2D, gl.sTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[6].data);
-	//MACHINE GUN TEXTURE
-	glGenTextures(1,&gl.mgTexture);
-	w = img[7].width;
-	h = img[7].height;
-	glBindTexture(GL_TEXTURE_2D, gl.mgTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
-	// ART TEXTURE
-	//
-	glGenTextures(1,&gl.artTexture);
-	w = img[0].width;
-	h = img[0].height;
-	glBindTexture(GL_TEXTURE_2D, gl.artTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
-	// Bryan TEXTURE
-	//
-	glGenTextures(1,&gl.bryanTexture);
-	w = img[3].width;
-	h = img[3].height;
-	glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
-	// Andrew TEXTURE
-	//
-	glGenTextures(1,&gl.andrewTexture);
-	w = img[4].width;
-	h = img[4].height;
-	glBindTexture(GL_TEXTURE_2D, gl.andrewTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-	// Joel TEXTURE
-	//
-	glGenTextures(1,&gl.joelTexture);
-	w = img[1].width;
-	h = img[1].height;
-	glBindTexture(GL_TEXTURE_2D, gl.joelTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
-	// edwin TEXTURE
-	//
-	glGenTextures(1,&gl.edwinTexture);
-	w = img[2].width;
-	h = img[2].height;
-	glBindTexture(GL_TEXTURE_2D, gl.edwinTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+    //RIFLE TEXTURE
+    glGenTextures(1,&gl.rTexture);
+    int w = img[5].width;
+    int h = img[5].height;
+    glBindTexture(GL_TEXTURE_2D, gl.rTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
+    //SHOTGUN TEXTURE
+    glGenTextures(1,&gl.sTexture);
+    w = img[6].width;
+    h = img[6].height;
+    glBindTexture(GL_TEXTURE_2D, gl.sTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[6].data);
+    //MACHINE GUN TEXTURE
+    glGenTextures(1,&gl.mgTexture);
+    w = img[7].width;
+    h = img[7].height;
+    glBindTexture(GL_TEXTURE_2D, gl.mgTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
+    // ART TEXTURE
+    //
+    glGenTextures(1,&gl.artTexture);
+    w = img[0].width;
+    h = img[0].height;
+    glBindTexture(GL_TEXTURE_2D, gl.artTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+    // Bryan TEXTURE
+    //
+    glGenTextures(1,&gl.bryanTexture);
+    w = img[3].width;
+    h = img[3].height;
+    glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
+    // Andrew TEXTURE
+    //
+    glGenTextures(1,&gl.andrewTexture);
+    w = img[4].width;
+    h = img[4].height;
+    glBindTexture(GL_TEXTURE_2D, gl.andrewTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+    // Joel TEXTURE
+    //
+    glGenTextures(1,&gl.joelTexture);
+    w = img[1].width;
+    h = img[1].height;
+    glBindTexture(GL_TEXTURE_2D, gl.joelTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+    // edwin TEXTURE
+    //
+    glGenTextures(1,&gl.edwinTexture);
+    w = img[2].width;
+    h = img[2].height;
+    glBindTexture(GL_TEXTURE_2D, gl.edwinTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
 
-	//Handgun Model
-	glGenTextures(1, &gl.characterHandgun);
-	w = img[8].width;
-	h = img[8].height;
+    //Handgun Model
+    glGenTextures(1, &gl.characterHandgun);
+    w = img[8].width;
+    h = img[8].height;
 
-	glBindTexture(GL_TEXTURE_2D, gl.characterHandgun);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, gl.characterHandgun);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-	unsigned char *HandgunData = buildAlphaData(&img[9]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, HandgunData);
+    unsigned char *HandgunData = buildAlphaData(&img[9]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, HandgunData);
 
-	//Rifle Model
-	glGenTextures(1, &gl.characterRifle);
-	w = img[9].width;
-	h = img[9].height;
+    //Rifle Model
+    glGenTextures(1, &gl.characterRifle);
+    w = img[9].width;
+    h = img[9].height;
 
-	glBindTexture(GL_TEXTURE_2D, gl.characterRifle);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, gl.characterRifle);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-	unsigned char *RifleData = buildAlphaData(&img[9]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, RifleData);
+    unsigned char *RifleData = buildAlphaData(&img[9]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, RifleData);
 
-	//Shotgun Model
-	glGenTextures(1, &gl.characterShotgun);
-	w = img[10].width;
-	h = img[10].height;
+    //Shotgun Model
+    glGenTextures(1, &gl.characterShotgun);
+    w = img[10].width;
+    h = img[10].height;
 
-	glBindTexture(GL_TEXTURE_2D, gl.characterShotgun);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, gl.characterShotgun);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-	unsigned char *ShotgunData = buildAlphaData(&img[10]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, ShotgunData);
+    unsigned char *ShotgunData = buildAlphaData(&img[10]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, ShotgunData);
 
-	//Knife Model
-	glGenTextures(1, &gl.characterKnife);
-	w = img[11].width;
-	h = img[11].height;
+    //Knife Model
+    glGenTextures(1, &gl.characterKnife);
+    w = img[11].width;
+    h = img[11].height;
 
-	glBindTexture(GL_TEXTURE_2D, gl.characterKnife);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, gl.characterKnife);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-	unsigned char *KnifeData = buildAlphaData(&img[11]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, KnifeData);
+    unsigned char *KnifeData = buildAlphaData(&img[11]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, KnifeData);
 
-	//Bullet Icon
-	glGenTextures(1, &gl.bulletTexture);
-	w = img[12].width;
-	h = img[12].height;
+    //Bullet Icon
+    glGenTextures(1, &gl.bulletTexture);
+    w = img[12].width;
+    h = img[12].height;
 
-	glBindTexture(GL_TEXTURE_2D, gl.bulletTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	unsigned char *bulletData = buildAlphaData(&img[12]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, bulletData);
+    glBindTexture(GL_TEXTURE_2D, gl.bulletTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *bulletData = buildAlphaData(&img[12]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, bulletData);
 
-        //Background image
-	glGenTextures(1,&gl.bgTexture);
-        w = img[13].width;
-        h = img[13].height;
-        glBindTexture(GL_TEXTURE_2D, gl.bgTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-                        GL_RGB, GL_UNSIGNED_BYTE, img[13].data);
+    //Background image
+    glGenTextures(1,&gl.bgTexture);
+    w = img[13].width;
+    h = img[13].height;
+    glBindTexture(GL_TEXTURE_2D, gl.bgTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[13].data);
 
-        //Tree Image
-        glGenTextures(1, &gl.treeTexture);
-        w = img[14].width;
-        h = img[14].height;
+    //Tree Image
+    glGenTextures(1, &gl.treeTexture);
+    w = img[14].width;
+    h = img[14].height;
 
-        glBindTexture(GL_TEXTURE_2D, gl.treeTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *treeData = buildAlphaData(&img[14]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-                        GL_RGBA, GL_UNSIGNED_BYTE, treeData);
+    glBindTexture(GL_TEXTURE_2D, gl.treeTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *treeData = buildAlphaData(&img[14]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, treeData);
 
-	//You Died Image
-        glGenTextures(1, &gl.ydTexture);
-        w = img[15].width;
-        h = img[15].height;
+    //You Died Image
+    glGenTextures(1, &gl.ydTexture);
+    w = img[15].width;
+    h = img[15].height;
 
-        glBindTexture(GL_TEXTURE_2D, gl.ydTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *ydData = buildAlphaData(&img[15]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-                        GL_RGBA, GL_UNSIGNED_BYTE, ydData);
-	//Logo Image
-        glGenTextures(1, &gl.logoTexture);
-        w = img[16].width;
-        h = img[16].height;
-        glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *logoData = buildAlphaData(&img[16]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-                        GL_RGBA, GL_UNSIGNED_BYTE, logoData);
-
-
-        //Intro Text
-        glGenTextures(1, &gl.textTexture);
-        w = img[17].width;
-        h = img[17].height;
-
-        glBindTexture(GL_TEXTURE_2D, gl.textTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        unsigned char *textData = buildAlphaData(&img[17]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-                        GL_RGBA, GL_UNSIGNED_BYTE, textData);
-
-        // green tile TEXTURE
-        glGenTextures(1,&gl.tileTexture);
-        w = img[18].width;
-        h = img[18].height;
-        glBindTexture(GL_TEXTURE_2D, gl.tileTexture);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, img[18].data);
-
-		//Road Image
-		glGenTextures(1,&gl.roadTexture);
-        w = img[19].width;
-		h = img[19].height;
-		glBindTexture(GL_TEXTURE_2D, gl.roadTexture);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[19].data);
-
-		//Grass Image
-		glGenTextures(1,&gl.grassTexture);
-        w = img[20].width;
-		h = img[20].height;
-		glBindTexture(GL_TEXTURE_2D, gl.grassTexture);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[20].data);
-
-		//House Floor Image
-		glGenTextures(1,&gl.floorTexture);
-        w = img[21].width;
-		h = img[21].height;
-		glBindTexture(GL_TEXTURE_2D, gl.floorTexture);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[21].data);
-
-		//wallB Icon
-		glGenTextures(1, &gl.wallB);
-		w = img[22].width;
-		h = img[22].height;
-		
-		glBindTexture(GL_TEXTURE_2D, gl.wallB);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		unsigned char *wallBData = buildAlphaData(&img[22]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, wallBData);
-		//wallL Icon
-		glGenTextures(1, &gl.wallL);
-		w = img[23].width;
-		h = img[23].height;
-
-		glBindTexture(GL_TEXTURE_2D, gl.wallL);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		unsigned char *wallLData = buildAlphaData(&img[23]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, wallLData);
-		//wallR Icon
-		glGenTextures(1, &gl.wallR);
-		w = img[24].width;
-		h = img[24].height;
-
-		glBindTexture(GL_TEXTURE_2D, gl.wallR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		unsigned char *wallRData = buildAlphaData(&img[24]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, wallRData);
-		//wallT Icon
-		glGenTextures(1, &gl.wallT);
-		w = img[25].width;
-		h = img[25].height;
-
-		glBindTexture(GL_TEXTURE_2D, gl.wallT);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		unsigned char *wallTData = buildAlphaData(&img[25]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, wallTData);
-		//House Corner Image
-		glGenTextures(1,&gl.wallCorner);
-        w = img[26].width;
-		h = img[26].height;
-		glBindTexture(GL_TEXTURE_2D, gl.wallCorner);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
-		//House Floor Empty Image
-		glGenTextures(1,&gl.wallEmpty);
-        w = img[27].width;
-		h = img[27].height;
-		glBindTexture(GL_TEXTURE_2D, gl.wallEmpty);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[27].data);
+    glBindTexture(GL_TEXTURE_2D, gl.ydTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *ydData = buildAlphaData(&img[15]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, ydData);
+    //Logo Image
+    glGenTextures(1, &gl.logoTexture);
+    w = img[16].width;
+    h = img[16].height;
+    glBindTexture(GL_TEXTURE_2D, gl.logoTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *logoData = buildAlphaData(&img[16]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, logoData);
 
 
-	//OpenGL initialization
-	glViewport(0, 0, gl.xres, gl.yres);
-	//Initialize matrices
-	// glMatrixMode(GL_PROJECTION); glLoadIdentity();
-	// glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	// //This sets 2D mode (no perspective)
-	// glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-	//
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_FOG);
-	glDisable(GL_CULL_FACE);
-	//
-	//Clear the screen to black
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	//Do this to allow fonts
-	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+    //Intro Text
+    glGenTextures(1, &gl.textTexture);
+    w = img[17].width;
+    h = img[17].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.textTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *textData = buildAlphaData(&img[17]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, textData);
+
+    // green tile TEXTURE
+    glGenTextures(1,&gl.tileTexture);
+    w = img[18].width;
+    h = img[18].height;
+    glBindTexture(GL_TEXTURE_2D, gl.tileTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[18].data);
+
+    //Road Image
+    glGenTextures(1,&gl.roadTexture);
+    w = img[19].width;
+    h = img[19].height;
+    glBindTexture(GL_TEXTURE_2D, gl.roadTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[19].data);
+
+    //Grass Image
+    glGenTextures(1,&gl.grassTexture);
+    w = img[20].width;
+    h = img[20].height;
+    glBindTexture(GL_TEXTURE_2D, gl.grassTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[20].data);
+
+    //House Floor Image
+    glGenTextures(1,&gl.floorTexture);
+    w = img[21].width;
+    h = img[21].height;
+    glBindTexture(GL_TEXTURE_2D, gl.floorTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[21].data);
+
+    //wallB Icon
+    glGenTextures(1, &gl.wallB);
+    w = img[22].width;
+    h = img[22].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.wallB);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *wallBData = buildAlphaData(&img[22]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, wallBData);
+    //wallL Icon
+    glGenTextures(1, &gl.wallL);
+    w = img[23].width;
+    h = img[23].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.wallL);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *wallLData = buildAlphaData(&img[23]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, wallLData);
+    //wallR Icon
+    glGenTextures(1, &gl.wallR);
+    w = img[24].width;
+    h = img[24].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.wallR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *wallRData = buildAlphaData(&img[24]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, wallRData);
+    //wallT Icon
+    glGenTextures(1, &gl.wallT);
+    w = img[25].width;
+    h = img[25].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.wallT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *wallTData = buildAlphaData(&img[25]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, wallTData);
+    //House Corner Image
+    glGenTextures(1,&gl.wallCorner);
+    w = img[26].width;
+    h = img[26].height;
+    glBindTexture(GL_TEXTURE_2D, gl.wallCorner);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[26].data);
+    //House Floor Empty Image
+    glGenTextures(1,&gl.wallEmpty);
+    w = img[27].width;
+    h = img[27].height;
+    glBindTexture(GL_TEXTURE_2D, gl.wallEmpty);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[27].data);
+
+
+    //OpenGL initialization
+    glViewport(0, 0, gl.xres, gl.yres);
+    //Initialize matrices
+    // glMatrixMode(GL_PROJECTION); glLoadIdentity();
+    // glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+    // //This sets 2D mode (no perspective)
+    // glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+    //
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_FOG);
+    glDisable(GL_CULL_FACE);
+    //
+    //Clear the screen to black
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    //Do this to allow fonts
+    glEnable(GL_TEXTURE_2D);
+    initialize_fonts();
 }
 void normalize2d(Vec v)
 {
-	Flt len = v[0]*v[0] + v[1]*v[1];
-	if (len == 0.0f) {
-		v[0] = 1.0;
-		v[1] = 0.0;
-		return;
-	}
-	len = 1.0f / sqrt(len);
-	v[0] *= len;
-	v[1] *= len;
+    Flt len = v[0]*v[0] + v[1]*v[1];
+    if (len == 0.0f) {
+	v[0] = 1.0;
+	v[1] = 0.0;
+	return;
+    }
+    len = 1.0f / sqrt(len);
+    v[0] *= len;
+    v[1] *= len;
 }
 void check_mouse(XEvent *e)
 {
-	//Was a mouse button clicked?
-	static int savex = 0;
-	static int savey = 0;
-	static int ct=0;
-	if (e->type != ButtonPress &&
-			e->type != ButtonRelease &&
-			e->type != MotionNotify)
-		return;
-	if (e->type == ButtonRelease)
-		return;
-	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
-			//Left button is down
-			switch(getCurrentWeapon()){
-				case 1:
-					if(hasBulletsLoaded(getCurrentWeapon())){
-						firePistol();
-					}
-					break;
-				case 2:
-					if(hasBulletsLoaded(getCurrentWeapon())){
-						fireRifle();
-					}
-					break;
-				case 3:
-					if(hasBulletsLoaded(getCurrentWeapon())){
-						fireShotgun();
-					}
-					break;
-				case 4:
-					if(hasBulletsLoaded(getCurrentWeapon())){
-						fireMachineGun();
-					}
-					break;
-			}
-		}
-		if (e->xbutton.button==3) {
-			//Right button is down
-		}
+    //Was a mouse button clicked?
+    static int savex = 0;
+    static int savey = 0;
+    static int ct=0;
+    if (e->type != ButtonPress &&
+	    e->type != ButtonRelease &&
+	    e->type != MotionNotify)
+	return;
+    if (e->type == ButtonRelease)
+	return;
+    if (e->type == ButtonPress) {
+	if (e->xbutton.button==1) {
+	    //Left button is down
+	    switch(getCurrentWeapon()){
+		case 1:
+		    if(hasBulletsLoaded(getCurrentWeapon())){
+			firePistol();
+		    }
+		    break;
+		case 2:
+		    if(hasBulletsLoaded(getCurrentWeapon())){
+			fireRifle();
+		    }
+		    break;
+		case 3:
+		    if(hasBulletsLoaded(getCurrentWeapon())){
+			fireShotgun();
+		    }
+		    break;
+		case 4:
+		    if(hasBulletsLoaded(getCurrentWeapon())){
+			fireMachineGun();
+		    }
+		    break;
+	    }
 	}
-	if (e->type == MotionNotify) {
-		if (savex != e->xbutton.x || savey != e->xbutton.y) {
-			//Mouse moved
-			int xdiff = savex - e->xbutton.x;
-			//int ydiff = savey - e->xbutton.y;
-			if (++ct < 10)
-				return;
-			if (xdiff > 0) {
-				//mouse moved along the x-axis.
-				g.ship.angle += 0.05f * (float)xdiff;
-				if (g.ship.angle >= 360.0f)
-					g.ship.angle -= 360.0f;
-			}
-			else if (xdiff < 0) {
-				g.ship.angle += 0.05f * (float)xdiff;
-				if (g.ship.angle < 0.0f)
-					g.ship.angle += 360.0f;
-			}
-			// if (ydiff > 0) {
-			// 	//mouse moved along the y-axis.
-			// 	//apply thrust
-			// 	//convert ship angle to radians
-			// 	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			// 	//convert angle to a vector
-			// 	Flt xdir = cos(rad);
-			// 	Flt ydir = sin(rad);
-			// 	g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
-			// 	g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
-			// 	Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-			// 			g.ship.vel[1]*g.ship.vel[1]);
-			// 	if (speed > 15.0f) {
-			// 		speed = 15.0f;
-			// 		normalize2d(g.ship.vel);
-			// 		g.ship.vel[0] *= speed;
-			// 		g.ship.vel[1] *= speed;
-			// 	}
-			// 	g.mouseThrustOn = true;
-			// 	clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-			// }
-			x11.set_mouse_position(100, 100);
-			savex = savey = 100;
-		}
+	if (e->xbutton.button==3) {
+	    //Right button is down
 	}
+    }
+    if (e->type == MotionNotify) {
+	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	    //Mouse moved
+	    int xdiff = savex - e->xbutton.x;
+	    //int ydiff = savey - e->xbutton.y;
+	    if (++ct < 10)
+		return;
+	    if (xdiff > 0) {
+		//mouse moved along the x-axis.
+		g.ship.angle += 0.05f * (float)xdiff;
+		if (g.ship.angle >= 360.0f)
+		    g.ship.angle -= 360.0f;
+	    }
+	    else if (xdiff < 0) {
+		g.ship.angle += 0.05f * (float)xdiff;
+		if (g.ship.angle < 0.0f)
+		    g.ship.angle += 360.0f;
+	    }
+	    // if (ydiff > 0) {
+	    // 	//mouse moved along the y-axis.
+	    // 	//apply thrust
+	    // 	//convert ship angle to radians
+	    // 	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    // 	//convert angle to a vector
+	    // 	Flt xdir = cos(rad);
+	    // 	Flt ydir = sin(rad);
+	    // 	g.ship.vel[0] += xdir * (float)ydiff * 0.001f;
+	    // 	g.ship.vel[1] += ydir * (float)ydiff * 0.001f;
+	    // 	Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+	    // 			g.ship.vel[1]*g.ship.vel[1]);
+	    // 	if (speed > 15.0f) {
+	    // 		speed = 15.0f;
+	    // 		normalize2d(g.ship.vel);
+	    // 		g.ship.vel[0] *= speed;
+	    // 		g.ship.vel[1] *= speed;
+	    // 	}
+	    // 	g.mouseThrustOn = true;
+	    // 	clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
+	    // }
+	    x11.set_mouse_position(100, 100);
+	    savex = savey = 100;
+	}
+    }
 }
 int check_keys(XEvent *e)
 {
-	//keyboard input?
-	static int shift=0;
-	if (e->type != KeyPress && e->type != KeyRelease)
-		return 0;
-	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
-	//Log("key: %i\n", key);
-	if (e->type == KeyRelease) {
-		gl.keys[key]=0;
-		if (key == XK_Shift_L || key == XK_Shift_R)
-			shift=0;
-		return 0;
-	}
-	gl.keys[key]=1;
-	if (key == XK_Shift_L || key == XK_Shift_R) {
-		shift=1;
-		return 0;
-	}
-	(void)shift;
-	switch (key) {
-		case XK_Escape:
-			return 1;
-		case XK_f:
-			break;
-		case XK_c:
-			extern void toggleCredits();
-			toggleCredits();
-			break;
-		case XK_m:
-			beginFade();
-			/*
-			int getMenuState();
-			if(getMenuState()){
-				void toggleMenu();
-				toggleMenu();
-			}*/
-		case XK_s:
-			break;
-		case XK_Down:
-			break;
-		case XK_equal:
-			break;
-		case XK_minus:
-			break;
-		case XK_1:
-			setCurrentWeapon(1);
-			break;
-		case XK_2:
-			if(doesPlayerHaveRifle()){
-				setCurrentWeapon(2);
-			}
-			break;
-		case XK_3:
-			if(doesPlayerHaveShotgun()){
-				setCurrentWeapon(3);
-			}
-			break;
-		case XK_4:
-			if(doesPlayerHaveMachineGun()){
-				setCurrentWeapon(4);
-			}
-			break;
-	}
+    //keyboard input?
+    static int shift=0;
+    if (e->type != KeyPress && e->type != KeyRelease)
 	return 0;
+    int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
+    //Log("key: %i\n", key);
+    if (e->type == KeyRelease) {
+	gl.keys[key]=0;
+	if (key == XK_Shift_L || key == XK_Shift_R)
+	    shift=0;
+	return 0;
+    }
+    gl.keys[key]=1;
+    if (key == XK_Shift_L || key == XK_Shift_R) {
+	shift=1;
+	return 0;
+    }
+    (void)shift;
+    switch (key) {
+	case XK_Escape:
+	    return 1;
+	case XK_f:
+	    break;
+	case XK_c:
+	    extern void toggleCredits();
+	    toggleCredits();
+	    break;
+	case XK_m:
+	    beginFade();
+	    /*
+	       int getMenuState();
+	       if(getMenuState()){
+	       void toggleMenu();
+	       toggleMenu();
+	       }*/
+	case XK_s:
+	    break;
+	case XK_Down:
+	    break;
+	case XK_equal:
+	    break;
+	case XK_minus:
+	    break;
+	case XK_1:
+	    setCurrentWeapon(1);
+	    break;
+	case XK_2:
+	    if(doesPlayerHaveRifle()){
+		setCurrentWeapon(2);
+	    }
+	    break;
+	case XK_3:
+	    if(doesPlayerHaveShotgun()){
+		setCurrentWeapon(3);
+	    }
+	    break;
+	case XK_4:
+	    if(doesPlayerHaveMachineGun()){
+		setCurrentWeapon(4);
+	    }
+	    break;
+    }
+    return 0;
 }
 void deleteAsteroid(Game *g, Asteroid *node)
 {
-	//Remove a node from doubly-linked list.
-	//Must look at 4 special cases below.
-	if (node->prev == NULL) {
-		if (node->next == NULL) {
-			//only 1 item in list.
-			g->ahead = NULL;
-		} else {
-			//at beginning of list.
-			node->next->prev = NULL;
-			g->ahead = node->next;
-		}
+    //Remove a node from doubly-linked list.
+    //Must look at 4 special cases below.
+    if (node->prev == NULL) {
+	if (node->next == NULL) {
+	    //only 1 item in list.
+	    g->ahead = NULL;
 	} else {
-		if (node->next == NULL) {
-			//at end of list.
-			node->prev->next = NULL;
-		} else {
-			//in middle of list.
-			node->prev->next = node->next;
-			node->next->prev = node->prev;
-		}
+	    //at beginning of list.
+	    node->next->prev = NULL;
+	    g->ahead = node->next;
 	}
-	delete node;
-	node = NULL;
-	g->astr_destroyed+=1;
+    } else {
+	if (node->next == NULL) {
+	    //at end of list.
+	    node->prev->next = NULL;
+	} else {
+	    //in middle of list.
+	    node->prev->next = node->next;
+	    node->next->prev = node->prev;
+	}
+    }
+    delete node;
+    node = NULL;
+    g->astr_destroyed+=1;
 }
 void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 {
-	//build ta from a
-	ta->nverts = 8;
-	ta->radius = a->radius / 2.0;
-	Flt r2 = ta->radius / 2.0;
-	Flt angle = 0.0f;
-	Flt inc = (PI * 2.0) / (Flt)ta->nverts;
-	for (int i=0; i<ta->nverts; i++) {
-		ta->vert[i][0] = sin(angle) * (r2 + rnd() * ta->radius);
-		ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
-		angle += inc;
-	}
-	ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
-	ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
-	ta->pos[2] = 0.0f;
-	ta->angle = 0.0;
-	ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
-	ta->color[0] = 0.8;
-	ta->color[1] = 0.8;
-	ta->color[2] = 0.7;
-	ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
-	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
+    //build ta from a
+    ta->nverts = 8;
+    ta->radius = a->radius / 2.0;
+    Flt r2 = ta->radius / 2.0;
+    Flt angle = 0.0f;
+    Flt inc = (PI * 2.0) / (Flt)ta->nverts;
+    for (int i=0; i<ta->nverts; i++) {
+	ta->vert[i][0] = sin(angle) * (r2 + rnd() * ta->radius);
+	ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
+	angle += inc;
+    }
+    ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
+    ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
+    ta->pos[2] = 0.0f;
+    ta->angle = 0.0;
+    ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
+    ta->color[0] = 0.8;
+    ta->color[1] = 0.8;
+    ta->color[2] = 0.7;
+    ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
+    ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
 }
 
 
@@ -726,907 +729,1053 @@ int flipVel[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 void physics()
 {
-	float xLen = gl.xres;
-	float yLen = gl.yres;
+    float xLen = gl.xres;
+    float yLen = gl.yres;
+    Asteroid *a = g.ahead;
+    //Initial Spawn
+    if(!hasSpawned) {
+	int spawnX = xLen/3;
+	int spawnY = yLen/3;
+	int section = 1;
 	Asteroid *a = g.ahead;
-	//Initial Spawn
-	if(!hasSpawned) {
-		int spawnX = xLen/3;
-		int spawnY = yLen/3;
-		int section = 1;
-		Asteroid *a = g.ahead;
-		int tracker = 1;
-		int xCord, yCord;
-		while (a) {
-			xCord = spawnRand_XSection(spawnX, section);
-			yCord = spawnRand_YSection(spawnY, section);
-			a->pos[0] = xCord; //spawnRand_XSection(spawnX, section);
-			a->pos[1] = yCord; //spawnRand_YSection(spawnY, section);
-			a = a->next;
-			section++;
-			tracker++;
-		}
-		hasSpawned = spawned();
-	}
-
-	//Keep Enemies in sectors
-	// while (a) {
-	// 	if (a->pos[0] < -100.0) {
-	// 		a->pos[0] += (float)gl.xres+200;
-	// 	}
-	// 	else if (a->pos[0] > (float)gl.xres+100) {
-	// 		a->pos[0] -= (float)gl.xres+200;
-	// 	}
-	// 	else if (a->pos[1] < -100.0) {
-	// 		a->pos[1] += (float)gl.yres+200;
-	// 	}
-	// 	else if (a->pos[1] > (float)gl.yres+100) {
-	// 		a->pos[1] -= (float)gl.yres+200;
-	// 	}
-	// 	a = a->next;
-	// }
-
-	//Flt d0,d1,dist;
-	//Update ship position
-	invuln();
-	g.ship.pos[0] += g.ship.vel[0];
-	g.ship.pos[1] += g.ship.vel[1];
-	//Check for collision with window edges
-	//window collisions
-	if (g.ship.pos[0] < 0.0) {
-		//g.ship.pos[0] += (float)gl.xres;
-		g.ship.pos[0] = 0.0;
-	}
-	if (g.ship.pos[0] > (float)gl.xres) {
-		//g.ship.pos[0] -= (float)gl.xres;
-		g.ship.pos[0] = (float)gl.xres;
-	}
-	if (g.ship.pos[1] < 0.0) {
-		//g.ship.pos[1] += (float)gl.yres;
-		g.ship.pos[1] = 0.0;
-	}
-	if (g.ship.pos[1] > (float)gl.yres) {
-		//g.ship.pos[1] -= (float)gl.yres;
-		g.ship.pos[1] = gl.yres;
-	}
-	//Check for collisions with weapon boxes.
-	int boxLoc[2];
-	if(rifleIsOnScreen()){
-		getRiflePosition(boxLoc);
-		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
-				(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
-			pickUpRifle();
-		}
-	}
-	if(shotgunIsOnScreen()){
-		getShotgunPosition(boxLoc);
-		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
-				(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
-			pickUpShotgun();
-		}
-	}
-	if(machineGunIsOnScreen()){
-		getMachineGunPosition(boxLoc);
-		if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
-				(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
-			pickUpMachineGun();
-		}
-	}
-	//
-	//Update bullet positions
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	int i=0;
-	while (i < g.nbullets) {
-		Bullet *b = &g.barr[i];
-		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
-		if (ts > 2.5) {
-			//time to delete the bullet.
-			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
-					sizeof(Bullet));
-			g.nbullets--;
-			//do not increment i.
-			continue;
-		}
-		//move the bullet
-		b->pos[0] += b->vel[0];
-		b->pos[1] += b->vel[1];
-		i++;
-	}
-	//
-	//update asteroid bullet position
-	int j = 0;
-	while (j < g.astBull) {
-		Bullet *bAst = &g.barrAst[j];
-		double ts = timeDiff(&bAst->time, &bt);
-		if (ts > 2.5) {
-			memcpy(&g.barrAst[j], &g.barrAst[g.astBull-1],
-					sizeof(Bullet));
-			g.astBull--;
-			continue;
-		}
-		bAst->pos[0] += bAst->vel[0];
-		bAst->pos[1] += bAst->vel[1];
-		if((bAst->pos[0]>=g.ship.pos[0]-25&&bAst->pos[0]<=g.ship.pos[0]+25)&&
-		(bAst->pos[1]>=g.ship.pos[1]-25&&bAst->pos[1]<=g.ship.pos[1]+25)){
-			if(playerIsInvulnerable()==0&&playerIsAlive()){
-				thread t1(play_sound, gl.playerHitSound);
-				t1.detach();
-			}
-			damagePlayer();
-		}
-		j++;
-	}
-	//
-	//Update asteroid positions
-
-	float angleLockOn;// trigger;
-	float accuracy = 90;
-	//float triggerDist = setTriggerDist();
-	a->angle = unitLock(a->angle);
-	int k = 0;
-	int velSwitchCounter = 0;
-	int enemyTracker = 1;
+	int tracker = 1;
+	int xCord, yCord;
 	while (a) {
-		if (flipVel[velSwitchCounter]==0){
-			a->pos[0] += a->vel[0];
-			a->pos[1] += a->vel[1];
-			a->angle += a->rotate;
-		}
-		if (flipVel[velSwitchCounter]==1) {
-			a->pos[0] -= a->vel[0];
-			a->pos[1] -= a->vel[1];
-			a->angle += a->rotate;
-		}
-		//Check for collision with window edges
-		if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
-			//a->pos[0] += (float)(gl.xres)+200;
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
-		}
-		else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
-			//a->pos[0] -= (float)gl.xres+200; //XPOS
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
-		}
-		else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
-			//a->pos[1] += (float)gl.yres+200; //YNEG
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
-		}
-		else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
-			//a->pos[1] -= (float)gl.yres+200; //YPOS
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
-		}
+	    int num =  rand() % 3;
+	    cout << "num: " << num << endl;
+	    a->gunNum =(int) num;
+	    cout << "Gun number: " << a->gunNum << endl;
+	    xCord = spawnRand_XSection(spawnX, section);
+	    yCord = spawnRand_YSection(spawnY, section);
+	    a->pos[0] = xCord; //spawnRand_XSection(spawnX, section);
+	    a->pos[1] = yCord; //spawnRand_YSection(spawnY, section);
+	    a = a->next;
+	    section++;
+	    tracker++;
+	}
+	hasSpawned = spawned();
+    }
 
-		//This code checks for player bullet and enemy collision.
-		int bulls=0;
-		while (bulls < g.nbullets) {
-                	Bullet *b = &g.barr[bulls];
-			if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
-			(b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)){
-					thread t1(play_sound, gl.playerHitSound);
-                        		t1.detach();
-					a->health-=10;
+    //Keep Enemies in sectors
+    // while (a) {
+    // 	if (a->pos[0] < -100.0) {
+    // 		a->pos[0] += (float)gl.xres+200;
+    // 	}
+    // 	else if (a->pos[0] > (float)gl.xres+100) {
+    // 		a->pos[0] -= (float)gl.xres+200;
+    // 	}
+    // 	else if (a->pos[1] < -100.0) {
+    // 		a->pos[1] += (float)gl.yres+200;
+    // 	}
+    // 	else if (a->pos[1] > (float)gl.yres+100) {
+    // 		a->pos[1] -= (float)gl.yres+200;
+    // 	}
+    // 	a = a->next;
+    // }
 
-					if(a->health<=0){
-					    	if(g.nasteroids==1){
-						   	cout<<"You Win!"<<endl;
-							win();
-						}else if(a->next==nullptr){
-							Asteroid *savea = a->prev;
-							deleteAsteroid(&g, a);
-							a = savea;
-							g.nasteroids--;
-						}else if(a->prev==nullptr){
-							Asteroid *savea = a->next;
-                                                        deleteAsteroid(&g, a);
-                                                        a = savea;
-                                                        g.nasteroids--;
-						}else{
-							Asteroid *savea = a->next;
-                                                        deleteAsteroid(&g, a);
-                                                        a = savea;
-                                                        g.nasteroids--;
-						}
-					}
-				}
-			bulls++;
-        	}
+    //Flt d0,d1,dist;
+    //Update ship position
+    invuln();
+    g.ship.pos[0] += g.ship.vel[0];
+    g.ship.pos[1] += g.ship.vel[1];
+    //Check for collision with window edges
+    //window collisions
+    if (g.ship.pos[0] < 0.0) {
+	//g.ship.pos[0] += (float)gl.xres;
+	g.ship.pos[0] = 0.0;
+    }
+    if (g.ship.pos[0] > (float)gl.xres) {
+	//g.ship.pos[0] -= (float)gl.xres;
+	g.ship.pos[0] = (float)gl.xres;
+    }
+    if (g.ship.pos[1] < 0.0) {
+	//g.ship.pos[1] += (float)gl.yres;
+	g.ship.pos[1] = 0.0;
+    }
+    if (g.ship.pos[1] > (float)gl.yres) {
+	//g.ship.pos[1] -= (float)gl.yres;
+	g.ship.pos[1] = gl.yres;
+    }
+    //Check for collisions with weapon boxes.
+    int boxLoc[2];
+    if(rifleIsOnScreen()){
+	getRiflePosition(boxLoc);
+	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+		(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+	    pickUpRifle();
+	}
+    }
+    if(shotgunIsOnScreen()){
+	getShotgunPosition(boxLoc);
+	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+		(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+	    pickUpShotgun();
+	}
+    }
+    if(machineGunIsOnScreen()){
+	getMachineGunPosition(boxLoc);
+	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+		(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+	    pickUpMachineGun();
+	}
+    }
+    //
+    //Update bullet positions
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    int i=0;
+    while (i < g.nbullets) {
+	Bullet *b = &g.barr[i];
+	//How long has bullet been alive?
+	double ts = timeDiff(&b->time, &bt);
+	if (ts > 2.5) {
+	    //time to delete the bullet.
+	    memcpy(&g.barr[i], &g.barr[g.nbullets-1],
+		    sizeof(Bullet));
+	    g.nbullets--;
+	    //do not increment i.
+	    continue;
+	}
+	//move the bullet
+	b->pos[0] += b->vel[0];
+	b->pos[1] += b->vel[1];
+	i++;
+    }
+    //
+    //update asteroid bullet position
+    int j = 0;
+    while (j < g.astBull) {
+	Bullet *bAst = &g.barrAst[j];
+	double ts = timeDiff(&bAst->time, &bt);
+	if (ts > 2.5) {
+	    memcpy(&g.barrAst[j], &g.barrAst[g.astBull-1],
+		    sizeof(Bullet));
+	    g.astBull--;
+	    continue;
+	}
+	bAst->pos[0] += bAst->vel[0];
+	bAst->pos[1] += bAst->vel[1];
+	if((bAst->pos[0]>=g.ship.pos[0]-25&&bAst->pos[0]<=g.ship.pos[0]+25)&&
+		(bAst->pos[1]>=g.ship.pos[1]-25&&bAst->pos[1]<=g.ship.pos[1]+25)){
+	    if(playerIsInvulnerable()==0&&playerIsAlive()){
+		thread t1(play_sound, gl.playerHitSound);
+		t1.detach();
+	    }
+	    damagePlayer();
+	}
+	j++;
+    }
+    //
+    //Update asteroid positions
 
+    float angleLockOn;// trigger;
+    float accuracy = 90;
+    //float triggerDist = setTriggerDist();
+    a->angle = unitLock(a->angle);
+    int k = 0;
+    int velSwitchCounter = 0;
+    int enemyTracker = 1;
+    while (a) {
+	if (flipVel[velSwitchCounter]==0){
+	    a->pos[0] += a->vel[0];
+	    a->pos[1] += a->vel[1];
+	    a->angle += a->rotate;
+	}
+	if (flipVel[velSwitchCounter]==1) {
+	    a->pos[0] -= a->vel[0];
+	    a->pos[1] -= a->vel[1];
+	    a->angle += a->rotate;
+	}
+	//Check for collision with window edges
+	if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
+	    //a->pos[0] += (float)(gl.xres)+200;
+	    if (flipVel[velSwitchCounter] == 1) {
+		flipVel[velSwitchCounter] = 0;
+	    } else
+		flipVel[velSwitchCounter] = 1;
+	}
+	else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
+	    //a->pos[0] -= (float)gl.xres+200; //XPOS
+	    if (flipVel[velSwitchCounter] == 1) {
+		flipVel[velSwitchCounter] = 0;
+	    } else
+		flipVel[velSwitchCounter] = 1;
+	}
+	else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
+	    //a->pos[1] += (float)gl.yres+200; //YNEG
+	    if (flipVel[velSwitchCounter] == 1) {
+		flipVel[velSwitchCounter] = 0;
+	    } else
+		flipVel[velSwitchCounter] = 1;
+	}
+	else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
+	    //a->pos[1] -= (float)gl.yres+200; //YPOS
+	    if (flipVel[velSwitchCounter] == 1) {
+		flipVel[velSwitchCounter] = 0;
+	    } else
+		flipVel[velSwitchCounter] = 1;
+	}
 
-		Bullet *bAst = &g.barrAst[g.astBull];
-		//trigger = setTrigger(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1]);
-		//bool inSector = isInSector(xLen, yLen, enemyTracker, xLen, yLen);
-		//All angles have been calculated, shoot if triggered
-		extern bool enemyShoot(float, float, float, float);
-		if (enemyShoot(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1])) {
-			angleLockOn = lockOnAngle(g.ship.pos[0], a->pos[0], g.ship.pos[1], a->pos[1]);
-			a->angle = angleLockOn - accuracy;
-			//a little time between each bullet
-			double ts = timeDiff(&g.enemyBulletTimer[3], &bt);
-			if (ts > 0.1) {
-				timeCopy(&g.enemyBulletTimer[k], &bt);
-				if (g.astBull < MAX_BULLETS) {
-					//shoot a bullet...
-					timeCopy(&bAst->time, &bt);
-					bAst->pos[0] = a->pos[0];
-					bAst->pos[1] = a->pos[1];
-					bAst->vel[0] = (a->vel[0]);
-					bAst->vel[1] = (a->vel[1]);
-					//convert ship angle to radians
-					Flt rad = ((a->angle+90.0) / 360.0f) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = cos(rad);
-					Flt ydir = sin(rad);
-					bAst->pos[0] += xdir*20.0f;
-					bAst->pos[1] += ydir*20.0f;
-					bAst->vel[0] += xdir*6.0f + rnd()*0.1;
-					bAst->vel[1] += ydir*6.0f + rnd()*0.1;
-					bAst->color[0] = 1.0f;
-					bAst->color[1] = 1.0f;
-					bAst->color[2] = 1.0f;
-					g.astBull++;
-					//Reload
-					if (g.astBull == MAX_BULLETS) {
-						g.astBull = 0;
-					}
-				} k++;
-			}
+	//This code checks for player bullet and enemy collision.
+	int bulls=0;
+	while (bulls < g.nbullets) {
+	    Bullet *b = &g.barr[bulls];
+	    if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
+		    (b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)){
+		thread t1(play_sound, gl.playerHitSound);
+		t1.detach();
+		a->health-=10;
+
+		if(a->health<=0){
+		    if(g.nasteroids==1){
+			cout<<"You Win!"<<endl;
+			win();
+		    }else if(a->next==nullptr){
+			Asteroid *savea = a->prev;
+			deleteAsteroid(&g, a);
+			a = savea;
+			g.nasteroids--;
+		    }else if(a->prev==nullptr){
+			Asteroid *savea = a->next;
+			deleteAsteroid(&g, a);
+			a = savea;
+			g.nasteroids--;
+		    }else{
+			Asteroid *savea = a->next;
+			deleteAsteroid(&g, a);
+			a = savea;
+			g.nasteroids--;
+		    }
 		}
-		enemyTracker++;
-		velSwitchCounter++;
-		a = a->next;
+	    }
+	    bulls++;
 	}
-	//
-	//Asteroid collision with bullets?
-	//If collision detected:
-	//   1. delete the bullet
-	//   2. break the asteroid into pieces
-	//      if asteroid small, delete it
-	// a = g.ahead;
-	// while (a) {
-	// 	//is there a bullet within its radius?
-	// 	int i=0;
-	// 	while (i < g.nbullets) {
-	// 		Bullet *b = &g.barr[i];
-	// 		d0 = b->pos[0] - a->pos[0];
-	// 		d1 = b->pos[1] - a->pos[1];
-	// 		dist = (d0*d0 + d1*d1);
-	// 		if (dist < (a->radius*a->radius)) {
-	// 			//cout << "asteroid hit." << endl;
-	// 			//this asteroid is hit.
-	// 			if (a->radius > MINIMUM_ASTEROID_SIZE) {
-	// 			// 	//break it into pieces.
-	// 			// 	Asteroid *ta = a;
-	// 			// 	buildAsteroidFragment(ta, a);
-	// 			// 	int r = rand()%10+5;
-	// 			// 	for (int k=0; k<r; k++) {
-	// 			// 		//get the next asteroid position in the array
-	// 			// 		Asteroid *ta = new Asteroid;
-	// 			// 		buildAsteroidFragment(ta, a);
-	// 			// 		//add to front of asteroid linked list
-	// 			// 		ta->next = g.ahead;
-	// 			// 		if (g.ahead != NULL)
-	// 			// 			g.ahead->prev = ta;
-	// 			// 		g.ahead = ta;
-	// 			// 		g.nasteroids++;
-	// 			// 	}
-	// 			// } else {
-	// 				a->color[0] = 1.0;
-	// 				a->color[1] = 0.1;
-	// 				a->color[2] = 0.1;
-	// 				//asteroid is too small to break up
-	// 				//delete the asteroid and bullet
-	// 				Asteroid *savea = a->next;
-	// 				deleteAsteroid(&g, a);
-	// 				a = savea;
-	// 				g.nasteroids--;
-	// 			}
-	// 			//delete the bullet...
-	// 			memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
-	// 			g.nbullets--;
-	// 			if (a == NULL)
-	// 				break;
-	// 		}
-	// 		i++;
-	// 	}
-	// 	if (a == NULL)
-	// 		break;
-	// 	a = a->next;
-	// }
-	//---------------------------------------------------
-	//check keys pressed now
-	extern float moveDownSpeed();
-	extern float moveUpSpeed();
-	extern float moveLeftSpeed();
-	extern float moveRightSpeed();
-	g.ship.vel[0] = 0;//0.02f
-	g.ship.vel[1] = 0;
-	//Left
-	if (gl.keys[XK_a]) {
-		g.ship.vel[0] = moveLeftSpeed();
+
+
+	//	Bullet *bAst = &g.barrAst[g.astBull];
+	//trigger = setTrigger(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1]);
+	//bool inSector = isInSector(xLen, yLen, enemyTracker, xLen, yLen);
+	//All angles have been calculated, shoot if triggered
+	extern bool enemyShoot(float, float, float, float);
+	if (enemyShoot(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1])) {
+	    angleLockOn = lockOnAngle(g.ship.pos[0], a->pos[0], g.ship.pos[1], a->pos[1]);
+	    a->angle = angleLockOn - accuracy;
+	    if (a->gunNum == 0)
+		eFireRifle(a,k);
+	    if (a->gunNum == 1)
+		eFireMachineGun(a,k);
+	    if (a->gunNum == 2)
+		eFirePistol(a,k);
+	    k++;
 	}
-	//Right
-	if (gl.keys[XK_d]) {
-		g.ship.vel[0] = moveRightSpeed();
+	enemyTracker++;
+	velSwitchCounter++;
+	a = a->next;
+    }
+    //
+    //Asteroid collision with bullets?
+    //If collision detected:
+    //   1. delete the bullet
+    //   2. break the asteroid into pieces
+    //      if asteroid small, delete it
+    // a = g.ahead;
+    // while (a) {
+    // 	//is there a bullet within its radius?
+    // 	int i=0;
+    // 	while (i < g.nbullets) {
+    // 		Bullet *b = &g.barr[i];
+    // 		d0 = b->pos[0] - a->pos[0];
+    // 		d1 = b->pos[1] - a->pos[1];
+    // 		dist = (d0*d0 + d1*d1);
+    // 		if (dist < (a->radius*a->radius)) {
+    // 			//cout << "asteroid hit." << endl;
+    // 			//this asteroid is hit.
+    // 			if (a->radius > MINIMUM_ASTEROID_SIZE) {
+    // 			// 	//break it into pieces.
+    // 			// 	Asteroid *ta = a;
+    // 			// 	buildAsteroidFragment(ta, a);
+    // 			// 	int r = rand()%10+5;
+    // 			// 	for (int k=0; k<r; k++) {
+    // 			// 		//get the next asteroid position in the array
+    // 			// 		Asteroid *ta = new Asteroid;
+    // 			// 		buildAsteroidFragment(ta, a);
+    // 			// 		//add to front of asteroid linked list
+    // 			// 		ta->next = g.ahead;
+    // 			// 		if (g.ahead != NULL)
+    // 			// 			g.ahead->prev = ta;
+    // 			// 		g.ahead = ta;
+    // 			// 		g.nasteroids++;
+    // 			// 	}
+    // 			// } else {
+    // 				a->color[0] = 1.0;
+    // 				a->color[1] = 0.1;
+    // 				a->color[2] = 0.1;
+    // 				//asteroid is too small to break up
+    // 				//delete the asteroid and bullet
+    // 				Asteroid *savea = a->next;
+    // 				deleteAsteroid(&g, a);
+    // 				a = savea;
+    // 				g.nasteroids--;
+    // 			}
+    // 			//delete the bullet...
+    // 			memcpy(&g.barr[i], &g.barr[g.nbullets-1], sizeof(Bullet));
+    // 			g.nbullets--;
+    // 			if (a == NULL)
+    // 				break;
+    // 		}
+    // 		i++;
+    // 	}
+    // 	if (a == NULL)
+    // 		break;
+    // 	a = a->next;
+    // }
+    //---------------------------------------------------
+    //check keys pressed now
+    extern float moveDownSpeed();
+    extern float moveUpSpeed();
+    extern float moveLeftSpeed();
+    extern float moveRightSpeed();
+    g.ship.vel[0] = 0;//0.02f
+    g.ship.vel[1] = 0;
+    //Left
+    if (gl.keys[XK_a]) {
+	g.ship.vel[0] = moveLeftSpeed();
+    }
+    //Right
+    if (gl.keys[XK_d]) {
+	g.ship.vel[0] = moveRightSpeed();
+    }
+    //Up
+    if (gl.keys[XK_w]) {
+	g.ship.vel[1] = moveUpSpeed();
+    }
+    //Down
+    if (gl.keys[XK_s]){
+	g.ship.vel[1] = moveDownSpeed();
+    }
+    if (gl.keys[XK_space]) {
+	switch(getCurrentWeapon()){
+	    case 1:
+		firePistol();
+		break;
+	    case 2:
+		fireRifle();
+		break;
+	    case 3:
+		fireShotgun();
+		break;
+	    case 4:
+		fireMachineGun();
+		break;
 	}
-	//Up
-	if (gl.keys[XK_w]) {
-		g.ship.vel[1] = moveUpSpeed();
-	}
-	//Down
-	if (gl.keys[XK_s]){
-		g.ship.vel[1] = moveDownSpeed();
-	}
-	if (gl.keys[XK_space]) {
-		switch(getCurrentWeapon()){
-			case 1:
-				firePistol();
-				break;
-			case 2:
-				fireRifle();
-				break;
-			case 3:
-				fireShotgun();
-				break;
-			case 4:
-				fireMachineGun();
-				break;
-		}
-	}
-	if (g.mouseThrustOn) {
-		//should thrust be turned off
-		struct timespec mtt;
-		clock_gettime(CLOCK_REALTIME, &mtt);
-		double tdif = timeDiff(&mtt, &g.mouseThrustTimer);
-		if (tdif < -0.3)
-			g.mouseThrustOn = false;
-	}
+    }
+    if (g.mouseThrustOn) {
+	//should thrust be turned off
+	struct timespec mtt;
+	clock_gettime(CLOCK_REALTIME, &mtt);
+	double tdif = timeDiff(&mtt, &g.mouseThrustTimer);
+	if (tdif < -0.3)
+	    g.mouseThrustOn = false;
+    }
 }
 void firePistol(){
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.2){
-		timeCopy(&g.bulletTimer, &bt);
-		if (g.nbullets < MAX_BULLETS) {
-			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
-			t1.detach();
-			//Bullet *b = new Bullet;
-			Bullet *b = &g.barr[g.nbullets];
-			timeCopy(&b->time, &bt);
-			b->pos[0] = g.ship.pos[0];
-			b->pos[1] = g.ship.pos[1];
-			b->vel[0] = g.ship.vel[0];
-			b->vel[1] = g.ship.vel[1];
-			//convert ship angle to radians
-			Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			b->pos[0] += xdir*20.0f;
-			b->pos[1] += ydir*20.0f;
-			b->vel[0] += xdir*1.0f + rnd()*0.1;
-			b->vel[1] += ydir*1.0f + rnd()*0.1;
-			b->color[0] = 1.0f;
-			b->color[1] = 1.0f;
-			b->color[2] = 1.0f;
-			g.nbullets++;
-			decrementAmmo();
-		}
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.bulletTimer, &bt);
+    if(ts>0.2){
+	timeCopy(&g.bulletTimer, &bt);
+	if (g.nbullets < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *b = &g.barr[g.nbullets];
+	    timeCopy(&b->time, &bt);
+	    b->pos[0] = g.ship.pos[0];
+	    b->pos[1] = g.ship.pos[1];
+	    b->vel[0] = g.ship.vel[0];
+	    b->vel[1] = g.ship.vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    b->pos[0] += xdir*20.0f;
+	    b->pos[1] += ydir*20.0f;
+	    b->vel[0] += xdir*1.0f + rnd()*0.1;
+	    b->vel[1] += ydir*1.0f + rnd()*0.1;
+	    b->color[0] = 1.0f;
+	    b->color[1] = 1.0f;
+	    b->color[2] = 1.0f;
+	    g.nbullets++;
+	    decrementAmmo();
 	}
+    }
 }
 void getCharacter()
 {
-	extern void character(int x, int y, int z, float angle, GLuint texid);
-	extern int getCurrentWeapon();
-	string texid;
-	if (getCurrentWeapon() == 0){
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
-		//texid = "characterPistol";
-	}
-	if (getCurrentWeapon() == 1){
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
-		//texid = "characterPistol";
-	}
-	if (getCurrentWeapon() == 2){
-		//texid = "characterRifle";
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
-	}
-	if (getCurrentWeapon() == 3) {
-		//texid = "characterShotgun";
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterShotgun);
-	}
-	if (getCurrentWeapon() == 4){
-		//texid = "characterRifle";
-		character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
-	}
+    extern void character(int x, int y, int z, float angle, GLuint texid);
+    extern int getCurrentWeapon();
+    string texid;
+    if (getCurrentWeapon() == 0){
+	character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
+	//texid = "characterPistol";
+    }
+    if (getCurrentWeapon() == 1){
+	character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterHandgun);
+	//texid = "characterPistol";
+    }
+    if (getCurrentWeapon() == 2){
+	//texid = "characterRifle";
+	character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
+    }
+    if (getCurrentWeapon() == 3) {
+	//texid = "characterShotgun";
+	character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterShotgun);
+    }
+    if (getCurrentWeapon() == 4){
+	//texid = "characterRifle";
+	character(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2], g.ship.angle, gl.characterRifle);
+    }
 }
 void fireRifle(){
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.5){
-		healPlayer();
-		timeCopy(&g.bulletTimer, &bt);
-		if (g.nbullets < MAX_BULLETS) {
-			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
-			t1.detach();
-			//Bullet *b = new Bullet;
-			Bullet *b = &g.barr[g.nbullets];
-			timeCopy(&b->time, &bt);
-			b->pos[0] = g.ship.pos[0];
-			b->pos[1] = g.ship.pos[1];
-			b->vel[0] = g.ship.vel[0];
-			b->vel[1] = g.ship.vel[1];
-			//convert ship angle to radians
-			Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			b->pos[0] += xdir*20.0f;
-			b->pos[1] += ydir*20.0f;
-			b->vel[0] += xdir*20.0f + rnd()*0.1;
-			b->vel[1] += ydir*20.0f + rnd()*0.1;
-			b->color[0] = 1.0f;
-			b->color[1] = 1.0f;
-			b->color[2] = 1.0f;
-			g.nbullets++;
-			decrementAmmo();
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.bulletTimer, &bt);
+    if(ts>0.5){
+	healPlayer();
+	timeCopy(&g.bulletTimer, &bt);
+	if (g.nbullets < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *b = &g.barr[g.nbullets];
+	    timeCopy(&b->time, &bt);
+	    b->pos[0] = g.ship.pos[0];
+	    b->pos[1] = g.ship.pos[1];
+	    b->vel[0] = g.ship.vel[0];
+	    b->vel[1] = g.ship.vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    b->pos[0] += xdir*20.0f;
+	    b->pos[1] += ydir*20.0f;
+	    b->vel[0] += xdir*20.0f + rnd()*0.1;
+	    b->vel[1] += ydir*20.0f + rnd()*0.1;
+	    b->color[0] = 1.0f;
+	    b->color[1] = 1.0f;
+	    b->color[2] = 1.0f;
+	    g.nbullets++;
+	    decrementAmmo();
 
-		}
 	}
+    }
+}
+
+void eFireRifle(Asteroid *a, int k)
+{
+    // Asteroid *a = g.ahead;
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
+    if(ts > 1.0) {
+	//healPlayer();
+	timeCopy(&g.enemyBulletTimer[k], &bt);
+	if (g.astBull < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *bAst = &g.barrAst[g.astBull];
+	    timeCopy(&bAst->time, &bt);
+	    bAst->pos[0] = a->pos[0];
+	    bAst->pos[1] = a->pos[1];
+	    bAst->vel[0] = a->vel[0];
+	    bAst->vel[1] = a->vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((a->angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    bAst->pos[0] += xdir*20.0f;
+	    bAst->pos[1] += ydir*20.0f;
+	    bAst->vel[0] += xdir*20.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*20.0f + rnd()*0.1;
+	    bAst->color[0] = 1.0f;
+	    bAst->color[1] = 1.0f;
+	    bAst->color[2] = 1.0f;
+	    g.astBull++;
+	    // g.nbullets++;
+	    // decrementAmmo();
+	    if (g.astBull == MAX_BULLETS) {
+		g.astBull = 0;
+	    }
+	}
+    }
+}
+void eFirePistol(Asteroid *a, int k)
+{
+    // Asteroid *a = g.ahead;
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
+    if(ts > 0.2) {
+	//healPlayer();
+	timeCopy(&g.enemyBulletTimer[k], &bt);
+	if (g.astBull < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *bAst = &g.barrAst[g.astBull];
+	    timeCopy(&bAst->time, &bt);
+	    bAst->pos[0] = a->pos[0];
+	    bAst->pos[1] = a->pos[1];
+	    bAst->vel[0] = a->vel[0];
+	    bAst->vel[1] = a->vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((a->angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    bAst->pos[0] += xdir*20.0f;
+	    bAst->pos[1] += ydir*20.0f;
+	    bAst->vel[0] += xdir*1.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*1.0f + rnd()*0.1;
+	    bAst->color[0] = 1.0f;
+	    bAst->color[1] = 1.0f;
+	    bAst->color[2] = 1.0f;
+	    g.astBull++;
+	    // g.nbullets++;
+	    // decrementAmmo();
+	    if (g.astBull == MAX_BULLETS) {
+		g.astBull = 0;
+	    }
+	}
+    }
+}
+void eFireMachineGun(Asteroid *a, int k)
+{
+    // Asteroid *a = g.ahead;
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
+    if(ts > 0.2) {
+	//healPlayer();
+	timeCopy(&g.enemyBulletTimer[k], &bt);
+	if (g.astBull < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *bAst = &g.barrAst[g.astBull];
+	    timeCopy(&bAst->time, &bt);
+	    bAst->pos[0] = a->pos[0];
+	    bAst->pos[1] = a->pos[1];
+	    bAst->vel[0] = a->vel[0];
+	    bAst->vel[1] = a->vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((a->angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    bAst->pos[0] += xdir*20.0f;
+	    bAst->pos[1] += ydir*20.0f;
+	    bAst->vel[0] += xdir*6.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*6.0f + rnd()*0.1;
+	    bAst->color[0] = 1.0f;
+	    bAst->color[1] = 1.0f;
+	    bAst->color[2] = 1.0f;
+	    g.astBull++;
+	    // g.nbullets++;
+	    // decrementAmmo();
+	    if (g.astBull == MAX_BULLETS) {
+		g.astBull = 0;
+	    }
+	}
+    }
+}
+void eFireShotgun(Asteroid *a, int k)
+{
+    // Asteroid *a = g.ahead;
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
+    if(ts > 1.0) {
+	//healPlayer();
+	timeCopy(&g.enemyBulletTimer[k], &bt);
+	if (g.astBull < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *bAst = &g.barrAst[g.astBull];
+	    timeCopy(&bAst->time, &bt);
+	    bAst->pos[0] = a->pos[0];
+	    bAst->pos[1] = a->pos[1];
+	    bAst->vel[0] = a->vel[0];
+	    bAst->vel[1] = a->vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((a->angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    bAst->pos[0] += xdir*20.0f;
+	    bAst->pos[1] += ydir*20.0f;
+	    bAst->vel[0] += xdir*20.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*20.0f + rnd()*0.1;
+	    bAst->color[0] = 1.0f;
+	    bAst->color[1] = 1.0f;
+	    bAst->color[2] = 1.0f;
+	    g.astBull++;
+	    // g.nbullets++;
+	    // decrementAmmo();
+	    if (g.astBull == MAX_BULLETS) {
+		g.astBull = 0;
+	    }
+	}
+    }
 }
 void generatePellet(timespec bt){
-	//shoot a bullet...
-	thread t1(play_sound, gl.bulletSound);
-	t1.detach();
-	//Bullet *b = new Bullet;
-	Bullet *b = &g.barr[g.nbullets];
-	timeCopy(&b->time, &bt);
-	b->pos[0] = g.ship.pos[0];
-	b->pos[1] = g.ship.pos[1];
-	b->vel[0] = g.ship.vel[0];
-	b->vel[1] = g.ship.vel[1];
-	//convert ship angle to radians
-	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-	//convert angle to a vector
-	Flt xdir = cos(rad);
-	Flt ydir = sin(rad);
-	b->pos[0] += xdir*20.0f;
-	b->pos[1] += ydir*20.0f;
-	b->vel[0] += xdir*10.0f + rnd()*.5;
-	b->vel[1] += ydir*10.0f + rnd()*.5;
-	b->color[0] = 1;
-	b->color[1] = 1.0f;
-	b->color[2] = 1.0f;
-	g.nbullets++;
+    //shoot a bullet...
+    thread t1(play_sound, gl.bulletSound);
+    t1.detach();
+    //Bullet *b = new Bullet;
+    Bullet *b = &g.barr[g.nbullets];
+    timeCopy(&b->time, &bt);
+    b->pos[0] = g.ship.pos[0];
+    b->pos[1] = g.ship.pos[1];
+    b->vel[0] = g.ship.vel[0];
+    b->vel[1] = g.ship.vel[1];
+    //convert ship angle to radians
+    Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+    //convert angle to a vector
+    Flt xdir = cos(rad);
+    Flt ydir = sin(rad);
+    b->pos[0] += xdir*20.0f;
+    b->pos[1] += ydir*20.0f;
+    b->vel[0] += xdir*10.0f + rnd()*.5;
+    b->vel[1] += ydir*10.0f + rnd()*.5;
+    b->color[0] = 1;
+    b->color[1] = 1.0f;
+    b->color[2] = 1.0f;
+    g.nbullets++;
 }
 void fireShotgun(){
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.4){
-		timeCopy(&g.bulletTimer, &bt);
-		if (g.nbullets < MAX_BULLETS-6) {
-			generatePellet(bt);
-			generatePellet(bt);
-			generatePellet(bt);
-			generatePellet(bt);
-			generatePellet(bt);
-			generatePellet(bt);
-			decrementAmmo();
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.bulletTimer, &bt);
+    if(ts>0.4){
+	timeCopy(&g.bulletTimer, &bt);
+	if (g.nbullets < MAX_BULLETS-6) {
+	    generatePellet(bt);
+	    generatePellet(bt);
+	    generatePellet(bt);
+	    generatePellet(bt);
+	    generatePellet(bt);
+	    generatePellet(bt);
+	    decrementAmmo();
 
-		}
 	}
+    }
 }
 void fireMachineGun(){
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.2){
-		timeCopy(&g.bulletTimer, &bt);
-		if (g.nbullets < MAX_BULLETS) {
-			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
-			t1.detach();
-			//Bullet *b = new Bullet;
-			Bullet *b = &g.barr[g.nbullets];
-			timeCopy(&b->time, &bt);
-			b->pos[0] = g.ship.pos[0];
-			b->pos[1] = g.ship.pos[1];
-			b->vel[0] = g.ship.vel[0];
-			b->vel[1] = g.ship.vel[1];
-			//convert ship angle to radians
-			Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			b->pos[0] += xdir*20.0f;
-			b->pos[1] += ydir*20.0f;
-			b->vel[0] += xdir*6.0f + rnd()*0.1;
-			b->vel[1] += ydir*6.0f + rnd()*0.1;
-			b->color[0] = 1.0f;
-			b->color[1] = 1.0f;
-			b->color[2] = 1.0f;
-			g.nbullets++;
-			decrementAmmo();
-		}
+    struct timespec bt;
+    clock_gettime(CLOCK_REALTIME, &bt);
+    double ts = timeDiff(&g.bulletTimer, &bt);
+    if(ts>0.2){
+	timeCopy(&g.bulletTimer, &bt);
+	if (g.nbullets < MAX_BULLETS) {
+	    //shoot a bullet...
+	    thread t1(play_sound, gl.bulletSound);
+	    t1.detach();
+	    //Bullet *b = new Bullet;
+	    Bullet *b = &g.barr[g.nbullets];
+	    timeCopy(&b->time, &bt);
+	    b->pos[0] = g.ship.pos[0];
+	    b->pos[1] = g.ship.pos[1];
+	    b->vel[0] = g.ship.vel[0];
+	    b->vel[1] = g.ship.vel[1];
+	    //convert ship angle to radians
+	    Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    b->pos[0] += xdir*20.0f;
+	    b->pos[1] += ydir*20.0f;
+	    b->vel[0] += xdir*6.0f + rnd()*0.1;
+	    b->vel[1] += ydir*6.0f + rnd()*0.1;
+	    b->color[0] = 1.0f;
+	    b->color[1] = 1.0f;
+	    b->color[2] = 1.0f;
+	    g.nbullets++;
+	    decrementAmmo();
 	}
+    }
 }
 void DrawCircle(float cx, float cy, float r, int num_segments)
 {
-	glBegin(GL_LINE_LOOP);
-	for(int ii = 0; ii < num_segments; ii++)
-	{
-		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
-		float x = r * cosf(theta);//calculate the x component
-		float y = r * sinf(theta);//calculate the y component
-		glVertex2f(x + cx, y + cy);//output vertex
-	}
-	glEnd();
+    glBegin(GL_LINE_LOOP);
+    for(int ii = 0; ii < num_segments; ii++)
+    {
+	float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+	float x = r * cosf(theta);//calculate the x component
+	float y = r * sinf(theta);//calculate the y component
+	glVertex2f(x + cx, y + cy);//output vertex
+    }
+    glEnd();
 }
 void show_credits()
 {
-	Rect r;
-	r.bot=(gl.yres/5)+600;
-	r.left=gl.xres/2;
-	ggprint16(&r, 16, 0x00ff0000, "Members:");
-	extern void art_credits(int x, int y);
-	extern void edwin_credits(int x, int y);
-	extern void andrew_credits(int x, int y);
-	extern void bryan_credits(int x, int y);
-	extern void joel_credits(int x, int y);
-	art_credits( gl.xres/2-100,gl.yres/5+500);
-	extern void art_picture(int x, int y, GLuint textid);
-	extern void edwin_picture(int x, int y, GLuint textid);
-	extern void andrew_picture(int x, int y, GLuint textid);
-	extern void bryan_picture(int x, int y, GLuint textid);
-	extern void joel_picture(int x, int y, GLuint textid);
-	art_picture(gl.xres/2,gl.yres/5+500,gl.artTexture);
-	edwin_credits(gl.xres/2-100,gl.yres/5+400);
-	edwin_picture(gl.xres/2, gl.yres/5+400, gl.edwinTexture);
-	andrew_credits(gl.yres/5+300,gl.xres/2-100);
-	andrew_picture(gl.xres/2, gl.yres/5+300, gl.andrewTexture);
-	bryan_credits(gl.xres/2-100,gl.yres/5+200);
-	bryan_picture(gl.xres/2, gl.yres/5+200, gl.bryanTexture);
-	joel_credits(gl.xres/2-100,gl.yres/5+100);
-	joel_picture(gl.xres/2, gl.yres/5+100, gl.sTexture);
+    Rect r;
+    r.bot=(gl.yres/5)+600;
+    r.left=gl.xres/2;
+    ggprint16(&r, 16, 0x00ff0000, "Members:");
+    extern void art_credits(int x, int y);
+    extern void edwin_credits(int x, int y);
+    extern void andrew_credits(int x, int y);
+    extern void bryan_credits(int x, int y);
+    extern void joel_credits(int x, int y);
+    art_credits( gl.xres/2-100,gl.yres/5+500);
+    extern void art_picture(int x, int y, GLuint textid);
+    extern void edwin_picture(int x, int y, GLuint textid);
+    extern void andrew_picture(int x, int y, GLuint textid);
+    extern void bryan_picture(int x, int y, GLuint textid);
+    extern void joel_picture(int x, int y, GLuint textid);
+    art_picture(gl.xres/2,gl.yres/5+500,gl.artTexture);
+    edwin_credits(gl.xres/2-100,gl.yres/5+400);
+    edwin_picture(gl.xres/2, gl.yres/5+400, gl.edwinTexture);
+    andrew_credits(gl.yres/5+300,gl.xres/2-100);
+    andrew_picture(gl.xres/2, gl.yres/5+300, gl.andrewTexture);
+    bryan_credits(gl.xres/2-100,gl.yres/5+200);
+    bryan_picture(gl.xres/2, gl.yres/5+200, gl.bryanTexture);
+    joel_credits(gl.xres/2-100,gl.yres/5+100);
+    joel_picture(gl.xres/2, gl.yres/5+100, gl.sTexture);
 }
 extern int  getCreditState();
 extern int getMenuState();
 void render()
 {
-	x11.clear_screen();
-	Rect r;
-	r.bot = gl.yres - 55;
-	r.left = 10;
-	r.center = 0;
-	if(getMenuState()){
-		glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION); glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-		genBackground(gl.tileTexture);
-		genTitleScreen(gl.logoTexture,gl.textTexture, gl.xres/2,gl.yres/2);
-		extern void main_menu(int x, int y);
-		main_menu(gl.xres/2,gl.yres/2);
+    x11.clear_screen();
+    Rect r;
+    r.bot = gl.yres - 55;
+    r.left = 10;
+    r.center = 0;
+    if(getMenuState()){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+	genBackground(gl.tileTexture);
+	genTitleScreen(gl.logoTexture,gl.textTexture, gl.xres/2,gl.yres/2);
+	extern void main_menu(int x, int y);
+	main_menu(gl.xres/2,gl.yres/2);
+    }
+    else if (getCreditState()) {
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+	//if (getCreditState()){
+	show_credits();
+    } else if(playerIsAlive()&&playerHasWon()==0){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
+	genBackground(gl.andrewTexture);
+	health_bar(gl.xres,gl.yres);
+	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
+	ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
+	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Defeated: %i ",g.astr_destroyed);
+	genAmmo(gl.bulletTexture);
+	reloadAmmunition();
+	printCurrentWeapon(getCurrentWeapon(),r);
+
+	//Draw Map
+
+	//Draw Roads
+	extern void genRoadHorizontal(int x, int y, GLuint texid);
+	extern void genRoadVertical(int x, int y, GLuint texid);
+	for (int i = -7; i < 35; i++) {
+	    genRoadHorizontal((i*128), 192, gl.roadTexture);
 	}
-	else if (getCreditState()) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION); glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+
+	for (int i = -7; i < 35; i++) {
+	    genRoadHorizontal((i*128), 1408, gl.roadTexture);
+	}
+
+	for (int i = -7; i < 35; i++) {
+	    genRoadVertical(512, (i*128), gl.roadTexture);
+	}
+	for (int i = -7; i < 35; i++) {
+	    genRoadVertical(1024, (i*128), gl.roadTexture);
+	}
+
+	for (int i = -7; i < 35; i++) {
+	    genRoadVertical(512, (i*128), gl.roadTexture);
+	}
+
+
+	//Draw Walls
+	extern void genWall(int x, int y, GLuint texid);
+	extern void genWallCorner(int x, int y, int angle, GLuint texid);
+
+	//House 1
+	genWallCorner(1640, 768+412, 0, gl.wallCorner);
+	genWall(1704, 768+412, gl.wallT);
+	genWall(1768, 768+412, gl.wallEmpty);
+	genWallCorner(1832, 768+412, 270, gl.wallCorner);
+	genWall(1832, 704+412, gl.wallR);
+	genWall(1832, 640+412, gl.wallR);
+	genWall(1832, 576+412, gl.wallR);
+	genWallCorner(1832, 512+412, 180, gl.wallCorner);
+	genWall(1704, 512+412, gl.wallB);
+	genWall(1768, 512+412, gl.wallB);
+	genWallCorner(1640, 512+412, 90, gl.wallCorner);
+	genWall(1640, 704+412,gl.wallL);
+	genWall(1640, 640+412, gl.wallL);
+	genWall(1640, 576+412, gl.wallL);
+
+	genWall(1768, 576+412, gl.wallEmpty);
+	genWall(1704, 576+412, gl.wallEmpty);
+	genWall(1768, 640+412, gl.wallEmpty);
+	genWall(1704, 640+412, gl.wallEmpty);
+	genWall(1768, 704+412, gl.wallEmpty);
+	genWall(1704, 704+412, gl.wallEmpty);
+
+	//House 2
+	genWallCorner(640, 768, 0, gl.wallCorner);
+	genWall(704, 768, gl.wallT);
+	genWall(768, 768, gl.wallT);
+	genWallCorner(832, 768, 270, gl.wallCorner);
+	genWall(832, 704, gl.wallR);
+	genWall(832, 640, gl.wallR);
+	genWall(832, 576, gl.wallEmpty);
+	genWallCorner(832, 512, 180, gl.wallCorner);
+	genWall(704, 512, gl.wallB);
+	genWall(768, 512, gl.wallB);
+	genWallCorner(640, 512, 90, gl.wallCorner);
+	genWall(640, 704, gl.wallL);
+	genWall(640, 640, gl.wallL);
+	genWall(640, 576, gl.wallL);
+
+	genWall(768, 576, gl.wallEmpty);
+	genWall(704, 576, gl.wallEmpty);
+	genWall(768, 640, gl.wallEmpty);
+	genWall(704, 640, gl.wallEmpty);
+	genWall(768, 704, gl.wallEmpty);
+	genWall(704, 704, gl.wallEmpty);
+
+	//House 3
+	genWallCorner(640-576, 768+468, 0, gl.wallCorner);
+	genWall(704-576, 768+468, gl.wallT);
+	genWall(768-576, 768+468, gl.wallT);
+	genWallCorner(832-576, 768+468, 270, gl.wallCorner);
+	genWall(832-576, 704+468, gl.wallR);
+	genWall(832-576, 640+468, gl.wallR);
+	genWall(832-576, 576+468, gl.wallEmpty);
+	genWallCorner(832-576, 512+468, 180, gl.wallCorner);
+	genWall(704-576, 512+468, gl.wallB);
+	genWall(768-576, 512+468, gl.wallB);
+	genWallCorner(640-576, 512+468, 90, gl.wallCorner);
+	genWall(640-576, 704+468, gl.wallL);
+	genWall(640-576, 640+468, gl.wallL);
+	genWall(640-576, 576+468, gl.wallL);
+
+	genWall(768-576, 576+468, gl.wallEmpty);
+	genWall(704-576, 576+468, gl.wallEmpty);
+	genWall(768-576, 640+468, gl.wallEmpty);
+	genWall(704-576, 640+468, gl.wallEmpty);
+	genWall(768-576, 704+468, gl.wallEmpty);
+	genWall(704-576, 704+468, gl.wallEmpty);
+
+
+	//for (int i = 0; i)
+	gunSpawnManager(g.itemTimer);
+	genRifle(gl.rTexture);
+	genShotgun(gl.sTexture);
+	genMachineGun(gl.mgTexture);
+
+	//-------------
+	//Draw the ship
+
+	glColor3fv(g.ship.color);
+	glPushMatrix();
+	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+	glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex2f(-2.0f, -0.0f);
+	glVertex2f(  0.0f, 2.0f);
+	glVertex2f(  0.0f, -1.0f);
+	glVertex2f(  0.0f, -1.0f);
+	glVertex2f(  0.0f, 2.0f);
+	glVertex2f( 2.0f, -1.0f);
+	glEnd();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POINTS);
+	glVertex2f(0.0f, 0.0f);
+	glEnd();
+	glPopMatrix();
+	//cout << "X: " <<g.ship.pos[0] << endl;
+	//cout << "Y: " <<g.ship.pos[1] << endl;
+
+
+	getCharacter();
+
+
+	if (gl.keys[XK_Up] || g.mouseThrustOn) {
+	    int i;
+	    //draw thrust
+	    Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    //convert angle to a vector
+	    Flt xdir = cos(rad);
+	    Flt ydir = sin(rad);
+	    Flt xs,ys,xe,ye,r;
+	    glBegin(GL_LINES);
+	    for (i=0; i<16; i++) {
+		xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+		ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+		r = rnd()*40.0+40.0;
+		xe = -xdir * r + rnd() * 18.0 - 9.0;
+		ye = -ydir * r + rnd() * 18.0 - 9.0;
+		glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
+		glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
+		glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
+	    }
+	    glEnd();
+	}
+	//DrawCircle((float)gl.xres/2,(float)gl.yres/2,44.0,33);
+	//------------------
+	//Draw the asteroids
+	Asteroid *a = g.ahead;
+	while (a) {
+	    glColor3fv(a->color);
+	    glPushMatrix();
+	    glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+	    glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+	    glBegin(GL_TRIANGLE_FAN);
+	    glVertex2f(-1.0f, -1.0f);
+	    glVertex2f(  0.0f, 2.0f);
+	    glVertex2f(  0.0f, -1.0f);
+	    glVertex2f(  0.0f, -1.0f);
+	    glVertex2f(  0.0f, 2.0f);
+	    glVertex2f( 2.0f, -1.0f);
+	    glEnd();
+	    glColor3f(1.0f, 0.0f, 0.0f);
+	    glBegin(GL_POINTS);
+	    glVertex2f(0.0f, 0.0f);
+	    glEnd();
+	    glPopMatrix();
+	    extern void enemy(int x, int y, int z, float angle, GLuint texid);
+	    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
+	    // if (gl.keys[XK_Up] || g.mouseThrustOn) {
+	    // 	int i;
+	    // 	//draw thrust
+	    // 	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+	    // 	//convert angle to a vector
+	    // 	Flt xdir = cos(rad);
+	    // 	Flt ydir = sin(rad);
+	    // 	Flt xs,ys,xe,ye,r;
+	    // 	glBegin(GL_LINES);
+	    // 	for (i=0; i<16; i++) {
+	    // 		xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
+	    // 		ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
+	    // 		r = rnd()*40.0+40.0;
+	    // 		xe = -xdir * r + rnd() * 18.0 - 9.0;
+	    // 		ye = -ydir * r + rnd() * 18.0 - 9.0;
+	    // 		glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
+	    // 		glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
+	    // 		glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
+	    // 	}
+	    glEnd();
+	    a = a->next;
+	}
+	//ASTEROID HAS BEEN REPLACE WITH SHIP FOR TESTING
+	// {
+	// 	Asteroid *a = g.ahead;
+	// 	while (a) {
+	// 		//Log("draw asteroid...\n");
+	// 		glColor3fv(a->color);
+	// 		glPushMatrix();
+	// 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+	// 		glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
+	// 		glBegin(GL_LINE_LOOP);
+	// 		//Log("%i verts\n",a->nverts);
+	// 		for (int j=0; j<a->nverts; j++) {
+	// 			glVertex2f(a->vert[j][0], a->vert[j][1]);
+	// 		}
+	// 		glEnd();
+	// 		glPopMatrix();
+	// 		glColor3f(1.0f, 0.0f, 0.0f);
+	// 		glBegin(GL_POINTS);
+	// 		glVertex2f(a->pos[0], a->pos[1]);
+	// 		glEnd();
+	// 		a = a->next;
+	// 	}
+	// }
+	//----------------
+	//Draw the bullets
+	Bullet *b = &g.barr[0];
+	for (int i=0; i<g.nbullets; i++) {
+	    //Log("draw bullet...\n");
+	    glColor3f(1.0, 1.0, 0.0);
+	    glBegin(GL_POINTS);
+	    glVertex2f(b->pos[0],      b->pos[1]);
+	    glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+	    glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+	    glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+	    glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+	    glColor3f(0.8, 0.8, 0.8);
+	    glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+	    glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+	    glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+	    glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+	    glEnd();
+	    ++b;
+	}
+	//CHANGE draw ast bullet
+	Bullet *bAst = &g.barrAst[0];
+	for (int i=0; i<g.astBull; i++) {
+	    //Log("draw bullet...\n");
+	    glColor3f(1.0, 1.0, 0.0);
+	    glBegin(GL_POINTS);
+	    glVertex2f(bAst->pos[0],      bAst->pos[1]);
+	    glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]);
+	    glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]);
+	    glVertex2f(bAst->pos[0],      bAst->pos[1]-1.0f);
+	    glVertex2f(bAst->pos[0],      bAst->pos[1]+1.0f);
+	    glColor3f(0.8, 0.8, 0.8);
+	    glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]-1.0f);
+	    glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]+1.0f);
+	    glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]-1.0f);
+	    glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]+1.0f);
+	    glEnd();
+	    ++bAst;
+	}
+	genTree(gl.treeTexture,100,100);
+	//genTree(gl.treeTexture,1100,700);
+	//genTree(gl.treeTexture,900,250);
+	}else if(!playerIsAlive()){
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+
+	    if(!doneFading()){
+		fadeToBlack();
+	    }else{
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-		//if (getCreditState()){
-			show_credits();
-		} else if(playerIsAlive()&&playerHasWon()==0){
-			glClear(GL_COLOR_BUFFER_BIT);
-			glMatrixMode(GL_PROJECTION); glLoadIdentity();
-			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-			glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
-			genBackground(gl.andrewTexture);
-			health_bar(gl.xres,gl.yres);
-			ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-			ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Defeated: %i ",g.astr_destroyed);
-			genAmmo(gl.bulletTexture);
-			reloadAmmunition();
-			printCurrentWeapon(getCurrentWeapon(),r);
-			
-			//Draw Map
-
-			//Draw Roads
-			extern void genRoadHorizontal(int x, int y, GLuint texid);
-			extern void genRoadVertical(int x, int y, GLuint texid);
-			for (int i = -7; i < 35; i++) {
-				genRoadHorizontal((i*128), 192, gl.roadTexture);
-			}
-
-			for (int i = -7; i < 35; i++) {
-				genRoadHorizontal((i*128), 1408, gl.roadTexture);
-			}
-
-			for (int i = -7; i < 35; i++) {
-				genRoadVertical(512, (i*128), gl.roadTexture);
-			}
-			for (int i = -7; i < 35; i++) {
-				genRoadVertical(1024, (i*128), gl.roadTexture);
-			}
-
-			for (int i = -7; i < 35; i++) {
-				genRoadVertical(512, (i*128), gl.roadTexture);
-			}
-
-			
-			//Draw Walls
-			extern void genWall(int x, int y, GLuint texid);
-			extern void genWallCorner(int x, int y, int angle, GLuint texid);
-
-			//House 1
-			genWallCorner(1640, 768+412, 0, gl.wallCorner);
-			genWall(1704, 768+412, gl.wallT);
-			genWall(1768, 768+412, gl.wallEmpty);
-			genWallCorner(1832, 768+412, 270, gl.wallCorner);
-			genWall(1832, 704+412, gl.wallR);
-			genWall(1832, 640+412, gl.wallR);
-			genWall(1832, 576+412, gl.wallR);
-			genWallCorner(1832, 512+412, 180, gl.wallCorner);
-			genWall(1704, 512+412, gl.wallB);
-			genWall(1768, 512+412, gl.wallB);
-			genWallCorner(1640, 512+412, 90, gl.wallCorner);
-			genWall(1640, 704+412,gl.wallL);
-			genWall(1640, 640+412, gl.wallL);
-			genWall(1640, 576+412, gl.wallL);
-
-			genWall(1768, 576+412, gl.wallEmpty);
-			genWall(1704, 576+412, gl.wallEmpty);
-			genWall(1768, 640+412, gl.wallEmpty);
-			genWall(1704, 640+412, gl.wallEmpty);
-			genWall(1768, 704+412, gl.wallEmpty);
-			genWall(1704, 704+412, gl.wallEmpty);
-
-			//House 2
-			genWallCorner(640, 768, 0, gl.wallCorner);
-			genWall(704, 768, gl.wallT);
-			genWall(768, 768, gl.wallT);
-			genWallCorner(832, 768, 270, gl.wallCorner);
-			genWall(832, 704, gl.wallR);
-			genWall(832, 640, gl.wallR);
-			genWall(832, 576, gl.wallEmpty);
-			genWallCorner(832, 512, 180, gl.wallCorner);
-			genWall(704, 512, gl.wallB);
-			genWall(768, 512, gl.wallB);
-			genWallCorner(640, 512, 90, gl.wallCorner);
-			genWall(640, 704, gl.wallL);
-			genWall(640, 640, gl.wallL);
-			genWall(640, 576, gl.wallL);
-
-			genWall(768, 576, gl.wallEmpty);
-			genWall(704, 576, gl.wallEmpty);
-			genWall(768, 640, gl.wallEmpty);
-			genWall(704, 640, gl.wallEmpty);
-			genWall(768, 704, gl.wallEmpty);
-			genWall(704, 704, gl.wallEmpty);
-			
-			//House 3
-			genWallCorner(640-576, 768+468, 0, gl.wallCorner);
-			genWall(704-576, 768+468, gl.wallT);
-			genWall(768-576, 768+468, gl.wallT);
-			genWallCorner(832-576, 768+468, 270, gl.wallCorner);
-			genWall(832-576, 704+468, gl.wallR);
-			genWall(832-576, 640+468, gl.wallR);
-			genWall(832-576, 576+468, gl.wallEmpty);
-			genWallCorner(832-576, 512+468, 180, gl.wallCorner);
-			genWall(704-576, 512+468, gl.wallB);
-			genWall(768-576, 512+468, gl.wallB);
-			genWallCorner(640-576, 512+468, 90, gl.wallCorner);
-			genWall(640-576, 704+468, gl.wallL);
-			genWall(640-576, 640+468, gl.wallL);
-			genWall(640-576, 576+468, gl.wallL);
-
-			genWall(768-576, 576+468, gl.wallEmpty);
-			genWall(704-576, 576+468, gl.wallEmpty);
-			genWall(768-576, 640+468, gl.wallEmpty);
-			genWall(704-576, 640+468, gl.wallEmpty);
-			genWall(768-576, 704+468, gl.wallEmpty);
-			genWall(704-576, 704+468, gl.wallEmpty);
-
-
-			//for (int i = 0; i)
-			gunSpawnManager(g.itemTimer);
-			genRifle(gl.rTexture);
-			genShotgun(gl.sTexture);
-			genMachineGun(gl.mgTexture);
-
-			//-------------
-			//Draw the ship
-
-			glColor3fv(g.ship.color);
-			glPushMatrix();
-			glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
-			glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_TRIANGLE_FAN);
-			glVertex2f(-2.0f, -0.0f);
-			glVertex2f(  0.0f, 2.0f);
-			glVertex2f(  0.0f, -1.0f);
-			glVertex2f(  0.0f, -1.0f);
-			glVertex2f(  0.0f, 2.0f);
-			glVertex2f( 2.0f, -1.0f);
-			glEnd();
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glBegin(GL_POINTS);
-			glVertex2f(0.0f, 0.0f);
-			glEnd();
-			glPopMatrix();
-			cout << "X: " <<g.ship.pos[0] << endl;
-			cout << "Y: " <<g.ship.pos[1] << endl;
-
-
-			getCharacter();
-
-
-			if (gl.keys[XK_Up] || g.mouseThrustOn) {
-				int i;
-				//draw thrust
-				Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-				//convert angle to a vector
-				Flt xdir = cos(rad);
-				Flt ydir = sin(rad);
-				Flt xs,ys,xe,ye,r;
-				glBegin(GL_LINES);
-				for (i=0; i<16; i++) {
-					xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-					ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-					r = rnd()*40.0+40.0;
-					xe = -xdir * r + rnd() * 18.0 - 9.0;
-					ye = -ydir * r + rnd() * 18.0 - 9.0;
-					glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-					glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
-					glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
-				}
-				glEnd();
-			}
-			//DrawCircle((float)gl.xres/2,(float)gl.yres/2,44.0,33);
-			//------------------
-			//Draw the asteroids
-			Asteroid *a = g.ahead;
-			while (a) {
-				glColor3fv(a->color);
-				glPushMatrix();
-				glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-				glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-				glBegin(GL_TRIANGLE_FAN);
-				glVertex2f(-1.0f, -1.0f);
-				glVertex2f(  0.0f, 2.0f);
-				glVertex2f(  0.0f, -1.0f);
-				glVertex2f(  0.0f, -1.0f);
-				glVertex2f(  0.0f, 2.0f);
-				glVertex2f( 2.0f, -1.0f);
-				glEnd();
-				glColor3f(1.0f, 0.0f, 0.0f);
-				glBegin(GL_POINTS);
-				glVertex2f(0.0f, 0.0f);
-				glEnd();
-				glPopMatrix();
-				extern void enemy(int x, int y, int z, float angle, GLuint texid);
-				enemy(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
-				// if (gl.keys[XK_Up] || g.mouseThrustOn) {
-				// 	int i;
-				// 	//draw thrust
-				// 	Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-				// 	//convert angle to a vector
-				// 	Flt xdir = cos(rad);
-				// 	Flt ydir = sin(rad);
-				// 	Flt xs,ys,xe,ye,r;
-				// 	glBegin(GL_LINES);
-				// 	for (i=0; i<16; i++) {
-				// 		xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-				// 		ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-				// 		r = rnd()*40.0+40.0;
-				// 		xe = -xdir * r + rnd() * 18.0 - 9.0;
-				// 		ye = -ydir * r + rnd() * 18.0 - 9.0;
-				// 		glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-				// 		glVertex2f(g.ship.pos[0]+xs,g.ship.pos[1]+ys);
-				// 		glVertex2f(g.ship.pos[0]+xe,g.ship.pos[1]+ye);
-				// 	}
-				glEnd();
-				a = a->next;
-			}
-			//ASTEROID HAS BEEN REPLACE WITH SHIP FOR TESTING
-			// {
-			// 	Asteroid *a = g.ahead;
-			// 	while (a) {
-			// 		//Log("draw asteroid...\n");
-			// 		glColor3fv(a->color);
-			// 		glPushMatrix();
-			// 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			// 		glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			// 		glBegin(GL_LINE_LOOP);
-			// 		//Log("%i verts\n",a->nverts);
-			// 		for (int j=0; j<a->nverts; j++) {
-			// 			glVertex2f(a->vert[j][0], a->vert[j][1]);
-			// 		}
-			// 		glEnd();
-			// 		glPopMatrix();
-			// 		glColor3f(1.0f, 0.0f, 0.0f);
-			// 		glBegin(GL_POINTS);
-			// 		glVertex2f(a->pos[0], a->pos[1]);
-			// 		glEnd();
-			// 		a = a->next;
-			// 	}
-			// }
-			//----------------
-			//Draw the bullets
-			Bullet *b = &g.barr[0];
-			for (int i=0; i<g.nbullets; i++) {
-				//Log("draw bullet...\n");
-				glColor3f(1.0, 1.0, 0.0);
-				glBegin(GL_POINTS);
-				glVertex2f(b->pos[0],      b->pos[1]);
-				glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-				glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-				glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-				glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-				glColor3f(0.8, 0.8, 0.8);
-				glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-				glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-				glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-				glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-				glEnd();
-				++b;
-			}
-			//CHANGE draw ast bullet
-			Bullet *bAst = &g.barrAst[0];
-			for (int i=0; i<g.astBull; i++) {
-				//Log("draw bullet...\n");
-				glColor3f(1.0, 1.0, 1.0);
-				glBegin(GL_POINTS);
-				glVertex2f(bAst->pos[0],      bAst->pos[1]);
-				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]);
-				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]);
-				glVertex2f(bAst->pos[0],      bAst->pos[1]-1.0f);
-				glVertex2f(bAst->pos[0],      bAst->pos[1]+1.0f);
-				glColor3f(0.8, 0.8, 0.8);
-				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]-1.0f);
-				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]+1.0f);
-				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]-1.0f);
-				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]+1.0f);
-				glEnd();
-				++bAst;
-			}
-			genTree(gl.treeTexture,100,100);
-      			//genTree(gl.treeTexture,1100,700);
-      			//genTree(gl.treeTexture,900,250);
-		}else if(!playerIsAlive()){
-			glClear(GL_COLOR_BUFFER_BIT);
-			glMatrixMode(GL_PROJECTION); glLoadIdentity();
-                        glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-
-			if(!doneFading()){
-				fadeToBlack();
-			}else{
-				glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-				if(deathSoundPlayed()==0){
-					thread td(play_sound,gl.youDiedSound);
-					td.detach();
-				}
-				drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
-			}
-		}else if(playerHasWon()==1){
-			genBackground(gl.tileTexture);
+		if(deathSoundPlayed()==0){
+		    thread td(play_sound,gl.youDiedSound);
+		    td.detach();
 		}
-}
+		drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
+	    }
+	}else if(playerHasWon()==1){
+	    genBackground(gl.tileTexture);
+	}
+    }
