@@ -1486,7 +1486,7 @@ void render()
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
-	genBackground(gl.andrewTexture);
+	genBackground(gl.grassTexture);
 	health_bar(gl.xres,gl.yres);
 	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 	ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
@@ -1593,6 +1593,21 @@ void render()
 	genWall(704-576, 640+468, gl.wallEmpty);
 	genWall(768-576, 704+468, gl.wallEmpty);
 	genWall(704-576, 704+468, gl.wallEmpty);
+	
+	genTree(gl.treeTexture,1318,1085);
+	genTree(gl.treeTexture,1444,532);
+	genTree(gl.treeTexture,1906,1701);
+	genTree(gl.treeTexture,1325,2107);
+	genTree(gl.treeTexture,72,569);
+	genTree(gl.treeTexture,191,-60);
+	genTree(gl.treeTexture,3110,-60);
+	genTree(gl.treeTexture,3250,1043);
+	genTree(gl.treeTexture,3026,1743);
+	genTree(gl.treeTexture,2501,2205);
+	genTree(gl.treeTexture,1577,2359);
+	//genTree(gl.treeTexture,,);
+	//genTree(gl.treeTexture,,);
+	//genTree(gl.treeTexture,,);
 
 
 	//for (int i = 0; i)
@@ -1621,8 +1636,8 @@ void render()
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
-	//cout << "X: " <<g.ship.pos[0] << endl;
-	//cout << "Y: " <<g.ship.pos[1] << endl;
+	cout << "X: " <<g.ship.pos[0] << endl;
+	cout << "Y: " <<g.ship.pos[1] << endl;
 
 
 	getCharacter();
@@ -1757,9 +1772,9 @@ void render()
 	    glEnd();
 	    ++bAst;
 	}
-	genTree(gl.treeTexture,100,100);
-	//genTree(gl.treeTexture,1100,700);
-	//genTree(gl.treeTexture,900,250);
+	//genTree(gl.treeTexture,,);
+	//genTree(gl.treeTexture,,);
+	//genTree(gl.treeTexture,,);
 	}else if(!playerIsAlive()){
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glMatrixMode(GL_PROJECTION); glLoadIdentity();

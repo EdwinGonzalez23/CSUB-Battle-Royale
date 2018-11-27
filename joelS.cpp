@@ -156,25 +156,6 @@ extern void beginFade();
 extern bool fadeBegin();
 extern int getColors();
 
-void genTree(GLuint texture, int x, int y){
-	int w = 150;
-	//int h = 150;
-	glPushMatrix();
-	glTranslatef(x,y,0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glColor4ub(255,255,255,255);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
-	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
-	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
-	glEnd();
-	glPopMatrix();
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-}
 
 void genBackground(GLuint texture){
 /*
@@ -195,7 +176,7 @@ void genBackground(GLuint texture){
 		bgPosY=0;
 		for(bgPosY=-1000;bgPosY<yBoundary*2;){
 			glColor3ub(getColors(),getColors(),getColors());
-			int wid=100;
+			int wid=128;
 			glPushMatrix();
 			glTranslatef(bgPosX,bgPosY,0);
 			glBindTexture(GL_TEXTURE_2D, texture);
