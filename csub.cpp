@@ -257,7 +257,7 @@ void init_opengl()
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-    unsigned char *HandgunData = buildAlphaData(&img[9]);
+    unsigned char *HandgunData = buildAlphaData(&img[8]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 	    GL_RGBA, GL_UNSIGNED_BYTE, HandgunData);
 
@@ -1602,7 +1602,7 @@ void render()
 	genMachineGun(gl.mgTexture);
 
 	//-------------
-	//Draw the ship
+	//Draw the ship/player
 
 	glColor3fv(g.ship.color);
 	glPushMatrix();
@@ -1651,7 +1651,7 @@ void render()
 	}
 	//DrawCircle((float)gl.xres/2,(float)gl.yres/2,44.0,33);
 	//------------------
-	//Draw the asteroids
+	//Draw the enemies
 	Asteroid *a = g.ahead;
 	while (a) {
 	    glColor3fv(a->color);
@@ -1672,7 +1672,9 @@ void render()
 	    glEnd();
 	    glPopMatrix();
 	    extern void enemy(int x, int y, int z, float angle, GLuint texid);
-	    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.characterRifle);
+	    if (a->gunNum == 2) {
+		    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+	    }   else enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
 	    // if (gl.keys[XK_Up] || g.mouseThrustOn) {
 	    // 	int i;
 	    // 	//draw thrust
