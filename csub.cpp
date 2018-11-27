@@ -26,13 +26,13 @@
 #include "csub.h"
 using namespace std;
 
-Image img[28]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[29]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
     "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
     "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
     "bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
     "images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
     "images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
-    "images/tiles/wallCenter.png"};
+    "images/tiles/wallCenter.png","bullethole.png"};
 void setup_sound(Global &gl){
     alutInit (NULL, NULL);
     gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -134,7 +134,9 @@ int main()
 	    check_mouse(&e);
 	    done = check_keys(&e);
 	}
-	physics();
+	if(fadeBegin()){
+		physics();
+	}
 	render();
 	x11.swapBuffers();
     }
@@ -478,6 +480,16 @@ void init_opengl()
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[27].data);
 
+    //Bullet Hole Image
+    glGenTextures(1, &gl.bhTexture);
+    w = img[28].width;
+    h = img[28].height;
+    glBindTexture(GL_TEXTURE_2D, gl.bhTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *bhData = buildAlphaData(&img[28]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, bhData);
 
     //OpenGL initialization
     glViewport(0, 0, gl.xres, gl.yres);

@@ -117,6 +117,7 @@ class Global {
 	    GLuint bgTexture;
 	    GLuint treeTexture;
 	    GLuint ydTexture;
+	    GLuint bhTexture;
 		GLuint tileTexture;
 		GLuint logoTexture;
 		GLuint textTexture;
@@ -399,6 +400,26 @@ void beginFade(){
 	td.detach();
 }
 
+void genBH(GLuint texture, int x, int y, int size){
+        int w = size;
+        //int h = 150;
+        glPushMatrix();
+        glTranslatef(x,y,0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(colors,colors,colors,255);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+        glEnd();
+        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
 bool fadeBegin(){
         return fadeOutBegin;
 }
@@ -443,6 +464,11 @@ void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
 
         if(fadeOutBegin==1&&colors>0){
                 colors-=1;
+		genBH(gl.bhTexture, 1200,1200,350);
+		genBH(gl.bhTexture, 2000,1600,350);
+		genBH(gl.bhTexture, 1800,1900,350);
+		genBH(gl.bhTexture, 1300,2000,350);
+		genBH(gl.bhTexture, 1500,2500,350);
         }
         if(colors==0){
                 faded =1;
