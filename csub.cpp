@@ -26,13 +26,13 @@
 #include "csub.h"
 using namespace std;
 
-Image img[29]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[30]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
     "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
     "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
     "bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
     "images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
     "images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
-    "images/tiles/wallCenter.png","bullethole.png"};
+    "images/tiles/wallCenter.png","bullethole.png","hp.png"};
 void setup_sound(Global &gl){
     alutInit (NULL, NULL);
     gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -114,6 +114,9 @@ extern void invuln();
 extern bool playerIsInvulnerable();
 extern void win();
 extern bool playerHasWon();
+extern void getPackLocations(int i, int x[2]);
+extern void healthPack(GLuint texture, int x, int y,int i);
+extern void pickUpPack(int i);
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -491,6 +494,18 @@ void init_opengl()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bhData);
 
+    glGenTextures(1, &gl.hpTexture);
+    w = img[29].width;
+    h = img[29].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.hpTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *hpData = buildAlphaData(&img[29]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, hpData);
+
+
     //OpenGL initialization
     glViewport(0, 0, gl.xres, gl.yres);
     //Initialize matrices
@@ -837,6 +852,15 @@ void physics()
 	    pickUpMachineGun();
 	}
     }
+
+	for(int j = 0;j<5;j++){
+		getPackLocations(j,boxLoc);
+        	if((g.ship.pos[0]>=boxLoc[0]-25&&g.ship.pos[0]<=boxLoc[0]+25)&&
+                	(g.ship.pos[1]>=boxLoc[1]-25&&g.ship.pos[1]<=boxLoc[1]+25)){
+			pickUpPack(j);
+		}
+	}
+
     //
     //Update bullet positions
     struct timespec bt;
@@ -1508,7 +1532,14 @@ void render()
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
 	genBackground(gl.andrewTexture);
-	
+
+	/*
+	healthPack(gl.hpTexture,500,600,0);
+	healthPack(gl.hpTexture,500,800,1);
+	healthPack(gl.hpTexture,500,1000,2);
+	healthPack(gl.hpTexture,500,1200,3);
+	healthPack(gl.hpTexture,500,1400,4);
+	*/	
 
 	//Draw Map
 
@@ -1778,6 +1809,11 @@ void render()
 	genTree(gl.treeTexture,100,100);
 	//genTree(gl.treeTexture,1100,700);
 	//genTree(gl.treeTexture,900,250);
+	healthPack(gl.hpTexture,500,600,0);
+        healthPack(gl.hpTexture,500,800,1);
+        healthPack(gl.hpTexture,500,1000,2);
+        healthPack(gl.hpTexture,500,1200,3);
+        healthPack(gl.hpTexture,500,1400,4);
 	health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);

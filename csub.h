@@ -118,6 +118,7 @@ class Global {
 	    GLuint treeTexture;
 	    GLuint ydTexture;
 	    GLuint bhTexture;
+	    GLuint hpTexture;
 		GLuint tileTexture;
 		GLuint logoTexture;
 		GLuint textTexture;

@@ -60,6 +60,49 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
+
+int hpLocations[5][2];
+bool packsPickedUp[5]={0,0,0,0,0};
+
+void getPackLocations(int i, int x[2]){
+
+	x[0] = hpLocations[i][0];
+	x[1] = hpLocations[i][1];
+}
+
+
+void healPlayer();
+void pickUpPack(int i){
+    	if(packsPickedUp[i]==0){
+		healPlayer();
+	}
+	packsPickedUp[i]=1;
+}
+
+
+void healthPack(GLuint texture, int x, int y,int i){
+        hpLocations[i][0]=x;
+	hpLocations[i][1]=y;
+ 	if(!packsPickedUp[i]){
+	    int w = 20;
+	    //int h = 150;
+	    glPushMatrix();
+	    glTranslatef(x,y,0);
+	    glBindTexture(GL_TEXTURE_2D, texture);
+	    glEnable(GL_ALPHA_TEST);
+	    glAlphaFunc(GL_GREATER, 0.0f);
+	    glColor4ub(255,255,255,255);
+	    glBegin(GL_QUADS);
+	    glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	    glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	    glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	    glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	    glEnd();
+	    glPopMatrix();
+	    glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
 bool playerHasWon(){
 	return winState;
 }
