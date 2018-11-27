@@ -183,7 +183,11 @@ class Asteroid {
 	public:
 		Vec pos;
 		Vec vel;
-		int health = 100;
+		int health = 50;
+		int maxHp = 50;
+		int hpMissing = maxHp-health;
+		bool invuln = 0;
+		struct timespec invulnTimer;
 		int nverts;
 		int gunNum;
 		Flt radius;
@@ -197,6 +201,40 @@ class Asteroid {
 		Asteroid() {
 			prev = NULL;
 			next = NULL;
+		}
+		
+		void drawHealthBar(int x, int y){
+			glColor3f(0,1,0.5);
+			glPushMatrix();
+			glTranslatef(0, 0, 0);
+			glBegin(GL_QUAD_STRIP);
+			glVertex2f(x,y);
+			glVertex2f(x, y-10);
+			glVertex2f(x+50, y);
+			glVertex2f(x+50,y-10);
+			glEnd();
+			glPopMatrix();
+			//Current MISSING player HP
+			glColor3f(0.5f,0,0);
+			glPushMatrix();
+			glTranslatef(0, 0, 0);
+			glBegin(GL_QUAD_STRIP);
+			glVertex2f(x+50-hpMissing,y);
+			glVertex2f(x+50-hpMissing, y-10);
+			glVertex2f(x+50, y);
+			glVertex2f(x+50,y-10);
+			glEnd();
+			glPopMatrix();
+		}
+		
+		void checkInvuln(){
+			struct timespec invulnComparison;
+			clock_gettime(CLOCK_REALTIME, &invulnComparison);
+			double timeDifference = timeDiff(&invulnTimer, &invulnComparison);
+			//std::cout<<timeDifference<<std::endl;
+			if(timeDifference>0.5){
+				invuln=0;			
+			}
 		}
 };
 class Game {

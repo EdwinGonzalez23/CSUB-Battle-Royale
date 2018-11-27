@@ -95,7 +95,7 @@ extern bool doesPlayerHaveShotgun();
 extern bool doesPlayerHaveMachineGun();
 extern void printAmmo();
 extern void decrementAmmo();
-extern void genAmmo(GLuint texture);
+extern void genAmmo(GLuint texture, int x, int y);
 extern void reloadAmmunition();
 extern int hasBulletsLoaded(int x);
 extern void genBackground(GLuint bg);
@@ -134,7 +134,7 @@ int main()
 	    check_mouse(&e);
 	    done = check_keys(&e);
 	}
-	if(fadeBegin()){
+	if((menuFadedOut()&&playerIsAlive())&&playerHasWon()==0){
 		physics();
 	}
 	render();
@@ -936,14 +936,19 @@ void physics()
 
 	//This code checks for player bullet and enemy collision.
 	int bulls=0;
+	
+	//Check asteroid invulnerability.
+	a->checkInvuln();
 	while (bulls < g.nbullets) {
 	    Bullet *b = &g.barr[bulls];
 	    if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
-		    (b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)){
+		    (b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)&&a->invuln==0){
 		thread t1(play_sound, gl.playerHitSound);
 		t1.detach();
 		a->health-=10;
-
+		a->hpMissing+=10;
+		clock_gettime(CLOCK_REALTIME, &a->invulnTimer);
+		a->invuln=1;
 		if(a->health<=0){
 		    if(g.nasteroids==1){
 			cout<<"You Win!"<<endl;
@@ -1161,7 +1166,6 @@ void fireRifle(){
     clock_gettime(CLOCK_REALTIME, &bt);
     double ts = timeDiff(&g.bulletTimer, &bt);
     if(ts>0.5){
-	healPlayer();
 	timeCopy(&g.bulletTimer, &bt);
 	if (g.nbullets < MAX_BULLETS) {
 	    //shoot a bullet...
@@ -1200,7 +1204,6 @@ void eFireRifle(Asteroid *a, int k)
     clock_gettime(CLOCK_REALTIME, &bt);
     double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
     if(ts > 1.0) {
-	//healPlayer();
 	timeCopy(&g.enemyBulletTimer[k], &bt);
 	if (g.astBull < MAX_BULLETS) {
 	    //shoot a bullet...
@@ -1479,8 +1482,8 @@ void render()
 {
     x11.clear_screen();
     Rect r;
-    r.bot = gl.yres - 55;
-    r.left = 10;
+    r.bot = g.ship.pos[1]+260;
+    r.left = g.ship.pos[0]-450;
     r.center = 0;
     if(getMenuState()){
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -1505,14 +1508,7 @@ void render()
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
 	genBackground(gl.andrewTexture);
-	health_bar(gl.xres,gl.yres);
-	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-	ggprint16(&r, 16, 0x00bbbbbb, "Bullets On Screen: %i", g.nbullets);
-	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
-	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Defeated: %i ",g.astr_destroyed);
-	genAmmo(gl.bulletTexture);
-	reloadAmmunition();
-	printCurrentWeapon(getCurrentWeapon(),r);
+	
 
 	//Draw Map
 
@@ -1689,10 +1685,12 @@ void render()
 	    glVertex2f(0.0f, 0.0f);
 	    glEnd();
 	    glPopMatrix();
+	    
 	    extern void enemy(int x, int y, int z, float angle, GLuint texid);
 	    if (a->gunNum == 2) {
 		    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
 	    }   else enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
+	    a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
 	    // if (gl.keys[XK_Up] || g.mouseThrustOn) {
 	    // 	int i;
 	    // 	//draw thrust
@@ -1780,6 +1778,12 @@ void render()
 	genTree(gl.treeTexture,100,100);
 	//genTree(gl.treeTexture,1100,700);
 	//genTree(gl.treeTexture,900,250);
+	health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
+	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
+	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+	genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
+	reloadAmmunition();
+	printCurrentWeapon(getCurrentWeapon(),r);
 	}else if(!playerIsAlive()){
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glMatrixMode(GL_PROJECTION); glLoadIdentity();

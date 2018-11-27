@@ -260,15 +260,14 @@ void decrementAmmo(){
 	}
 }
 
-void genAmmo(GLuint texture)
+void genAmmo(GLuint texture, int x, int y)
 {
-	int x = 0;
 	for(int i = 0; i < ammoCounts[currentWeapon];i++) {
 		glColor3ub(255,255,255);
 		int w=12;
 		int h=16;
 		glPushMatrix();
-		glTranslatef(x+h,yBoundary-300,0);
+		glTranslatef(x+h,y,0);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
@@ -510,10 +509,10 @@ void health_bar(int x,int y)
 	glPushMatrix();
 	glTranslatef(0, 0, 0);
 	glBegin(GL_QUAD_STRIP);
-	glVertex2f(10,y-10);
-	glVertex2f(10, y-30);
-	glVertex2f(310, y-10);
-	glVertex2f(310,y-30);
+	glVertex2f(x,y-10);
+	glVertex2f(x, y-30);
+	glVertex2f(x+300, y-10);
+	glVertex2f(x+300,y-30);
 	glEnd();
 	glPopMatrix();
 	//Current MISSING player HP
@@ -521,10 +520,10 @@ void health_bar(int x,int y)
 	glPushMatrix();
 	glTranslatef(0, 0, 0);
 	glBegin(GL_QUAD_STRIP);
-	glVertex2f(310-playerHPMissing*3,y-10);
-	glVertex2f(310-playerHPMissing*3, y-30);
-	glVertex2f(310, y-10);
-	glVertex2f(310,y-30);
+	glVertex2f(x+300-playerHPMissing*3,y-10);
+	glVertex2f(x+300-playerHPMissing*3, y-30);
+	glVertex2f(x+300, y-10);
+	glVertex2f(x+300,y-30);
 	glEnd();
 	glPopMatrix();
 }
