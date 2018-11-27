@@ -37,6 +37,10 @@ const float GRAVITY = -0.6f;
 const int MAX_BULLETS = 1000;
 const Flt MINIMUM_ASTEROID_SIZE = 10.0;
 //-----------------------------------------------------------------------------
+//Joel's stuff
+#include <thread>
+extern void play_sound(ALuint a);
+
 //Setup timers
 const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
@@ -133,7 +137,10 @@ class Global {
 	    ALuint bulletSound;
 	    ALuint youDiedSound;
 	    ALuint playerHitSound;
-	    ALuint buffers[3];
+	    ALuint mgSound;
+        ALuint sfSound;
+
+	    ALuint buffers[5];
 		int xres, yres;
 		int credits;
 		char keys[65536];
@@ -380,8 +387,16 @@ bool menuFadedOut(){
         return faded;
 }
 
+void menuSound(){
+        play_sound(gl.mgSound);
+        sleep(1);
+        play_sound(gl.sfSound);
+}
+
 void beginFade(){
         fadeOutBegin=1;
+	std::thread td(menuSound);
+	td.detach();
 }
 
 bool fadeBegin(){
@@ -436,4 +451,5 @@ void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
 
         }
 }
+
 

@@ -38,12 +38,18 @@ void setup_sound(Global &gl){
     gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
     gl.buffers[1] = alutCreateBufferFromFile ("./audio/You_Died.wav");
     gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
+    gl.buffers[3] = alutCreateBufferFromFile ("./audio/mg.wav");
+    gl.buffers[4] = alutCreateBufferFromFile ("./audio/sf.wav");
     alGenSources (1, &gl.bulletSound);
     alGenSources (1, &gl.youDiedSound);
     alGenSources (1, &gl.playerHitSound);
+    alGenSources (1, &gl.mgSound);
+    alGenSources (1, &gl.sfSound);
     alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
     alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
     alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
+    alSourcei (gl.mgSound, AL_BUFFER, gl.buffers[3]);
+    alSourcei (gl.sfSound, AL_BUFFER, gl.buffers[4]);
 
 }
 //function prototypes
@@ -1781,3 +1787,4 @@ void render()
 	    genBackground(gl.tileTexture);
 	}
     }
+
