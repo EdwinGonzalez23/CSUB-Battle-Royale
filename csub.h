@@ -135,6 +135,10 @@ class Global {
 		GLuint wallT;
 		GLuint wallCorner;
 		GLuint wallEmpty;
+		GLuint bushTexture1;
+		GLuint bushTexture2;
+		GLuint rockTexture1;
+		GLuint rockTexture2;
 	    //Store sound sources here.
 	    ALuint bulletSound;
 	    ALuint youDiedSound;

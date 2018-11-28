@@ -26,13 +26,14 @@
 #include "csub.h"
 using namespace std;
 
-Image img[30]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[34]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
     "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
     "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
     "bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
     "images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
     "images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
-    "images/tiles/wallCenter.png","bullethole.png","hp.png"};
+    "images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png" };
 void setup_sound(Global &gl){
     alutInit (NULL, NULL);
     gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -494,6 +495,7 @@ void init_opengl()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bhData);
 
+	//Health Pack Texture
     glGenTextures(1, &gl.hpTexture);
     w = img[29].width;
     h = img[29].height;
@@ -504,6 +506,54 @@ void init_opengl()
     unsigned char *hpData = buildAlphaData(&img[29]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, hpData);
+
+	//Rock Texture 1
+    glGenTextures(1, &gl.rockTexture1);
+    w = img[30].width;
+    h = img[30].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.rockTexture1);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *rockTexture1Data = buildAlphaData(&img[30]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, rockTexture1Data);
+
+	//Rock Texture 2
+    glGenTextures(1, &gl.rockTexture2);
+    w = img[31].width;
+    h = img[31].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.rockTexture2);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *rockTexture2Data = buildAlphaData(&img[31]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, rockTexture2Data);
+	
+	//Bush Texture 1
+    glGenTextures(1, &gl.bushTexture1);
+    w = img[32].width;
+    h = img[32].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.bushTexture1);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *bushTexture1Data = buildAlphaData(&img[32]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, bushTexture1Data);
+	
+	//Bush Texture 2
+    glGenTextures(1, &gl.bushTexture2);
+    w = img[33].width;
+    h = img[33].height;
+
+    glBindTexture(GL_TEXTURE_2D, gl.bushTexture2);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *bushTexture2Data = buildAlphaData(&img[33]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, bushTexture2Data);
 
 
     //OpenGL initialization
@@ -1569,6 +1619,8 @@ void render()
 	//Draw Walls
 	extern void genWall(int x, int y, GLuint texid);
 	extern void genWallCorner(int x, int y, int angle, GLuint texid);
+	extern void genRock(int x, int y, GLuint texid);
+	extern void genBush(int x, int y, GLuint texid);
 
 	//House 1
 	genWallCorner(1640, 768+412, 0, gl.wallCorner);
@@ -1650,6 +1702,19 @@ void render()
 	genTree(gl.treeTexture,3026,1743);
 	genTree(gl.treeTexture,2501,2205);
 	genTree(gl.treeTexture,1577,2359);
+	extern int Rocks[][2];
+
+	for (int i = 0; i < 27; i++) {
+		for (int j = 0; j < 1; j++){
+			if (j == 0) {
+				genRock(Rocks[i][j], Rocks[i][j+1], gl.rockTexture1);
+			}
+			else {
+			genRock(Rocks[i][j],Rocks[i][j+1], gl.rockTexture2);
+			}
+			
+		}
+	}
 
 
 	//for (int i = 0; i)
@@ -1678,8 +1743,8 @@ void render()
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
-	//cout << "X: " <<g.ship.pos[0] << endl;
-	//cout << "Y: " <<g.ship.pos[1] << endl;
+	cout << "X: " <<g.ship.pos[0] << endl;
+	cout << "Y: " <<g.ship.pos[1] << endl;
 
 
 	getCharacter();
