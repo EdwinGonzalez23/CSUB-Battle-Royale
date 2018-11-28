@@ -509,8 +509,8 @@ void init_opengl()
 
 	//Rock Texture 1
     glGenTextures(1, &gl.rockTexture1);
-    w = img[30].width;
-    h = img[30].height;
+    w = img[31].width;
+    h = img[31].height;
 
     glBindTexture(GL_TEXTURE_2D, gl.rockTexture1);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -1621,7 +1621,20 @@ void render()
 	extern void genWallCorner(int x, int y, int angle, GLuint texid);
 	extern void genRock(int x, int y, GLuint texid);
 	extern void genBush(int x, int y, GLuint texid);
+	
+	extern int Rocks[][2];
 
+	for (int i = 0; i < 27; i++) {
+		for (int j = 0; j < 2; j++){
+			if (j == 0) {
+				genRock(Rocks[i][j], Rocks[i][j+1], gl.rockTexture1);
+			}
+			else {
+			genRock(Rocks[i][j],Rocks[i][j+1], gl.rockTexture2);
+			}
+			
+		}
+	}
 	//House 1
 	genWallCorner(1640, 768+412, 0, gl.wallCorner);
 	genWall(1704, 768+412, gl.wallT);
@@ -1702,19 +1715,8 @@ void render()
 	genTree(gl.treeTexture,3026,1743);
 	genTree(gl.treeTexture,2501,2205);
 	genTree(gl.treeTexture,1577,2359);
-	extern int Rocks[][2];
-
-	for (int i = 0; i < 27; i++) {
-		for (int j = 0; j < 1; j++){
-			if (j == 0) {
-				genRock(Rocks[i][j], Rocks[i][j+1], gl.rockTexture1);
-			}
-			else {
-			genRock(Rocks[i][j],Rocks[i][j+1], gl.rockTexture2);
-			}
-			
-		}
-	}
+	
+	
 
 
 	//for (int i = 0; i)

@@ -168,23 +168,7 @@ void genTree(GLuint texture, int x, int y){
 
 void genBush(int x, int y, GLuint texid)
 {
-    glColor3ub(255, 255, 255);
-    int w=64;
-    glPushMatrix();
-    glTranslatef(x, y, 0);
-    glBindTexture(GL_TEXTURE_2D, texid);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
-    glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
-    glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
-    glEnd();
-    glPopMatrix(); 
-}
-
-void genRock(int x, int y, GLuint texid)
-{
-    int w = 64;
+    int w = 150;
 	//int h = 150;
 	glPushMatrix();
 	glTranslatef(x,y,0);
@@ -200,6 +184,26 @@ void genRock(int x, int y, GLuint texid)
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void genRock(int x, int y, GLuint texid)
+{
+    int w = 32;
+	//int h = 150;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(255,255,255,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);;
 }
 
 int Rocks [][2] = {
