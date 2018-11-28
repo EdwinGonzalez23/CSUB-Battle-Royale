@@ -118,6 +118,8 @@ extern bool playerHasWon();
 extern void getPackLocations(int i, int x[2]);
 extern void healthPack(GLuint texture, int x, int y,int i);
 extern void pickUpPack(int i);
+extern void shakeScreen(int l, int r, int b, int t);
+extern int getShake();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -1580,7 +1582,7 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
+	glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
 	genBackground(gl.grassTexture);
 
 	/*

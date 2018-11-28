@@ -60,6 +60,23 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
+static int shake = 0;
+
+int getShake(){
+	
+	if(shake>0){
+	shake-=2;
+	}
+	return shake;
+}
+
+
+void shakeScreen(int left, int right, int bottom, int top){
+		glOrtho(left-shake, right-shake, bottom, top, -100, 1000);
+}
+
+
+
 
 int hpLocations[5][2];
 bool packsPickedUp[5]={0,0,0,0,0};
@@ -515,6 +532,7 @@ void damagePlayer()
 	}
 	playerCurrentHP-=10;
 	playerHPMissing+=10;
+	shake=30;
 	clock_gettime(CLOCK_REALTIME, &invulnTimer);
 	playerInvuln=1;
 		
