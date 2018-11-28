@@ -1531,7 +1531,7 @@ void render()
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(g.ship.pos[0]-gl.xres/5, g.ship.pos[0]+gl.xres/5, g.ship.pos[1]-gl.yres/5, g.ship.pos[1]+gl.yres/5, -100, 1000);
-	genBackground(gl.andrewTexture);
+	genBackground(gl.grassTexture);
 
 	/*
 	healthPack(gl.hpTexture,500,600,0);
@@ -1638,6 +1638,18 @@ void render()
 	genWall(704-576, 640+468, gl.wallEmpty);
 	genWall(768-576, 704+468, gl.wallEmpty);
 	genWall(704-576, 704+468, gl.wallEmpty);
+
+	genTree(gl.treeTexture,1318,1085);
+	genTree(gl.treeTexture,1444,532);
+	genTree(gl.treeTexture,1906,1701);
+	genTree(gl.treeTexture,1325,2107);
+	genTree(gl.treeTexture,72,569);
+	genTree(gl.treeTexture,191,-60);
+	genTree(gl.treeTexture,3110,-60);
+	genTree(gl.treeTexture,3250,1043);
+	genTree(gl.treeTexture,3026,1743);
+	genTree(gl.treeTexture,2501,2205);
+	genTree(gl.treeTexture,1577,2359);
 
 
 	//for (int i = 0; i)
@@ -1806,9 +1818,6 @@ void render()
 	    glEnd();
 	    ++bAst;
 	}
-	genTree(gl.treeTexture,100,100);
-	//genTree(gl.treeTexture,1100,700);
-	//genTree(gl.treeTexture,900,250);
 	healthPack(gl.hpTexture,500,600,0);
         healthPack(gl.hpTexture,500,800,1);
         healthPack(gl.hpTexture,500,1000,2);
