@@ -1199,8 +1199,8 @@ void firePistol(){
 	    Flt ydir = sin(rad);
 	    b->pos[0] += xdir*20.0f;
 	    b->pos[1] += ydir*20.0f;
-	    b->vel[0] += xdir*1.0f + rnd()*0.1;
-	    b->vel[1] += ydir*1.0f + rnd()*0.1;
+	    b->vel[0] += xdir*15.0f + rnd()*0.1;
+	    b->vel[1] += ydir*15.0f + rnd()*0.1;
 	    b->color[0] = 1.0f;
 	    b->color[1] = 1.0f;
 	    b->color[2] = 1.0f;
@@ -1452,8 +1452,8 @@ void generatePellet(timespec bt){
     Flt ydir = sin(rad);
     b->pos[0] += xdir*20.0f;
     b->pos[1] += ydir*20.0f;
-    b->vel[0] += xdir*10.0f + rnd()*.5;
-    b->vel[1] += ydir*10.0f + rnd()*.5;
+    b->vel[0] += xdir*15.0f + rnd()*.5;
+    b->vel[1] += ydir*15.0f + rnd()*.5;
     b->color[0] = 1;
     b->color[1] = 1.0f;
     b->color[2] = 1.0f;
@@ -1501,8 +1501,8 @@ void fireMachineGun(){
 	    Flt ydir = sin(rad);
 	    b->pos[0] += xdir*20.0f;
 	    b->pos[1] += ydir*20.0f;
-	    b->vel[0] += xdir*6.0f + rnd()*0.1;
-	    b->vel[1] += ydir*6.0f + rnd()*0.1;
+	    b->vel[0] += xdir*15.0f + rnd()*0.1;
+	    b->vel[1] += ydir*15.0f + rnd()*0.1;
 	    b->color[0] = 1.0f;
 	    b->color[1] = 1.0f;
 	    b->color[2] = 1.0f;
