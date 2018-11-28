@@ -60,8 +60,81 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
-static int shake = 0;
+static int transitionProgress = 0;
+static bool transitionComplete = 0;
+void drawLine(int x, int y){
+        glColor3f(0,0,0);
+        glPushMatrix();
+        glTranslatef(0, 0, 0);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(x,y+3000);
+        glVertex2f(x, y);
+	//right
+        glVertex2f(x+transitionProgress, y+3000);
+        glVertex2f(x+transitionProgress,y);
+        glEnd();
+        glPopMatrix();
+	transitionProgress+=50;
+}
 
+
+static bool lbComplete = 0;
+
+bool getIntroComplete(){
+	return lbComplete;
+}
+
+static int letterProg = 0;
+void letterBoxes(int x, int y, GLuint texture){
+	if(!lbComplete){
+        glColor3f(0,0,0);
+        glPushMatrix();
+        glTranslatef(0, 0, 0);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(x+letterProg-2000,y+500);
+        glVertex2f(x+letterProg-2000, y+300);
+        //right
+        glVertex2f(x+letterProg, y+500);
+        glVertex2f(x+letterProg,y+300);
+        glEnd();
+        glPopMatrix();
+
+		glColor3f(0,0,0);
+        glPushMatrix();
+        glTranslatef(0, 0, 0);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(x-letterProg,y-300);
+        glVertex2f(x-letterProg, y-500);
+        //right
+        glVertex2f(x-letterProg+2000, y-300);
+        glVertex2f(x-letterProg+2000,y-500);
+        glEnd();
+        glPopMatrix();
+        letterProg+=30;
+        
+        int w = 150;
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glColor4ub(255,255,255,255);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+		glEnd();
+		glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
+        
+        if(letterProg>2500){
+			lbComplete=1;
+		}
+}
+}
+
+static int shake = 0;
 int getShake(){
 	
 	if(shake>0){

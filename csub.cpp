@@ -26,14 +26,14 @@
 #include "csub.h"
 using namespace std;
 
-Image img[34]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[35]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
     "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
     "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
     "bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
     "images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
     "images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
     "images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png" };
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png"};
 void setup_sound(Global &gl){
     alutInit (NULL, NULL);
     gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -120,6 +120,9 @@ extern void healthPack(GLuint texture, int x, int y,int i);
 extern void pickUpPack(int i);
 extern void shakeScreen(int l, int r, int b, int t);
 extern int getShake();
+extern void letterBoxes(int x, int y, GLuint z);
+extern void drawLine(int x, int y);
+extern bool getIntroComplete();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -140,7 +143,7 @@ int main()
 	    check_mouse(&e);
 	    done = check_keys(&e);
 	}
-	if((menuFadedOut()&&playerIsAlive())&&playerHasWon()==0){
+	if((menuFadedOut()&&playerIsAlive())&&playerHasWon()==0&&getIntroComplete()){
 		physics();
 	}
 	render();
@@ -557,6 +560,16 @@ void init_opengl()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bushTexture2Data);
 
+    //Go Image
+    glGenTextures(1, &gl.goTexture);
+    w = img[34].width;
+    h = img[34].height;
+    glBindTexture(GL_TEXTURE_2D, gl.goTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    unsigned char *goData = buildAlphaData(&img[34]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+	    GL_RGBA, GL_UNSIGNED_BYTE, goData);
 
     //OpenGL initialization
     glViewport(0, 0, gl.xres, gl.yres);
@@ -1750,9 +1763,9 @@ void render()
 	cout << "X: " <<g.ship.pos[0] << endl;
 	cout << "Y: " <<g.ship.pos[1] << endl;
 
-
-	getCharacter();
-
+	if(getIntroComplete()){
+		getCharacter();
+	}
 
 	if (gl.keys[XK_Up] || g.mouseThrustOn) {
 	    int i;
@@ -1797,12 +1810,13 @@ void render()
 	    glVertex2f(0.0f, 0.0f);
 	    glEnd();
 	    glPopMatrix();
-	    
+	    if(getIntroComplete()){
 	    extern void enemy(int x, int y, int z, float angle, GLuint texid);
 	    if (a->gunNum == 2) {
 		    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
 	    }   else enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
 	    a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
+		}
 	    // if (gl.keys[XK_Up] || g.mouseThrustOn) {
 	    // 	int i;
 	    // 	//draw thrust
@@ -1892,6 +1906,7 @@ void render()
         healthPack(gl.hpTexture,500,1000,2);
         healthPack(gl.hpTexture,500,1200,3);
         healthPack(gl.hpTexture,500,1400,4);
+    	letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
 	health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);

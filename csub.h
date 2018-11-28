@@ -122,6 +122,7 @@ class Global {
 		GLuint tileTexture;
 		GLuint logoTexture;
 		GLuint textTexture;
+		GLuint goTexture;
 		GLuint characterHandgun;
 		GLuint characterRifle;
 		GLuint characterShotgun;
