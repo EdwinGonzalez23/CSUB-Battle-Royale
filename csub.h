@@ -264,7 +264,7 @@ class Game {
 			astBull = 0;
 			mouseThrustOn = false;
 			//build 10 asteroids...
-			for (int j=0; j<9; j++) { //Change num asteroid
+			for (int j=0; j<2; j++) { //Change num asteroid
 				Asteroid *a = new Asteroid;
 				a->nverts = 8;
 				a->radius = rnd()*80.0 + 40.0;
@@ -347,7 +347,7 @@ class X11_wrapper {
 		void set_title() {
 			//Set the window title bar.
 			XMapWindow(dpy, win);
-			XStoreName(dpy, win, "Asteroids template");
+			XStoreName(dpy, win, "CSUB BATTLE ROYALE!");
 		}
 		void check_resize(XEvent *e) {
 			//The ConfigureNotify is sent by the

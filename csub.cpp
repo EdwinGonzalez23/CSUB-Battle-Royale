@@ -1838,5 +1838,11 @@ void render()
 	}else if(playerHasWon()==1){
 	    genBackground(gl.tileTexture);
 	}
+	if(g.nasteroids==1){
+    		extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
+		 Asteroid *a = g.ahead;
+		bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+	}
+
     }
 

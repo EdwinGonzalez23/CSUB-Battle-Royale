@@ -6,6 +6,7 @@
 //	Add function for player health.
 #include <iostream>
 #include <GL/glu.h>
+#include <GL/glx.h>
 #include "fonts.h"
 #include<math.h>
 typedef float Flt;
@@ -98,7 +99,29 @@ void art_picture(int x,int y,GLuint textid)
 	glPopMatrix();
 	return;
 }
+void bigBoss(int x, int y, int z, float angle, GLuint texid)
+{
+ glColor3f(1.0, 0.0, 0.0);
+    glPushMatrix();
+    int w = 100;
+        glTranslatef(x, y, z);
+        glRotatef(angle, 0.0f, 0.0f, 1.0f);
+    //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+    glColor4ub(255,255,255,255);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(-w,  -w);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f( -w,  w);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f( w, w);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f( w, -w);
+    glEnd();
+    glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
 
+}
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  death_circle
