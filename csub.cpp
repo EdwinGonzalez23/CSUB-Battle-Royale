@@ -535,7 +535,7 @@ void init_opengl()
     unsigned char *rockTexture2Data = buildAlphaData(&img[31]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, rockTexture2Data);
-	
+
 	//Bush Texture 1
     glGenTextures(1, &gl.bushTexture1);
     w = img[32].width;
@@ -547,7 +547,7 @@ void init_opengl()
     unsigned char *bushTexture1Data = buildAlphaData(&img[32]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bushTexture1Data);
-	
+
 	//Bush Texture 2
     glGenTextures(1, &gl.bushTexture2);
     w = img[33].width;
@@ -824,9 +824,94 @@ extern int setSectLen();
 extern bool isInSector(float, float, int, float, float);
 //int sectLen = setSectLen(); //Default 3 sections
 int flipVel[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
+void drawVertWall(int x, int y)
+{
+	int w = 15;
+	int h = 155;
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawHorzWall(int x, int y)
+{
+	int w = 100;
+	int h = 15;
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawDoorWall(int x, int y)
+{
+    int xs = x;
+	x = x - 20;
+	int w = 80;
+	int h = 10;
+    //LONGER SIDE
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w-40))&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+20))&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+    //SHORTER SIDE
+    xs = xs + 80;
+    int ws = 30;
+	int hs = 10;
+	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))&&
+		(g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
+		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws+10))&&
+		  (g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-hs || g.ship.pos[1] <=y+(hs+20))&&
+		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawHouse(int centerX, int centerY)
+{
+	//need 3 walls
+	drawVertWall((centerX - 120), centerY);
+	drawVertWall(centerX +  120, centerY);
+	drawHorzWall(centerX, centerY - 140);
+	drawDoorWall(centerX, centerY + 140);
+}
+void regulateSpeed(){
+    g.ship.pos[0] += g.ship.vel[0];
+    g.ship.pos[1] += g.ship.vel[1];
+	drawHouse(1738, 1045);
+    drawHouse(149, 1122);
+    drawHouse(723, 646);
+}
 void physics()
 {
+    regulateSpeed();
     float xLen = gl.xres;
     float yLen = gl.yres;
     Asteroid *a = g.ahead;
@@ -874,8 +959,6 @@ void physics()
     //Flt d0,d1,dist;
     //Update ship position
     invuln();
-    g.ship.pos[0] += g.ship.vel[0];
-    g.ship.pos[1] += g.ship.vel[1];
     //Check for collision with window edges
     //window collisions
     if (g.ship.pos[0] < 0.0) {
@@ -1025,7 +1108,7 @@ void physics()
 
 	//This code checks for player bullet and enemy collision.
 	int bulls=0;
-	
+
 	//Check asteroid invulnerability.
 	a->checkInvuln();
 	while (bulls < g.nbullets) {
@@ -1604,7 +1687,7 @@ void render()
 	healthPack(gl.hpTexture,500,1000,2);
 	healthPack(gl.hpTexture,500,1200,3);
 	healthPack(gl.hpTexture,500,1400,4);
-	*/	
+	*/
 
 	//Draw Map
 
@@ -1636,7 +1719,7 @@ void render()
 	extern void genWallCorner(int x, int y, int angle, GLuint texid);
 	extern void genRock(int x, int y, GLuint texid);
 	extern void genBush(int x, int y, GLuint texid);
-	
+
 	extern int Rocks[][2];
 
 	for (int i = 0; i < 27; i++) {
@@ -1647,7 +1730,7 @@ void render()
 			else {
 			genRock(Rocks[i][j],Rocks[i][j+1], gl.rockTexture2);
 			}
-			
+
 		}
 	}
 	//House 1
@@ -1730,8 +1813,8 @@ void render()
 	genTree(gl.treeTexture,3026,1743);
 	genTree(gl.treeTexture,2501,2205);
 	genTree(gl.treeTexture,1577,2359);
-	
-	
+
+
 
 
 	//for (int i = 0; i)
@@ -1938,4 +2021,3 @@ void render()
 	}
 
     }
-
