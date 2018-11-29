@@ -7,6 +7,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <math.h>
+#include "game2.h"
+Game g2;
+extern int Rocks[][2];
 //Flip to 1 to set True
 //TODO spawn function change constants to variables
 //TODO make area, area array accessible outside functions
@@ -284,67 +287,175 @@ float yNegCheck(float totalLen, int playerIndex)
     }
     return (totalLen-sectLen);
 }
+//All referencing csub.cpp
+void drawVertWall(int x, int y, Game &g)
+{
+	int w = 15;
+	int h = 155;
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawHorzWall(int x, int y, Game &g)
+{
+	int w = 120;
+	int h = 15;
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawDoorWall(int x, int y, Game &g)
+{
+    int xs = x;
+	x = x - 20;
+	int w = 80;
+	int h = 10;
+    //LONGER SIDE
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w-40))&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+20))&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+    //SHORTER SIDE
+    xs = xs + 80;
+    int ws = 30;
+	int hs = 10;
+	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))&&
+		(g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
+		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws+10))&&
+		  (g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-hs || g.ship.pos[1] <=y+(hs+20))&&
+		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawDoorRight(int x, int y, Game &g)
+{
+    int xs = x;
+    int ys = y;
+	y = y + 20;
+	int w = 10;
+	int h = 80;
+    //LONGER SIDE
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w+20))&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+40))&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+    //SHORTER SIDE
+    xs = xs + 10;
+    ys = ys - 120;
+    int ws = 20;
+	int hs = 30;
+	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))&&
+		(g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
+		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws))&&
+		  (g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=ys-hs || g.ship.pos[1] <=ys+(hs))&&
+		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
+void drawHouse(int centerX, int centerY, Game &g)
+{
+	//need 3 walls
+	drawVertWall((centerX - 120), centerY, g);
+	drawVertWall(centerX +  120, centerY, g);
+	drawHorzWall(centerX, centerY - 140, g);
+	drawDoorWall(centerX, centerY + 140, g);
+}
+void drawSecondHouse(int x, int y, Game &g)
+{
+    drawVertWall((x - 120), y, g); //left
+    drawDoorRight(x + 120, y, g); //Right bottom door
+    drawHorzWall(x, y - 140, g);//Bottom
+    drawHorzWall(x+20,y + 140, g);
+}
+void rockPlayerCollision(int x, int y, int px, int py, Game &g)
+{
+    if (abs(x-px) <= 30 && abs(y-py) <= 30) {
+        g.ship.pos[1] -= g.ship.vel[1];
+        g.ship.pos[0] -= g.ship.vel[0];
+    }
+}
+void regulateSpeed(Game &g){
+    g.ship.pos[0] += g.ship.vel[0];
+    g.ship.pos[1] += g.ship.vel[1];
+    for (int i = 0; i < 27; i++) {
+        rockPlayerCollision(Rocks[i][0], Rocks[i][1], g.ship.pos[0], g.ship.pos[1], g);
+    }
+	drawHouse(1738, 1045, g); //Door Top Right
+    drawSecondHouse(149, 1115, g);
+    drawSecondHouse(723, 646, g);
+}
+void wallCollision(int x, int y, int i, Bullet *b, int check, Game &g){
+    int w = 125;
+    int h = 200;
+    if((b->pos[0]>=x-w&&b->pos[0]<=x+(w+10))&&
+		(b->pos[1]>=y-h&&b->pos[1]<=y+(h))){
+            if (check == 1) {
+                memcpy(&g.barr[i], &g.barr[g.nbullets-1],
+    		              sizeof(Bullet));
+    	                     g.nbullets--;
+            } else {
+                memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
+    		              sizeof(Bullet));
+    	                     g.astBull--;
+            }
 
-// bool isInSector(float xLen, float yLen, int tracker, float xPos, float yPos)
-// {
-//     int numSections = 3;
-//     float xSectLen = (xLen/numSections);
-//     float ySectLen = (yLen/numSections);
-//     switch (playerIndex) {
-//         case 1:
-//             if ((xPos < xSectLen) && (xPos > 1.0f) &&
-//             (yPos < yLen) && (yPos > ((ySectLen*2)+1))) {
-//                 return true;
-//             }
-//         case 2:
-//         case 3:
-//         case 4:
-//         case 5:
-//         case 6:
-//         case 7:
-//         case 8:
-//         case 9:
-//
-//}
-
-// void updateAsteroidPos()
-// {
-//     int j = 0;
-// 	while (j < g.astBull) {
-// 		Bullet *bAst = &g.barrAst[j];
-// 		double ts = timeDiff(&bAst->time, &bt);
-// 		if (ts > 2.5) {
-// 			memcpy(&g.barrAst[j], &g.barrAst[g.astBull-1],
-// 					sizeof(Bullet));
-// 			g.astBull--;
-// 			continue;
-// 		}
-// 		bAst->pos[0] += bAst->vel[0];
-// 		bAst->pos[1] += bAst->vel[1];
-// 		j++;
-// 	// }
-// }
-// }
-
-
-
-
-//Testing Console Log (ignore)
-// cout << "\n";
-// 		cout << "Asteroid PosX: " << a->pos[0] << endl;
-// 		cout << "Asteroid PosY: " << a->pos[1] << endl;
-// 		cout << "SHIP X: " << g.ship.pos[0] << endl;
-// 		cout << "SHIP Y: "<< g.ship.pos[1] << endl;
-// 		cout << "xTan: " << xTan << endl;
-// 		cout << "yTan: "<< yTan << endl;
-// 		//cout << "divTan: "<< divTan << endl;
-// 		//cout << "divTanLow: "<< divTanLow << endl;
-// 		cout << "\ndivTanAngle: "<< divTanAngle << endl;
-// 		cout << "\nAsteroid rot: " << a->rotate << endl;
-// 		cout << "Asteroid angle: " << a->angle << endl;
-// 		cout << "Ship angle: " << g.ship.angle << endl;
-// 		Flt radss = ((a->angle+90.0) / 360.0f) * PI * 2.0;
-// 		cout << "Rad Ast Angle: " << radss << endl;
-//
-//
-// 		cout << "\n";
+	}
+}
+void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Game &g)
+{
+    if (abs(x-bx) <= 45 && abs(y-by) <= 45) {
+        if (check == 1) {
+            memcpy(&g.barr[i], &g.barr[g.nbullets-1],
+                      sizeof(Bullet));
+                         g.nbullets--;
+        } else {
+            memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
+                      sizeof(Bullet));
+                         g.astBull--;
+        }
+    }
+}
