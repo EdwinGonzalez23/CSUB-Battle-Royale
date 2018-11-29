@@ -843,7 +843,7 @@ void drawVertWall(int x, int y)
 }
 void drawHorzWall(int x, int y)
 {
-	int w = 100;
+	int w = 120;
 	int h = 15;
 	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
 		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
@@ -894,6 +894,45 @@ void drawDoorWall(int x, int y)
 		}
 	}
 }
+
+void drawDoorRight(int x, int y)
+{
+    int xs = x;
+    int ys = y;
+	y = y + 20;
+	int w = 10;
+	int h = 80;
+    //LONGER SIDE
+	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))&&
+		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
+		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w+20))&&
+		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+40))&&
+		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+    //SHORTER SIDE
+    xs = xs + 10;
+    ys = ys - 120;
+    int ws = 20;
+	int hs = 30;
+	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))&&
+		(g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
+		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws))&&
+		  (g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
+			g.ship.pos[0] -= g.ship.vel[0];
+		}
+		if((g.ship.pos[1] >=ys-hs || g.ship.pos[1] <=ys+(hs))&&
+		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))){
+			  g.ship.pos[1] -= g.ship.vel[1];
+			  g.ship.pos[0] += g.ship.vel[0];
+		}
+	}
+}
 void drawHouse(int centerX, int centerY)
 {
 	//need 3 walls
@@ -902,12 +941,22 @@ void drawHouse(int centerX, int centerY)
 	drawHorzWall(centerX, centerY - 140);
 	drawDoorWall(centerX, centerY + 140);
 }
+void drawSecondHouse(int x, int y)
+{
+    drawVertWall((x - 120), y); //left
+    drawDoorRight(x + 120, y); //Right bottom door
+    drawHorzWall(x, y - 140);//Bottom
+    drawHorzWall(x+20,y + 140);
+    //drawDoorWall(centerX, centerY + 140);
+}
 void regulateSpeed(){
     g.ship.pos[0] += g.ship.vel[0];
     g.ship.pos[1] += g.ship.vel[1];
-	drawHouse(1738, 1045);
-    drawHouse(149, 1122);
-    drawHouse(723, 646);
+	drawHouse(1738, 1045); //Door Top Right
+    //drawHouse(149, 1122); // Bottom Right
+    //drawHouse(723, 646);
+    drawSecondHouse(149, 1115);
+    drawSecondHouse(723, 646);
 }
 void physics()
 {
