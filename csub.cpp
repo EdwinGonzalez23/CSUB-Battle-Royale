@@ -123,6 +123,7 @@ extern int getShake();
 extern void letterBoxes(int x, int y, GLuint z);
 extern void drawLine(int x, int y);
 extern bool getIntroComplete();
+extern int Rocks[][2];
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -947,16 +948,54 @@ void drawSecondHouse(int x, int y)
     drawDoorRight(x + 120, y); //Right bottom door
     drawHorzWall(x, y - 140);//Bottom
     drawHorzWall(x+20,y + 140);
-    //drawDoorWall(centerX, centerY + 140);
+}
+void rockPlayerCollision(int x, int y, int px, int py)
+{
+    if (abs(x-px) <= 30 && abs(y-py) <= 30) {
+        g.ship.pos[1] -= g.ship.vel[1];
+        g.ship.pos[0] -= g.ship.vel[0];
+    }
 }
 void regulateSpeed(){
     g.ship.pos[0] += g.ship.vel[0];
     g.ship.pos[1] += g.ship.vel[1];
+    for (int i = 0; i < 27; i++) {
+        rockPlayerCollision(Rocks[i][0], Rocks[i][1], g.ship.pos[0], g.ship.pos[1]);
+    }
 	drawHouse(1738, 1045); //Door Top Right
-    //drawHouse(149, 1122); // Bottom Right
-    //drawHouse(723, 646);
     drawSecondHouse(149, 1115);
     drawSecondHouse(723, 646);
+}
+void wallCollision(int x, int y, int i, Bullet *b, int check){
+    int w = 125;
+    int h = 200;
+    if((b->pos[0]>=x-w&&b->pos[0]<=x+(w+10))&&
+		(b->pos[1]>=y-h&&b->pos[1]<=y+(h))){
+            if (check == 1) {
+                memcpy(&g.barr[i], &g.barr[g.nbullets-1],
+    		              sizeof(Bullet));
+    	                     g.nbullets--;
+            } else {
+                memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
+    		              sizeof(Bullet));
+    	                     g.astBull--;
+            }
+
+	}
+}
+void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check)
+{
+    if (abs(x-bx) <= 45 && abs(y-by) <= 45) {
+        if (check == 1) {
+            memcpy(&g.barr[i], &g.barr[g.nbullets-1],
+                      sizeof(Bullet));
+                         g.nbullets--;
+        } else {
+            memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
+                      sizeof(Bullet));
+                         g.astBull--;
+        }
+    }
 }
 void physics()
 {
@@ -964,6 +1003,7 @@ void physics()
     float xLen = gl.xres;
     float yLen = gl.yres;
     Asteroid *a = g.ahead;
+    //
     //Initial Spawn
     if(!hasSpawned) {
 	int spawnX = xLen/3;
@@ -1078,6 +1118,12 @@ void physics()
 	//move the bullet
 	b->pos[0] += b->vel[0];
 	b->pos[1] += b->vel[1];
+    wallCollision(723, 646, i, b, 1);
+    wallCollision(1738, 1045, i, b, 1);
+    wallCollision(149, 1115, i, b, 1);
+    for (int i = 0; i < 27; i++){
+        rockCollision(Rocks[i][0], Rocks[i][1], b->pos[0], b->pos[1], i, b, 1);
+    }
 	i++;
     }
     //
@@ -1094,6 +1140,12 @@ void physics()
 	}
 	bAst->pos[0] += bAst->vel[0];
 	bAst->pos[1] += bAst->vel[1];
+    wallCollision(723, 646, i, bAst, 0);
+    wallCollision(1738, 1045, i, bAst,0);
+    wallCollision(149, 1115, i, bAst,0);
+    for (int i = 0; i < 27; i++){
+        rockCollision(Rocks[i][0], Rocks[i][1], bAst->pos[0], bAst->pos[1], i, bAst, 0);
+    }
 	if((bAst->pos[0]>=g.ship.pos[0]-25&&bAst->pos[0]<=g.ship.pos[0]+25)&&
 		(bAst->pos[1]>=g.ship.pos[1]-25&&bAst->pos[1]<=g.ship.pos[1]+25)){
 	    if(playerIsInvulnerable()==0&&playerIsAlive()){
@@ -1485,8 +1537,8 @@ void eFirePistol(Asteroid *a, int k)
 	    Flt ydir = sin(rad);
 	    bAst->pos[0] += xdir*20.0f;
 	    bAst->pos[1] += ydir*20.0f;
-	    bAst->vel[0] += xdir*1.0f + rnd()*0.1;
-	    bAst->vel[1] += ydir*1.0f + rnd()*0.1;
+	    bAst->vel[0] += xdir*15.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*15.0f + rnd()*0.1;
 	    bAst->color[0] = 1.0f;
 	    bAst->color[1] = 1.0f;
 	    bAst->color[2] = 1.0f;
@@ -1526,8 +1578,8 @@ void eFireMachineGun(Asteroid *a, int k)
 	    Flt ydir = sin(rad);
 	    bAst->pos[0] += xdir*20.0f;
 	    bAst->pos[1] += ydir*20.0f;
-	    bAst->vel[0] += xdir*6.0f + rnd()*0.1;
-	    bAst->vel[1] += ydir*6.0f + rnd()*0.1;
+	    bAst->vel[0] += xdir*15.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*15.0f + rnd()*0.1;
 	    bAst->color[0] = 1.0f;
 	    bAst->color[1] = 1.0f;
 	    bAst->color[2] = 1.0f;
@@ -1567,8 +1619,8 @@ void eFireShotgun(Asteroid *a, int k)
 	    Flt ydir = sin(rad);
 	    bAst->pos[0] += xdir*20.0f;
 	    bAst->pos[1] += ydir*20.0f;
-	    bAst->vel[0] += xdir*20.0f + rnd()*0.1;
-	    bAst->vel[1] += ydir*20.0f + rnd()*0.1;
+	    bAst->vel[0] += xdir*15.0f + rnd()*0.1;
+	    bAst->vel[1] += ydir*15.0f + rnd()*0.1;
 	    bAst->color[0] = 1.0f;
 	    bAst->color[1] = 1.0f;
 	    bAst->color[2] = 1.0f;
@@ -1769,7 +1821,7 @@ void render()
 	extern void genRock(int x, int y, GLuint texid);
 	extern void genBush(int x, int y, GLuint texid);
 
-	extern int Rocks[][2];
+
 
 	for (int i = 0; i < 27; i++) {
 		for (int j = 0; j < 2; j++){

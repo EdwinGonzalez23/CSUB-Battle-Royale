@@ -102,13 +102,13 @@ float setTrigger(float xAstPos, float yAstPos, float xShipPos, float yShipPos)
 
 float setTriggerDist()
 {
-    float triggerDist = 100.0;
+    float triggerDist = 350.0;
     return triggerDist;
 }
 
 bool enemyShoot(float xEnemPos, float yEnemPos, float xShipPos, float yShipPos)
 {
-    if (abs(xEnemPos-xShipPos) < 250 && abs(yEnemPos-yShipPos) < 250) {
+    if (abs(xEnemPos-xShipPos) < 350 && abs(yEnemPos-yShipPos) < 350) {
         return true;
     } else
         return false;
