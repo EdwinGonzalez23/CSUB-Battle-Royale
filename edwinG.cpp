@@ -445,6 +445,7 @@ void wallCollision(int x, int y, int i, Bullet *b, int check, Game &g){
 
 	}
 }
+
 void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Game &g)
 {
     if (abs(x-bx) <= 45 && abs(y-by) <= 45) {

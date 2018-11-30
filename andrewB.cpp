@@ -4,9 +4,40 @@
 #include <iostream>
 #include "fonts.h"
 #include <GL/glx.h>
-//#include "csub.h"
+#include "game3.h"
+Game g3;
 
 using namespace std;
+
+int Rocks [][2] = {
+                639, 380,
+                856, 352,
+                786, 912,
+                660, 1115,
+                359, 1248,
+                240, 772,
+                191, 352,
+                366, 366,
+                366, 16,
+                716, 35,
+                1290, 28,
+                2067, 0,
+                2711, 28,
+                3278, 56,
+                3073, 483,
+                2849, 609,
+                2709, 896,
+                2422, 1001,
+                2163, 707,
+                1883, 476,
+                1449, 882,
+                1260, 1610,
+                1162, 1925,
+                1771, 1990,
+                2205, 1955,
+                2660, 1717,
+                2982, 2025,
+                };
 
 void andrew_credits(int x, int y)
 {
@@ -206,32 +237,76 @@ void genRock(int x, int y, GLuint texid)
 	glBindTexture(GL_TEXTURE_2D, 0);;
 }
 
-int Rocks [][2] = {
-                639, 380,
-                856, 352,
-                786, 912,
-                660, 1115,
-                359, 1248,
-                240, 772,
-                191, 352,
-                366, 366,
-                366, 16,
-                716, 35,
-                1290, 28,
-                2067, 0,
-                2711, 28,
-                3278, 56,
-                3073, 483,
-                2849, 609,
-                2709, 896,
-                2422, 1001,
-                2163, 707,
-                1883, 476,
-                1449, 882,
-                1260, 1610,
-                1162, 1925,
-                1771, 1990,
-                2205, 1955,
-                2660, 1717,
-                2982, 2025,
-                };
+void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num)
+{
+	if (num == 1) { 
+		genWallCorner(1640, 768+412, 0, wallCorner);
+		genWall(1704, 768+412, wallT);
+		genWall(1768, 768+412, wallEmpty);
+		genWallCorner(1832, 768+412, 270, wallCorner);
+		genWall(1832, 704+412, wallR);
+		genWall(1832, 640+412, wallR);
+		genWall(1832, 576+412, wallR);
+		genWallCorner(1832, 512+412, 180, wallCorner);
+		genWall(1704, 512+412, wallB);
+		genWall(1768, 512+412, wallB);
+		genWallCorner(1640, 512+412, 90, wallCorner);
+		genWall(1640, 704+412, wallL);
+		genWall(1640, 640+412, wallL);
+		genWall(1640, 576+412, wallL);
+
+		genWall(1768, 576+412, wallEmpty);
+		genWall(1704, 576+412, wallEmpty);
+		genWall(1768, 640+412, wallEmpty);
+		genWall(1704, 640+412, wallEmpty);
+		genWall(1768, 704+412, wallEmpty);
+		genWall(1704, 704+412, wallEmpty);
+	}
+	else if (num == 2) {
+		genWallCorner(640, 768, 0, wallCorner);
+		genWall(704, 768, wallT);
+		genWall(768, 768, wallT);
+		genWallCorner(832, 768, 270, wallCorner);
+		genWall(832, 704, wallR);
+		genWall(832, 640, wallR);
+		genWall(832, 576, wallEmpty);
+		genWallCorner(832, 512, 180, wallCorner);
+		genWall(704, 512, wallB);
+		genWall(768, 512, wallB);
+		genWallCorner(640, 512, 90, wallCorner);
+		genWall(640, 704, wallL);
+		genWall(640, 640, wallL);
+		genWall(640, 576, wallL);
+
+		genWall(768, 576, wallEmpty);
+		genWall(704, 576, wallEmpty);
+		genWall(768, 640, wallEmpty);
+		genWall(704, 640, wallEmpty);
+		genWall(768, 704, wallEmpty);
+		genWall(704, 704, wallEmpty);
+	}
+	else if (num = 3) {
+		genWallCorner(640-576, 768+468, 0, wallCorner);
+		genWall(704-576, 768+468, wallT);
+		genWall(768-576, 768+468, wallT);
+		genWallCorner(832-576, 768+468, 270, wallCorner);
+		genWall(832-576, 704+468, wallR);
+		genWall(832-576, 640+468, wallR);
+		genWall(832-576, 576+468, wallEmpty);
+		genWallCorner(832-576, 512+468, 180, wallCorner);
+		genWall(704-576, 512+468, wallB);
+		genWall(768-576, 512+468, wallB);
+		genWallCorner(640-576, 512+468, 90, wallCorner);
+		genWall(640-576, 704+468, wallL);
+		genWall(640-576, 640+468, wallL);
+		genWall(640-576, 576+468, wallL);
+
+		genWall(768-576, 576+468, wallEmpty);
+		genWall(704-576, 576+468, wallEmpty);
+		genWall(768-576, 640+468, wallEmpty);
+		genWall(704-576, 640+468, wallEmpty);
+		genWall(768-576, 704+468, wallEmpty);
+		genWall(704-576, 704+468, wallEmpty);
+	}
+}
+
