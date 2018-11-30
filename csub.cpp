@@ -6,26 +6,137 @@
 //This program is a game starting point for a 3350 project.
 //
 //
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <cmath>
-#include <unistd.h>
-#include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-//Audio library
-#include <AL/alut.h>
-#include <thread>
-#include "log.h"
-#include "fonts.h"
-#include "csub.h"
+// #include <iostream>
+// #include <cstdlib>
+// #include <cstring>
+// #include <ctime>
+// #include <cmath>
+// #include <unistd.h>
+// #include <X11/Xlib.h>
+// //#include <X11/Xutil.h>
+// //#include <GL/gl.h>
+// //#include <GL/glu.h>
+// #include <X11/keysym.h>
+// #include <GL/glx.h>
+// //Audio library
+// #include <AL/alut.h>
+// #include <thread>
+// #include "log.h"
+// #include "fonts.h"
+// //#include "csub.h"
+#include "game.h"
 using namespace std;
-
+Game g;
+//X Windows variables
+class X11_wrapper {
+	private:
+		Display *dpy;
+		Window win;
+		GLXContext glc;
+	public:
+		X11_wrapper() {
+			GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+			//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+			XSetWindowAttributes swa;
+			setup_screen_res(gl.xres, gl.yres);
+			dpy = XOpenDisplay(NULL);
+			if (dpy == NULL) {
+				std::cout << "\n\tcannot connect to X server" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+			Window root = DefaultRootWindow(dpy);
+			XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+			if (vi == NULL) {
+				std::cout << "\n\tno appropriate visual found\n" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+			swa.colormap = cmap;
+			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+				PointerMotionMask | MotionNotify | ButtonPress | ButtonRelease |
+				StructureNotifyMask | SubstructureNotifyMask;
+			win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+					vi->depth, InputOutput, vi->visual,
+					CWColormap | CWEventMask, &swa);
+			set_title();
+			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+			glXMakeCurrent(dpy, win, glc);
+			show_mouse_cursor(0);
+		}
+		~X11_wrapper() {
+			XDestroyWindow(dpy, win);
+			XCloseDisplay(dpy);
+		}
+		void set_title() {
+			//Set the window title bar.
+			XMapWindow(dpy, win);
+			XStoreName(dpy, win, "CSUB BATTLE ROYALE!");
+		}
+		void check_resize(XEvent *e) {
+			//The ConfigureNotify is sent by the
+			//server if the window is resized.
+			if (e->type != ConfigureNotify)
+				return;
+			XConfigureEvent xce = e->xconfigure;
+			if (xce.width != gl.xres || xce.height != gl.yres) {
+				//Window size did change.
+				reshape_window(xce.width, xce.height);
+			}
+		}
+		void reshape_window(int width, int height) {
+			//window has been resized.
+			setup_screen_res(width, height);
+			glViewport(0, 0, (GLint)width, (GLint)height);
+			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+			glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+			set_title();
+		}
+		void setup_screen_res(const int w, const int h) {
+			gl.xres = w + 1000;
+			gl.yres = h + 1000;
+		}
+		void swapBuffers() {
+			glXSwapBuffers(dpy, win);
+		}
+		bool getXPending() {
+			return XPending(dpy);
+		}
+		XEvent getXNextEvent() {
+			XEvent e;
+			XNextEvent(dpy, &e);
+			return e;
+		}
+		void set_mouse_position(int x, int y) {
+			XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+		}
+		void clear_screen() {
+			XClearWindow(dpy, win);
+		}
+		void show_mouse_cursor(const int onoff) {
+			if (onoff) {
+				//this removes our own blank cursor.
+				XUndefineCursor(dpy, win);
+				return;
+			}
+			//vars to make blank cursor
+			Pixmap blank;
+			XColor dummy;
+			char data[1] = {0};
+			Cursor cursor;
+			//make a blank cursor
+			blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+			if (blank == None)
+				std::cout << "error: out of memory." << std::endl;
+			cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+			XFreePixmap(dpy, blank);
+			//this makes you the cursor. then set it using this function
+			XDefineCursor(dpy, win, cursor);
+			//after you do not need the cursor anymore use this function.
+			//it will undo the last change done by XDefineCursor
+			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
+		}
+} x11;
 Image img[35]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
     "rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
     "./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
@@ -825,181 +936,19 @@ extern int setSectLen();
 extern bool isInSector(float, float, int, float, float);
 //int sectLen = setSectLen(); //Default 3 sections
 int flipVel[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-void drawVertWall(int x, int y)
-{
-	int w = 15;
-	int h = 155;
-	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
-		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
-		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
-		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
-		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-}
-void drawHorzWall(int x, int y)
-{
-	int w = 120;
-	int h = 15;
-	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)&&
-		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
-		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+w)&&
-		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+h)){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+h)&&
-		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+w)){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-}
-void drawDoorWall(int x, int y)
-{
-    int xs = x;
-	x = x - 20;
-	int w = 80;
-	int h = 10;
-    //LONGER SIDE
-	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))&&
-		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
-		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w-40))&&
-		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+20))){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+20))&&
-		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w-40))){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-    //SHORTER SIDE
-    xs = xs + 80;
-    int ws = 30;
-	int hs = 10;
-	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))&&
-		(g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
-		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws+10))&&
-		  (g.ship.pos[1]>=y-hs&&g.ship.pos[1]<=y+(hs+20))){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=y-hs || g.ship.pos[1] <=y+(hs+20))&&
-		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws+10))){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-}
-
-void drawDoorRight(int x, int y)
-{
-    int xs = x;
-    int ys = y;
-	y = y + 20;
-	int w = 10;
-	int h = 80;
-    //LONGER SIDE
-	if((g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))&&
-		(g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
-		if((g.ship.pos[0]>=x-w || g.ship.pos[0]<=x+(w+20))&&
-		  (g.ship.pos[1]>=y-h&&g.ship.pos[1]<=y+(h+40))){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=y-h || g.ship.pos[1] <=y+(h+40))&&
-		  (g.ship.pos[0]>=x-w&&g.ship.pos[0]<=x+(w+20))){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-    //SHORTER SIDE
-    xs = xs + 10;
-    ys = ys - 120;
-    int ws = 20;
-	int hs = 30;
-	if((g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))&&
-		(g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
-		if((g.ship.pos[0]>=xs-ws || g.ship.pos[0]<=xs+(ws))&&
-		  (g.ship.pos[1]>=ys-hs&&g.ship.pos[1]<=ys+(hs))){
-			g.ship.pos[0] -= g.ship.vel[0];
-		}
-		if((g.ship.pos[1] >=ys-hs || g.ship.pos[1] <=ys+(hs))&&
-		  (g.ship.pos[0]>=xs-ws&&g.ship.pos[0]<=xs+(ws))){
-			  g.ship.pos[1] -= g.ship.vel[1];
-			  g.ship.pos[0] += g.ship.vel[0];
-		}
-	}
-}
-void drawHouse(int centerX, int centerY)
-{
-	//need 3 walls
-	drawVertWall((centerX - 120), centerY);
-	drawVertWall(centerX +  120, centerY);
-	drawHorzWall(centerX, centerY - 140);
-	drawDoorWall(centerX, centerY + 140);
-}
-void drawSecondHouse(int x, int y)
-{
-    drawVertWall((x - 120), y); //left
-    drawDoorRight(x + 120, y); //Right bottom door
-    drawHorzWall(x, y - 140);//Bottom
-    drawHorzWall(x+20,y + 140);
-}
-void rockPlayerCollision(int x, int y, int px, int py)
-{
-    if (abs(x-px) <= 30 && abs(y-py) <= 30) {
-        g.ship.pos[1] -= g.ship.vel[1];
-        g.ship.pos[0] -= g.ship.vel[0];
-    }
-}
-void regulateSpeed(){
-    g.ship.pos[0] += g.ship.vel[0];
-    g.ship.pos[1] += g.ship.vel[1];
-    for (int i = 0; i < 27; i++) {
-        rockPlayerCollision(Rocks[i][0], Rocks[i][1], g.ship.pos[0], g.ship.pos[1]);
-    }
-	drawHouse(1738, 1045); //Door Top Right
-    drawSecondHouse(149, 1115);
-    drawSecondHouse(723, 646);
-}
-void wallCollision(int x, int y, int i, Bullet *b, int check){
-    int w = 125;
-    int h = 200;
-    if((b->pos[0]>=x-w&&b->pos[0]<=x+(w+10))&&
-		(b->pos[1]>=y-h&&b->pos[1]<=y+(h))){
-            if (check == 1) {
-                memcpy(&g.barr[i], &g.barr[g.nbullets-1],
-    		              sizeof(Bullet));
-    	                     g.nbullets--;
-            } else {
-                memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
-    		              sizeof(Bullet));
-    	                     g.astBull--;
-            }
-
-	}
-}
-void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check)
-{
-    if (abs(x-bx) <= 45 && abs(y-by) <= 45) {
-        if (check == 1) {
-            memcpy(&g.barr[i], &g.barr[g.nbullets-1],
-                      sizeof(Bullet));
-                         g.nbullets--;
-        } else {
-            memcpy(&g.barrAst[i], &g.barrAst[g.astBull-1],
-                      sizeof(Bullet));
-                         g.astBull--;
-        }
-    }
-}
+extern void drawVertWall(int x, int y, Game &g);
+extern void drawHorzWall(int x, int y, Game &g);
+extern void drawDoorWall(int x, int y, Game &g);
+extern void drawDoorRight(int x, int y, Game &g);
+extern void drawHouse(int centerX, int centerY, Game &g);
+extern void drawSecondHouse(int x, int y, Game &g);
+extern void rockPlayerCollision(int x, int y, int px, int py, Game &g);
+extern void regulateSpeed(Game &g);
+extern void wallCollision(int x, int y, int i, Bullet *b, int check, Game &g);
+extern void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Game &g);
 void physics()
 {
-    regulateSpeed();
+    regulateSpeed(g);
     float xLen = gl.xres;
     float yLen = gl.yres;
     Asteroid *a = g.ahead;
@@ -1118,11 +1067,11 @@ void physics()
 	//move the bullet
 	b->pos[0] += b->vel[0];
 	b->pos[1] += b->vel[1];
-    wallCollision(723, 646, i, b, 1);
-    wallCollision(1738, 1045, i, b, 1);
-    wallCollision(149, 1115, i, b, 1);
+    wallCollision(723, 646, i, b, 1, g);
+    wallCollision(1738, 1045, i, b, 1, g);
+    wallCollision(149, 1115, i, b, 1, g);
     for (int i = 0; i < 27; i++){
-        rockCollision(Rocks[i][0], Rocks[i][1], b->pos[0], b->pos[1], i, b, 1);
+        rockCollision(Rocks[i][0], Rocks[i][1], b->pos[0], b->pos[1], i, b, 1, g);
     }
 	i++;
     }
@@ -1140,11 +1089,11 @@ void physics()
 	}
 	bAst->pos[0] += bAst->vel[0];
 	bAst->pos[1] += bAst->vel[1];
-    wallCollision(723, 646, i, bAst, 0);
-    wallCollision(1738, 1045, i, bAst,0);
-    wallCollision(149, 1115, i, bAst,0);
+    wallCollision(723, 646, i, bAst, 0, g);
+    wallCollision(1738, 1045, i, bAst,0, g);
+    wallCollision(149, 1115, i, bAst,0, g);
     for (int i = 0; i < 27; i++){
-        rockCollision(Rocks[i][0], Rocks[i][1], bAst->pos[0], bAst->pos[1], i, bAst, 0);
+        rockCollision(Rocks[i][0], Rocks[i][1], bAst->pos[0], bAst->pos[1], i, bAst, 0, g);
     }
 	if((bAst->pos[0]>=g.ship.pos[0]-25&&bAst->pos[0]<=g.ship.pos[0]+25)&&
 		(bAst->pos[1]>=g.ship.pos[1]-25&&bAst->pos[1]<=g.ship.pos[1]+25)){
