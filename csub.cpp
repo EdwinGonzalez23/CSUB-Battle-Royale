@@ -124,6 +124,8 @@ extern void letterBoxes(int x, int y, GLuint z);
 extern void drawLine(int x, int y);
 extern bool getIntroComplete();
 extern int Rocks[][2];
+extern void zoomOut(int l, int r, int b, int t);
+extern bool isTransitionComplete();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -1775,11 +1777,18 @@ void render()
 	glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
 	//if (getCreditState()){
 	show_credits();
-    } else if(playerIsAlive()&&playerHasWon()==0){
+    } else if(playerIsAlive()){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
+	
+	if(!isTransitionComplete()){
+		glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
+	}else{
+		if(isTransitionComplete()){
+			zoomOut(0, gl.xres, 0, gl.yres);
+		}
+	}
 	genBackground(gl.grassTexture);
 
 	/*
@@ -1947,7 +1956,7 @@ void render()
 	cout << "X: " <<g.ship.pos[0] << endl;
 	cout << "Y: " <<g.ship.pos[1] << endl;
 
-	if(getIntroComplete()){
+	if(getIntroComplete()&&!playerHasWon()){
 		getCharacter();
 	}
 
@@ -1994,7 +2003,7 @@ void render()
 	    glVertex2f(0.0f, 0.0f);
 	    glEnd();
 	    glPopMatrix();
-	    if(getIntroComplete()){
+	    if(getIntroComplete()&&playerHasWon()==0){
 	    extern void enemy(int x, int y, int z, float angle, GLuint texid);
 	    if (a->gunNum == 2) {
 		    enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
@@ -2085,18 +2094,20 @@ void render()
 	    glEnd();
 	    ++bAst;
 	}
-	healthPack(gl.hpTexture,500,600,0);
-        healthPack(gl.hpTexture,500,800,1);
-        healthPack(gl.hpTexture,500,1000,2);
-        healthPack(gl.hpTexture,500,1200,3);
-        healthPack(gl.hpTexture,500,1400,4);
-    	letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
-	health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
-	ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-	ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
-	genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
-	reloadAmmunition();
-	printCurrentWeapon(getCurrentWeapon(),r);
+	if(!playerHasWon()){
+		healthPack(gl.hpTexture,500,600,0);
+		healthPack(gl.hpTexture,500,800,1);
+		healthPack(gl.hpTexture,500,1000,2);
+		healthPack(gl.hpTexture,500,1200,3);
+		healthPack(gl.hpTexture,500,1400,4);
+		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
+		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
+		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
+		ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+		genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
+		reloadAmmunition();
+		printCurrentWeapon(getCurrentWeapon(),r);
+	}
 	}else if(!playerIsAlive()){
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -2112,13 +2123,15 @@ void render()
 		}
 		drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
 	    }
-	}else if(playerHasWon()==1){
-	    genBackground(gl.tileTexture);
 	}
 	if(g.nasteroids==1){
     		extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
-		 Asteroid *a = g.ahead;
-		bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+		if(!playerHasWon()){
+			Asteroid *a = g.ahead;
+			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+		}
 	}
-
+	if(playerHasWon()){	
+		drawLine(0,0);
+		}
     }

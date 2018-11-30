@@ -60,9 +60,25 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
+static int zoom = 0;
+void zoomOut(int left, int right, int bottom,  int top){
+	glOrtho((left)-zoom, (right)+zoom, (bottom)-zoom+zoom/2.5, (top)+zoom-zoom/2.5, -100, 1000);
+	if(zoom<600){
+		zoom++;
+		return;
+	}
+}
+
 static int transitionProgress = 0;
 static bool transitionComplete = 0;
+
+bool isTransitionComplete(){
+	return transitionComplete;
+}
+
 void drawLine(int x, int y){
+	
+	if(transitionProgress<5000){
         glColor3f(0,0,0);
         glPushMatrix();
         glTranslatef(0, 0, 0);
@@ -74,7 +90,10 @@ void drawLine(int x, int y){
         glVertex2f(x+transitionProgress,y);
         glEnd();
         glPopMatrix();
-	transitionProgress+=50;
+		transitionProgress+=50;
+	}else{
+		transitionComplete = 1;
+	}
 }
 
 
