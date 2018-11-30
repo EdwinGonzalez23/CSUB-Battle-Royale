@@ -285,7 +285,7 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 		genWall(768, 704, wallEmpty);
 		genWall(704, 704, wallEmpty);
 	}
-	else if (num = 3) {
+	else if (num == 3) {
 		genWallCorner(640-576, 768+468, 0, wallCorner);
 		genWall(704-576, 768+468, wallT);
 		genWall(768-576, 768+468, wallT);
