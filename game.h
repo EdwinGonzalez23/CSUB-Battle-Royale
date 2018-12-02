@@ -115,6 +115,7 @@ class Asteroid {
 	public:
 		Vec pos;
 		Vec vel;
+		int isBoss=0;
 		int health = 50;
 		int maxHp = 50;
 		int hpMissing = maxHp-health;

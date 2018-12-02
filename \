@@ -1868,7 +1868,7 @@ void render()
 				if(a->isBoss==1){
 
 				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-20,a->pos[1]+150);
+				a->drawHealthBar(a->pos[0]-20,a->pos[1]+100);
 				}
 				if (a->gunNum == 2) {
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
