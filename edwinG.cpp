@@ -10,6 +10,7 @@
 #include "game2.h"
 Game g2;
 extern int Rocks[][2];
+using namespace std;
 //Flip to 1 to set True
 //TODO spawn function change constants to variables
 //TODO make area, area array accessible outside functions
@@ -459,4 +460,25 @@ void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Ga
                          g.astBull--;
         }
     }
+}
+void enemyRockCollision(int x, int y, int ex, int ey, Asteroid *a , int velSwitchCounter, vector<int> &flipVel){
+    if (abs(x-ex) <= 45 && abs(y-ey) <= 45) {
+        if (flipVel[velSwitchCounter] == 1) {
+            flipVel[velSwitchCounter] = 0;
+        } else {
+            flipVel[velSwitchCounter] = 1;
+        }
+    }
+}
+void enemyWallCollision(int x, int y, Asteroid *a, int velSwitchCounter, vector<int> &flipVel){
+    int w = 125;
+    int h = 200;
+    if((a->pos[0]>=x-w&&a->pos[0]<=x+(w+10))&&
+        (a->pos[1]>=y-h&&a->pos[1]<=y+(h))) {
+            if (flipVel[velSwitchCounter] == 1) {
+			flipVel[velSwitchCounter] = 0;
+		    } else
+			flipVel[velSwitchCounter] = 1;
+        }
+
 }

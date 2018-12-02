@@ -30,6 +30,7 @@
  //Audio library
  #include <AL/alut.h>
  #include <thread>
+ #include <vector>
  #include "log.h"
  #include "fonts.h"
 class Global {

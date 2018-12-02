@@ -934,8 +934,8 @@ extern float setTriggerDist();
 bool hasSpawned = notSpawned();
 extern int setSectLen();
 extern bool isInSector(float, float, int, float, float);
-//int sectLen = setSectLen(); //Default 3 sections
-int flipVel[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+int vectorLen = 9;
+vector<int> flipVel(vectorLen, 0);
 extern void drawVertWall(int x, int y, Game &g);
 extern void drawHorzWall(int x, int y, Game &g);
 extern void drawDoorWall(int x, int y, Game &g);
@@ -946,6 +946,8 @@ extern void rockPlayerCollision(int x, int y, int px, int py, Game &g);
 extern void regulateSpeed(Game &g);
 extern void wallCollision(int x, int y, int i, Bullet *b, int check, Game &g);
 extern void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Game &g);
+extern void enemyWallCollision(int x, int y, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
+extern void enemyRockCollision(int x, int y, int ex, int ey, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 void physics()
 {
     regulateSpeed(g);
@@ -963,9 +965,7 @@ void physics()
 	int xCord, yCord;
 	while (a) {
 	    int num =  rand() % 3;
-	    cout << "num: " << num << endl;
 	    a->gunNum =(int) num;
-	    cout << "Gun number: " << a->gunNum << endl;
 	    xCord = spawnRand_XSection(spawnX, section);
 	    yCord = spawnRand_YSection(spawnY, section);
 	    a->pos[0] = xCord; //spawnRand_XSection(spawnX, section);
@@ -1116,84 +1116,89 @@ void physics()
     int velSwitchCounter = 0;
     int enemyTracker = 1;
     while (a) {
-	if (flipVel[velSwitchCounter]==0){
-	    a->pos[0] += a->vel[0];
-	    a->pos[1] += a->vel[1];
-	    a->angle += a->rotate;
-	}
-	if (flipVel[velSwitchCounter]==1) {
-	    a->pos[0] -= a->vel[0];
-	    a->pos[1] -= a->vel[1];
-	    a->angle += a->rotate;
-	}
-	//Check for collision with window edges
-	if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
-	    //a->pos[0] += (float)(gl.xres)+200;
-	    if (flipVel[velSwitchCounter] == 1) {
-		flipVel[velSwitchCounter] = 0;
-	    } else
-		flipVel[velSwitchCounter] = 1;
-	}
-	else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
-	    //a->pos[0] -= (float)gl.xres+200; //XPOS
-	    if (flipVel[velSwitchCounter] == 1) {
-		flipVel[velSwitchCounter] = 0;
-	    } else
-		flipVel[velSwitchCounter] = 1;
-	}
-	else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
-	    //a->pos[1] += (float)gl.yres+200; //YNEG
-	    if (flipVel[velSwitchCounter] == 1) {
-		flipVel[velSwitchCounter] = 0;
-	    } else
-		flipVel[velSwitchCounter] = 1;
-	}
-	else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
-	    //a->pos[1] -= (float)gl.yres+200; //YPOS
-	    if (flipVel[velSwitchCounter] == 1) {
-		flipVel[velSwitchCounter] = 0;
-	    } else
-		flipVel[velSwitchCounter] = 1;
-	}
-
-	//This code checks for player bullet and enemy collision.
-	int bulls=0;
-
-	//Check asteroid invulnerability.
-	a->checkInvuln();
-	while (bulls < g.nbullets) {
-	    Bullet *b = &g.barr[bulls];
-	    if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
-		    (b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)&&a->invuln==0){
-		thread t1(play_sound, gl.playerHitSound);
-		t1.detach();
-		a->health-=10;
-		a->hpMissing+=10;
-		clock_gettime(CLOCK_REALTIME, &a->invulnTimer);
-		a->invuln=1;
-		if(a->health<=0){
-		    if(g.nasteroids==1){
-			cout<<"You Win!"<<endl;
-			win();
-		    }else if(a->next==nullptr){
-			Asteroid *savea = a->prev;
-			deleteAsteroid(&g, a);
-			a = savea;
-			g.nasteroids--;
-		    }else if(a->prev==nullptr){
-			Asteroid *savea = a->next;
-			deleteAsteroid(&g, a);
-			a = savea;
-			g.nasteroids--;
-		    }else{
-			Asteroid *savea = a->next;
-			deleteAsteroid(&g, a);
-			a = savea;
-			g.nasteroids--;
-		    }
+		enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
+	    enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
+	    enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
+		if (flipVel[velSwitchCounter]==0){
+		    a->pos[0] += a->vel[0];
+		    a->pos[1] += a->vel[1];
+		    a->angle += a->rotate;
 		}
-	    }
-	    bulls++;
+		if (flipVel[velSwitchCounter]==1) {
+		    a->pos[0] -= a->vel[0];
+		    a->pos[1] -= a->vel[1];
+		    a->angle += a->rotate;
+		}
+		//Check for collision with window edges
+		if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
+		    //a->pos[0] += (float)(gl.xres)+200;
+		    if (flipVel[velSwitchCounter] == 1) {
+			flipVel[velSwitchCounter] = 0;
+		    } else
+			flipVel[velSwitchCounter] = 1;
+		}
+		else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
+		    //a->pos[0] -= (float)gl.xres+200; //XPOS
+		    if (flipVel[velSwitchCounter] == 1) {
+			flipVel[velSwitchCounter] = 0;
+		    } else
+			flipVel[velSwitchCounter] = 1;
+		}
+		else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
+		    //a->pos[1] += (float)gl.yres+200; //YNEG
+		    if (flipVel[velSwitchCounter] == 1) {
+			flipVel[velSwitchCounter] = 0;
+		    } else
+			flipVel[velSwitchCounter] = 1;
+		}
+		else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
+		    //a->pos[1] -= (float)gl.yres+200; //YPOS
+		    if (flipVel[velSwitchCounter] == 1) {
+			flipVel[velSwitchCounter] = 0;
+		    } else
+			flipVel[velSwitchCounter] = 1;
+		}
+		for (int i = 0; i < 27; i++){
+	       enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
+	 	}
+		//This code checks for player bullet and enemy collision.
+		int bulls=0;
+
+		//Check asteroid invulnerability.
+		a->checkInvuln();
+		while (bulls < g.nbullets) {
+		    Bullet *b = &g.barr[bulls];
+		    if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
+			    (b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)&&a->invuln==0){
+			thread t1(play_sound, gl.playerHitSound);
+			t1.detach();
+			a->health-=10;
+			a->hpMissing+=10;
+			clock_gettime(CLOCK_REALTIME, &a->invulnTimer);
+			a->invuln=1;
+			if(a->health<=0){
+			    if(g.nasteroids==1){
+				cout<<"You Win!"<<endl;
+				win();
+			    }else if(a->next==nullptr){
+				Asteroid *savea = a->prev;
+				deleteAsteroid(&g, a);
+				a = savea;
+				g.nasteroids--;
+			    }else if(a->prev==nullptr){
+				Asteroid *savea = a->next;
+				deleteAsteroid(&g, a);
+				a = savea;
+				g.nasteroids--;
+			    }else{
+				Asteroid *savea = a->next;
+				deleteAsteroid(&g, a);
+				a = savea;
+				g.nasteroids--;
+			    }
+			}
+		    }
+		    bulls++;
 	}
 
 
