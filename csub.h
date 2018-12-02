@@ -15,40 +15,40 @@
  *
  * =====================================================================================
  */
- #include <iostream>
- #include <cstdlib>
- #include <cstring>
- #include <ctime>
- #include <cmath>
- #include <unistd.h>
- #include <X11/Xlib.h>
- //#include <X11/Xutil.h>
- //#include <GL/gl.h>
- //#include <GL/glu.h>
- #include <X11/keysym.h>
- #include <GL/glx.h>
- //Audio library
- #include <AL/alut.h>
- #include <thread>
- #include <vector>
- #include "log.h"
- #include "fonts.h"
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cmath>
+#include <unistd.h>
+#include <X11/Xlib.h>
+//#include <X11/Xutil.h>
+//#include <GL/gl.h>
+//#include <GL/glu.h>
+#include <X11/keysym.h>
+#include <GL/glx.h>
+//Audio library
+#include <AL/alut.h>
+#include <thread>
+#include <vector>
+#include "log.h"
+#include "fonts.h"
 class Global {
 	public:
-	    GLuint artTexture;
-	    GLuint bryanTexture;
-	    GLuint joelTexture;
-	    GLuint andrewTexture;
-	    GLuint edwinTexture;
-	    GLuint rTexture;
-	    GLuint sTexture;
-	    GLuint mgTexture;
-	    GLuint bulletTexture;
-	    GLuint bgTexture;
-	    GLuint treeTexture;
-	    GLuint ydTexture;
-	    GLuint bhTexture;
-	    GLuint hpTexture;
+		GLuint artTexture;
+		GLuint bryanTexture;
+		GLuint joelTexture;
+		GLuint andrewTexture;
+		GLuint edwinTexture;
+		GLuint rTexture;
+		GLuint sTexture;
+		GLuint mgTexture;
+		GLuint bulletTexture;
+		GLuint bgTexture;
+		GLuint treeTexture;
+		GLuint ydTexture;
+		GLuint bhTexture;
+		GLuint hpTexture;
 		GLuint tileTexture;
 		GLuint logoTexture;
 		GLuint textTexture;
@@ -70,15 +70,13 @@ class Global {
 		GLuint rockTexture2;
 		GLuint bushTexture1;
 		GLuint bushTexture2;
-
-	    //Store sound sources here.
-	    ALuint bulletSound;
-	    ALuint youDiedSound;
-	    ALuint playerHitSound;
-	    ALuint mgSound;
-        ALuint sfSound;
-
-	    ALuint buffers[5];
+		//Store sound sources here.
+		ALuint bulletSound;
+		ALuint youDiedSound;
+		ALuint playerHitSound;
+		ALuint mgSound;
+		ALuint sfSound;
+		ALuint buffers[5];
 		int xres, yres;
 		int credits;
 		char keys[65536];

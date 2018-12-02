@@ -25,7 +25,6 @@ const Flt MINIMUM_ASTEROID_SIZE = 10.0;
 //Joel's stuff
 #include <thread>
 extern void play_sound(ALuint a);
-
 //Setup timers
 const double OOBILLION = 1.0 / 1e9;
 extern struct timespec timeStart, timeCurrent;
@@ -33,57 +32,57 @@ extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
 class Image {
-public:
-   int width, height;
-   unsigned char *data;
-   ~Image() { delete [] data; }
-   Image(const char *fname) {
-   if (fname[0] == '\0')
-   return;
-  //printf("fname **%s**\n", fname);
-   int ppmFlag = 0;
-   char name[40];
-  strcpy(name, fname);
-  int slen = strlen(name);
-   char ppmname[80];
-  if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-   ppmFlag = 1;
-  if (ppmFlag) {
-   strcpy(ppmname, name);
-  } else {
-   name[slen-4] = '\0';
-   //printf("name **%s**\n", name);
-   sprintf(ppmname,"%s.ppm", name);
-  //printf("ppmname **%s**\n", ppmname);
-   char ts[100];
-   //system("convert eball.jpg eball.ppm");
-  sprintf(ts, "convert %s %s", fname, ppmname);
-   system(ts);
-   }
-  //sprintf(ts, "%s", name);
-   FILE *fpi = fopen(ppmname, "r");
-   if (fpi) {
-   char line[200];
-   fgets(line, 200, fpi);
-   fgets(line, 200, fpi);
-  //skip comments and blank lines
-   while (line[0] == '#' || strlen(line) < 2)
-   fgets(line, 200, fpi);
-  sscanf(line, "%i %i", &width, &height);
-   fgets(line, 200, fpi);
-  //get pixel data
-   int n = width * height * 3;
-   data = new unsigned char[n];
-   for (int i=0; i<n; i++)
-   data[i] = fgetc(fpi);
-   fclose(fpi);
-  } else {
-   printf("ERROR opening image: %s\n",ppmname);
-  exit(0);
-   }
-   if (!ppmFlag)
-   unlink(ppmname);
-  }
+	public:
+		int width, height;
+		unsigned char *data;
+		~Image() { delete [] data; }
+		Image(const char *fname) {
+			if (fname[0] == '\0')
+				return;
+			//printf("fname **%s**\n", fname);
+			int ppmFlag = 0;
+			char name[40];
+			strcpy(name, fname);
+			int slen = strlen(name);
+			char ppmname[80];
+			if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+				ppmFlag = 1;
+			if (ppmFlag) {
+				strcpy(ppmname, name);
+			} else {
+				name[slen-4] = '\0';
+				//printf("name **%s**\n", name);
+				sprintf(ppmname,"%s.ppm", name);
+				//printf("ppmname **%s**\n", ppmname);
+				char ts[100];
+				//system("convert eball.jpg eball.ppm");
+				sprintf(ts, "convert %s %s", fname, ppmname);
+				system(ts);
+			}
+			//sprintf(ts, "%s", name);
+			FILE *fpi = fopen(ppmname, "r");
+			if (fpi) {
+				char line[200];
+				fgets(line, 200, fpi);
+				fgets(line, 200, fpi);
+				//skip comments and blank lines
+				while (line[0] == '#' || strlen(line) < 2)
+					fgets(line, 200, fpi);
+				sscanf(line, "%i %i", &width, &height);
+				fgets(line, 200, fpi);
+				//get pixel data
+				int n = width * height * 3;
+				data = new unsigned char[n];
+				for (int i=0; i<n; i++)
+					data[i] = fgetc(fpi);
+				fclose(fpi);
+			} else {
+				printf("ERROR opening image: %s\n",ppmname);
+				exit(0);
+			}
+			if (!ppmFlag)
+				unlink(ppmname);
+		}
 };
 class Ship {
 	public:
@@ -135,7 +134,6 @@ class Asteroid {
 			prev = NULL;
 			next = NULL;
 		}
-
 		void drawHealthBar(int x, int y){
 			glColor3f(0,1,0.5);
 			glPushMatrix();
@@ -159,7 +157,6 @@ class Asteroid {
 			glEnd();
 			glPopMatrix();
 		}
-
 		void checkInvuln(){
 			struct timespec invulnComparison;
 			clock_gettime(CLOCK_REALTIME, &invulnComparison);
@@ -236,106 +233,93 @@ class Game {
 			delete [] barrAst;
 		}
 };
-
-
 static int colors = 255;
 int getColors(){
-        return colors;
+	return colors;
 }
-
 static bool faded = 0;
 static bool fadeOutBegin = 0;
 extern void toggleMenu();
 bool menuFadedOut(){
-        return faded;
+	return faded;
 }
-
 void menuSound(){
-        play_sound(gl.mgSound);
-        sleep(1);
-        play_sound(gl.sfSound);
+	play_sound(gl.mgSound);
+	sleep(1);
+	play_sound(gl.sfSound);
 }
-
 void beginFade(){
-        fadeOutBegin=1;
+	fadeOutBegin=1;
 	std::thread td(menuSound);
 	td.detach();
 }
-
 void genBH(GLuint texture, int x, int y, int size){
-        int w = size;
-        //int h = 150;
-        glPushMatrix();
-        glTranslatef(x,y,0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(colors,colors,colors,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
-        glEnd();
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-
+	int w = size;
+	//int h = 150;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(colors,colors,colors,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
-
 bool fadeBegin(){
-        return fadeOutBegin;
+	return fadeOutBegin;
 }
-
 void setColors(int x){
-        colors=x;
+	colors=x;
 }
 void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
-        int w = 800;
-        //int h = 150;
-        glPushMatrix();
-        glTranslatef(x,y+500,0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(colors,colors,colors,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
-        glEnd();
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-
-        w = 350;
-        glPushMatrix();
-        glTranslatef(x,y,0);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(colors,colors,colors,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
-        glEnd();
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        if(fadeOutBegin==1&&colors>0){
-                colors-=1;
+	int w = 800;
+	//int h = 150;
+	glPushMatrix();
+	glTranslatef(x,y+500,0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(colors,colors,colors,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	w = 350;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(colors,colors,colors,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	if(fadeOutBegin==1&&colors>0){
+		colors-=1;
 		genBH(gl.bhTexture, 1200,1200,350);
 		genBH(gl.bhTexture, 2000,1600,350);
 		genBH(gl.bhTexture, 1800,1900,350);
 		genBH(gl.bhTexture, 1300,2000,350);
 		genBH(gl.bhTexture, 1500,2500,350);
-        }
-        if(colors==0){
-                faded =1;
-                toggleMenu();
-                colors=255;
-
-        }
+	}
+	if(colors==0){
+		faded =1;
+		toggleMenu();
+		colors=255;
+	}
 }
