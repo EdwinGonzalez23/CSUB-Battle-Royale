@@ -1114,7 +1114,7 @@ void physics()
 				a->pos[0] += a->vel[0]*2;
 				cout << "en coord" << a->pos[0];
 			}
-			if (a->pos[0] < 200) {
+			if (a->pos[0] < 200 && path1 == 1) {
 				path1 = 0;
 				path2 = 1;
 			}
@@ -1122,13 +1122,69 @@ void physics()
 				a->pos[1] -= a->vel[1]*8;
 				cout << "en x coord" << a->pos[1] << endl;
 			}
-			if (a->pos[1] > 2000) {
+			if (a->pos[1] > 2000 && path2 == 1) {
 				path1 = 0;
 				path2 = 0;
 				path3 = 1;
 			}
 			if (path3 == 1) {
 				a->pos[0] -= a->vel[0]*3;
+			}
+			if (a->pos[0] > 2000 && path3 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 1;
+			}
+			if (path4 == 1) {
+				a->pos[0] += a->vel[0]*5;
+				a->pos[1] += a->vel[0]*5;
+			}
+			if (a->pos[1] < 1800 && path4 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 1;
+			}
+			if (path5 == 1) {
+				a->pos[1] += a->vel[1]*5;
+			}			
+			if (a->pos[1] < 100 && path5 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 1;
+			}
+			if (path6 == 1) {
+				a->pos[0] -= a->vel[0]*5;
+				a->pos[1] -= a->vel[0]*5;
+			}
+			int xMid = (int) gl.xres/2;
+			if (a->pos[1] >= gl.yres/2 && path6 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 0;
+				path7 = 1;
+			}
+			if (path7 == 1) {
+				a->pos[0] += a->vel[0]*8;
+			}
+			if (a->pos[0] <= (gl.xres/2)-20 && path7 == 1) {
+				a->pos[0] = gl.xres/2;
+				a->pos[1] = gl.xres/2;
+				path1 = 1;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 0;
+				path7 = 0;
 			}
 		}
 		//This code checks for player bullet and enemy collision.
@@ -1184,13 +1240,8 @@ void physics()
 		//All angles have been calculated, shoot if triggered
 		extern bool enemyShoot(float, float, float, float);
 		if (enemyShoot(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1])) {
-			if (a->isBoss == 0) {
 			angleLockOn = lockOnAngle(g.ship.pos[0], a->pos[0], g.ship.pos[1], a->pos[1]);
 			a->angle = angleLockOn - accuracy;
-			}
-			if (a->isBoss == 1 && path2 == 1) {
-				a->angle += a->rotate * 8;
-			}
 			if (a->gunNum == 0)
 				eFireRifle(a,k);
 			if (a->gunNum == 1)
@@ -1690,6 +1741,10 @@ void render()
 	r.bot = g.ship.pos[1]+260;
 	r.left = g.ship.pos[0]-450;
 	r.center = 0;
+	Rect bR;
+	bR.bot = g.ship.pos[1] - 280;
+	bR.left = g.ship.pos[0];
+	r.center = 0;
 	if(getMenuState()){
 		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -1906,7 +1961,9 @@ void render()
 				if(a->isBoss==1){
 
 				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+			//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+				ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
+				a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);
 				}else if (a->gunNum == 2&&a->isBoss==0) {
 
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
