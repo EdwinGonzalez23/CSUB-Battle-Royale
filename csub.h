@@ -76,7 +76,12 @@ class Global {
 		ALuint playerHitSound;
 		ALuint mgSound;
 		ALuint sfSound;
-		ALuint buffers[5];
+		ALuint pSound;
+		ALuint rSound;
+		ALuint sSound;
+		ALuint readySound;
+		ALuint goSound;
+		ALuint buffers[10];
 		int xres, yres;
 		int credits;
 		char keys[65536];

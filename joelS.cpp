@@ -60,6 +60,17 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
+static bool readyGoSaid = 0;
+
+bool hasReadyGoBeenSaid(){
+	if(readyGoSaid == 0){
+		readyGoSaid = 1;
+		return 0;
+	}
+	return 1;
+}
+
+
 static int transitionProgress = 0;
 static bool transitionComplete = 0;
 void drawLine(int x, int y){

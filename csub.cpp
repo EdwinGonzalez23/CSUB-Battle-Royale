@@ -152,17 +152,40 @@ void setup_sound(Global &gl){
 	gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
 	gl.buffers[3] = alutCreateBufferFromFile ("./audio/mg.wav");
 	gl.buffers[4] = alutCreateBufferFromFile ("./audio/sf.wav");
+	gl.buffers[5] = alutCreateBufferFromFile ("./audio/pistol.wav");
+	gl.buffers[6] = alutCreateBufferFromFile ("./audio/rifle.wav");
+	gl.buffers[7] = alutCreateBufferFromFile ("./audio/shotgun.wav");
+	gl.buffers[8] = alutCreateBufferFromFile ("./audio/ready.wav");
+	gl.buffers[9] = alutCreateBufferFromFile ("./audio/go.wav");
 	alGenSources (1, &gl.bulletSound);
 	alGenSources (1, &gl.youDiedSound);
 	alGenSources (1, &gl.playerHitSound);
 	alGenSources (1, &gl.mgSound);
 	alGenSources (1, &gl.sfSound);
+	alGenSources (1, &gl.pSound);
+	alGenSources (1, &gl.rSound);
+	alGenSources (1, &gl.sSound);
+	alGenSources (1, &gl.readySound);
+	alGenSources (1, &gl.goSound);
 	alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
 	alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
 	alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
 	alSourcei (gl.mgSound, AL_BUFFER, gl.buffers[3]);
 	alSourcei (gl.sfSound, AL_BUFFER, gl.buffers[4]);
+	alSourcei (gl.pSound, AL_BUFFER, gl.buffers[5]);
+	alSourcei (gl.rSound, AL_BUFFER, gl.buffers[6]);
+	alSourcei (gl.sSound, AL_BUFFER, gl.buffers[7]);
+	alSourcei (gl.readySound, AL_BUFFER, gl.buffers[8]);
+	alSourcei (gl.goSound, AL_BUFFER, gl.buffers[9]);
 }
+
+void readyGo(){
+	play_sound(gl.readySound);
+	sleep(2);
+	play_sound(gl.goSound);	
+}
+
+
 //function prototypes
 void init_opengl();
 void check_mouse(XEvent *e);
@@ -233,6 +256,7 @@ extern int getShake();
 extern void letterBoxes(int x, int y, GLuint z);
 extern void drawLine(int x, int y);
 extern bool getIntroComplete();
+extern bool hasReadyGoBeenSaid();
 extern int Rocks[][2];
 //==========================================================================
 // M A I N
@@ -1273,11 +1297,11 @@ void firePistol(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.2){
+	if(ts>0.6){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.pSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *b = &g.barr[g.nbullets];
@@ -1333,11 +1357,11 @@ void fireRifle(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.5){
+	if(ts>1.5){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.rSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *b = &g.barr[g.nbullets];
@@ -1528,8 +1552,6 @@ void eFireShotgun(Asteroid *a, int k)
 }
 void generatePellet(timespec bt){
 	//shoot a bullet...
-	thread t1(play_sound, gl.bulletSound);
-	t1.detach();
 	//Bullet *b = new Bullet;
 	Bullet *b = &g.barr[g.nbullets];
 	timeCopy(&b->time, &bt);
@@ -1544,8 +1566,8 @@ void generatePellet(timespec bt){
 	Flt ydir = sin(rad);
 	b->pos[0] += xdir*20.0f;
 	b->pos[1] += ydir*20.0f;
-	b->vel[0] += xdir*15.0f + rnd()*.5;
-	b->vel[1] += ydir*15.0f + rnd()*.5;
+	b->vel[0] += xdir*15.0f + rnd()*2.5;
+	b->vel[1] += ydir*15.0f + rnd()*2.5;
 	b->color[0] = 1;
 	b->color[1] = 1.0f;
 	b->color[2] = 1.0f;
@@ -1555,9 +1577,13 @@ void fireShotgun(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.4){
+	if(ts>1){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS-6) {
+			thread ts(play_sound, gl.sSound);
+			ts.detach();
+			generatePellet(bt);
+			generatePellet(bt);
 			generatePellet(bt);
 			generatePellet(bt);
 			generatePellet(bt);
@@ -1965,6 +1991,10 @@ void render()
 		healthPack(gl.hpTexture,500,1200,3);
 		healthPack(gl.hpTexture,500,1400,4);
 		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
+		if(!hasReadyGoBeenSaid()){
+			thread r1(readyGo);
+			r1.detach();
+		}
 		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 		ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
