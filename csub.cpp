@@ -900,9 +900,11 @@ extern void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int ch
 extern void enemyWallCollision(int x, int y, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 extern void enemyRockCollision(int x, int y, int ex, int ey, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 extern void spawn(Asteroid *a, vector<vector<int>> vector, float xLen, float yLen, Game &g);
+bool spawnBoss = false;
 vector<vector<int>> spawnVector{{240,1892},{1040,1892},{2395,1885},
 	{338,1071},{1458,1017},{2459,779},
 	{182,77},{1000,378},{2606,574}};
+int path1=1, path2=0, path3=0, path4=0, path5=0, path6=0, path7=0, path8=0, path9=0;
 void physics()
 {
 	regulateSpeed(g);
@@ -1058,6 +1060,15 @@ void physics()
 		}
 		j++;
 	}
+	//Center Boss
+	if (a->isBoss ==1) {
+		if (!spawnBoss) {
+			a->pos[0] = gl.xres/2;
+			a->pos[1] = gl.yres/2;
+		}
+		spawnBoss = true;
+	}
+
 	//
 	//Update asteroid positions
 	extern void flipPos(vector<int> &flipVel, int velSwitchCounter, Asteroid *a);
@@ -1071,6 +1082,7 @@ void physics()
 	int velSwitchCounter = 0;
 	int enemyTracker = 1;
 	while (a) {
+		if (a->isBoss == 0) {
 		enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
 		enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
 		enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
@@ -1095,6 +1107,29 @@ void physics()
 		}
 		for (int i = 0; i < 27; i++){
 			enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
+		}
+		}
+		if (a->isBoss == 1) {
+			if (path1 == 1) {
+				a->pos[0] += a->vel[0]*2;
+				cout << "en coord" << a->pos[0];
+			}
+			if (a->pos[0] < 200) {
+				path1 = 0;
+				path2 = 1;
+			}
+			if (path2 == 1){
+				a->pos[1] -= a->vel[1]*8;
+				cout << "en x coord" << a->pos[1] << endl;
+			}
+			if (a->pos[1] > 2000) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 1;
+			}
+			if (path3 == 1) {
+				a->pos[0] -= a->vel[0]*3;
+			}
 		}
 		//This code checks for player bullet and enemy collision.
 		int bulls=0;
@@ -1149,8 +1184,13 @@ void physics()
 		//All angles have been calculated, shoot if triggered
 		extern bool enemyShoot(float, float, float, float);
 		if (enemyShoot(a->pos[0], a->pos[1], g.ship.pos[0], g.ship.pos[1])) {
+			if (a->isBoss == 0) {
 			angleLockOn = lockOnAngle(g.ship.pos[0], a->pos[0], g.ship.pos[1], a->pos[1]);
 			a->angle = angleLockOn - accuracy;
+			}
+			if (a->isBoss == 1 && path2 == 1) {
+				a->angle += a->rotate * 8;
+			}
 			if (a->gunNum == 0)
 				eFireRifle(a,k);
 			if (a->gunNum == 1)
