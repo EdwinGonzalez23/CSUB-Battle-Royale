@@ -1123,6 +1123,10 @@ void physics()
 						a->isBoss=1;
 						a->health=50;
 						a->hpMissing=0;
+	g.ahead->pos[0]=1638;
+	g.ahead->pos[1]=182;
+	extern void deathCircle();
+	exter void isInsideCircle();
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
@@ -1967,10 +1971,7 @@ void render()
 		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
 		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-		if (g.ahead->isBoss==0)
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids-1);
-		else
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+		ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
 		genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
 		reloadAmmunition();
 		printCurrentWeapon(getCurrentWeapon(),r);
@@ -1991,7 +1992,7 @@ void render()
 		}else if(playerHasWon()==1){
 			genBackground(gl.tileTexture);
 		}
-		if(g.nasteroids==1){
+	/*	if(g.nasteroids==1){
 			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
 			Asteroid *a = g.ahead;
 			a->health=500;
@@ -1999,10 +2000,16 @@ void render()
 			a->isBoss=1;
 			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
 	extern void death_circle();
+	extern int getCircleStage();
+	if(getCircleStage()==0&&g.ahead->isBoss==1){
 	a->pos[0]=1638;
 	a->pos[1]=182;
+	g.ahead->pos[0]=1638;
+	g.ahead->pos[1]=182;
 	death_circle();
 	extern bool isInsideDeath(float circlex, float circley, float rad, float x, float y);
 	isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
-		}
-	}
+	}*/
+	}	
+
+
