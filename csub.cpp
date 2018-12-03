@@ -137,14 +137,14 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
-Image img[35]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
-	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
+Image img[36]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",//handgun.png
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
 	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
 	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
 	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
 	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png"};
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png", "./images/models/boss.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -662,6 +662,16 @@ void init_opengl()
 	unsigned char *goData = buildAlphaData(&img[34]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, goData);
+    //Boss Texture
+    glGenTextures(1, &gl.bossTexture);
+	w = img[35].width;
+	h = img[35].height;
+	glBindTexture(GL_TEXTURE_2D, gl.bossTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *bossData = buildAlphaData(&img[35]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, bossData);
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -1769,7 +1779,7 @@ void render()
 	r.left = g.ship.pos[0]-450;
 	r.center = 0;
 	Rect bR;
-	bR.bot = g.ship.pos[1] - 280;
+	bR.bot = g.ship.pos[1] - 290;
 	bR.left = g.ship.pos[0];
 	r.center = 0;
 	if(getMenuState()){
@@ -1977,7 +1987,7 @@ void render()
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
 				if(a->isBoss==1){
 
-				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
+				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.bossTexture);
 			//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
 				ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
 				a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);

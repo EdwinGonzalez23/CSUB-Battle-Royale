@@ -125,7 +125,7 @@ void bigBoss(int x, int y, int z, float angle, GLuint texid)
 {
 	glColor3f(1.0, 0.0, 0.0);
 	glPushMatrix();
-	int w = 100;
+	int w = 300;
 	glTranslatef(x, y, z);
 	glRotatef(angle, 0.0f, 0.0f, 1.0f);
 	//glEnable(GL_BLEND);
