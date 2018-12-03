@@ -5,6 +5,7 @@
 #include "fonts.h"
 #include <GL/glx.h>
 #include "game3.h"
+#include <cstdlib>
 Game g3;
 
 using namespace std;
@@ -177,11 +178,13 @@ void genWallCorner(int x, int y, int angle, GLuint texid)
 }
 
 
-void genTree(GLuint texture, int x, int y){
+void genTreeTexture(GLuint texture, int x, int y, int angle)
+{
 	int w = 150;
 	//int h = 150;
 	glPushMatrix();
 	glTranslatef(x,y,0);
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
@@ -217,7 +220,7 @@ void genBush(int x, int y, GLuint texid)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void genRock(int x, int y, GLuint texid)
+void genRockTexture(int x, int y, GLuint texid)
 {
     int w = 32;
 	//int h = 150;
@@ -234,7 +237,21 @@ void genRock(int x, int y, GLuint texid)
 	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
 	glEnd();
 	glPopMatrix();
-	glBindTexture(GL_TEXTURE_2D, 0);;
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void genRocks(GLuint &rockTexture1, GLuint &rockTexture2)
+{
+	for (int i = 0; i < 27; i++) {
+		for (int j = 0; j < 2; j++){
+			if (j == 0) {
+				genRockTexture(Rocks[i][j], Rocks[i][j+1], rockTexture1);
+			}
+			else {
+				genRockTexture(Rocks[i][j],Rocks[i][j+1], rockTexture2);
+			}
+		}
+	}
 }
 
 void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num)
@@ -308,5 +325,21 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 		genWall(768-576, 704+468, wallEmpty);
 		genWall(704-576, 704+468, wallEmpty);
 	}
+}
+
+void genTrees(GLuint &treeTexture)
+{
+	
+	genTreeTexture(treeTexture,1318,1085, rand()%2);
+	genTreeTexture(treeTexture,1444,532, rand()%2);
+	genTreeTexture(treeTexture,1906,1701, rand()%2);
+	genTreeTexture(treeTexture,1325,2107, rand()%2);
+	genTreeTexture(treeTexture,72,569, rand()%2);
+	genTreeTexture(treeTexture,191,-60, rand()%2);
+	genTreeTexture(treeTexture,3110,-60, rand()%2);
+	genTreeTexture(treeTexture,3250,1043, rand()%2);
+	genTreeTexture(treeTexture,3026,1743, rand()%2);
+	genTreeTexture(treeTexture,2501,2205, rand()%2);
+	genTreeTexture(treeTexture,1577,2359, rand()%2);
 }
 
