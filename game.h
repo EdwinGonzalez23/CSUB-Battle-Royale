@@ -315,11 +315,12 @@ void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
 	glBindTexture(GL_TEXTURE_2D, 0);
 	if(fadeOutBegin==1&&colors>0){
 		colors-=1;
-		genBH(gl.bhTexture, 1200,1200,350);
-		genBH(gl.bhTexture, 2000,1600,350);
-		genBH(gl.bhTexture, 1800,1900,350);
-		genBH(gl.bhTexture, 1300,2000,350);
-		genBH(gl.bhTexture, 1500,2500,350);
+        
+		genBH(gl.bhTexture, 1200,700,350);
+		genBH(gl.bhTexture, 2000,1100,350);
+		genBH(gl.bhTexture, 1800,1400,350);
+		genBH(gl.bhTexture, 1300,1500,350);
+		genBH(gl.bhTexture, 1500,300,350);
 	}
 	if(colors==0){
 		faded =1;

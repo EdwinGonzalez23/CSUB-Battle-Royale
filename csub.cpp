@@ -145,7 +145,8 @@ Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jp
 	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
 	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
 	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png","winFull2.png","./images/models/boss.png"}
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png",
+	"winFull2.png","./images/models/boss.png"};
 
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
@@ -266,7 +267,10 @@ extern bool isTransitionComplete();
 extern int getZoom();
 extern void drawWinText(GLuint texture, int x, int y);
 extern bool winSoundPlayed();
-
+extern void bossTransition(int x, int y);
+extern bool isBossTransitionComplete();
+void needBossTransition();
+bool doWeNeedABossTransitionToTakePlace();
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -1267,6 +1271,7 @@ void physics()
 						a->isBoss=1;
 						a->health=50;
 						a->hpMissing=0;
+                        needBossTransition();
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
@@ -1517,7 +1522,7 @@ void eFireRifle(Asteroid *a, int k)
 		timeCopy(&g.enemyBulletTimer[k], &bt);
 		if (g.astBull < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.rSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *bAst = &g.barrAst[g.astBull];
@@ -1553,12 +1558,12 @@ void eFirePistol(Asteroid *a, int k)
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
-	if(ts > 0.2) {
+	if(ts > 0.4) {
 		//healPlayer();
 		timeCopy(&g.enemyBulletTimer[k], &bt);
 		if (g.astBull < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.pSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *bAst = &g.barrAst[g.astBull];
@@ -1594,7 +1599,7 @@ void eFireMachineGun(Asteroid *a, int k)
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.enemyBulletTimer[k], &bt);
-	if(ts > 0.2) {
+	if(ts > 0.3) {
 		//healPlayer();
 		timeCopy(&g.enemyBulletTimer[k], &bt);
 		if (g.astBull < MAX_BULLETS) {
@@ -1640,7 +1645,7 @@ void eFireShotgun(Asteroid *a, int k)
 		timeCopy(&g.enemyBulletTimer[k], &bt);
 		if (g.astBull < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.sSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *bAst = &g.barrAst[g.astBull];
@@ -2012,7 +2017,7 @@ void render()
 			if(getIntroComplete()&&!playerHasWon()){
 				extern void enemy(int x, int y, int z, float angle, GLuint texid);
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
-				if(a->isBoss==1){
+				if(a->isBoss==1&&isBossTransitionComplete()){
 
 				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.bossTexture);
 			//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
@@ -2119,6 +2124,7 @@ void render()
 			healthPack(gl.hpTexture,500,1200,3);
 			healthPack(gl.hpTexture,500,1400,4);
 			health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
+            
 		}
 		/*
 		if(g.nasteroids==1){
@@ -2150,6 +2156,9 @@ void render()
 		reloadAmmunition();
 		printCurrentWeapon(getCurrentWeapon(),r);
 		}
+        if(doWeNeedABossTransitionToTakePlace()){
+                bossTransition(0,0);
+            }
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();

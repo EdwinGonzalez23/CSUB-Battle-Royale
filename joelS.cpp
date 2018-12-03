@@ -82,6 +82,41 @@ void zoomOut(int left, int right, int bottom,  int top){
 	}
 }
 
+static int bossTransitionProgress = 0;
+static bool bossTransitionComplete = 0;
+static bool needsBossTransition = 0;
+
+void needBossTransition(){
+    needsBossTransition = 1;
+}
+
+bool doWeNeedABossTransitionToTakePlace(){
+    return needsBossTransition;
+}
+
+bool isBossTransitionComplete(){
+	return bossTransitionComplete;
+}
+
+void bossTransition(int x, int y){
+	if(bossTransitionProgress<5000){
+        glColor3f(0,0,0);
+        glPushMatrix();
+        glTranslatef(0, 0, 0);
+        glBegin(GL_QUAD_STRIP);
+        glVertex2f(x-5000,y+3000);
+        glVertex2f(x-5000, y);
+	//right
+        glVertex2f(x+bossTransitionProgress, y+3000);
+        glVertex2f(x+bossTransitionProgress,y);
+        glEnd();
+        glPopMatrix();
+		bossTransitionProgress+=100;
+	}else{
+		bossTransitionComplete = 1;
+	}
+}
+
 void drawWinText(GLuint texture, int x, int y){
 	int w = 1000;
 	glPushMatrix();
@@ -130,7 +165,7 @@ void drawLine(int x, int y){
         glVertex2f(x+transitionProgress,y);
         glEnd();
         glPopMatrix();
-		transitionProgress+=50;
+		transitionProgress+=100;
 	}else{
 		transitionComplete = 1;
 	}
