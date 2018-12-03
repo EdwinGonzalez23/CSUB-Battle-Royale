@@ -137,14 +137,16 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
-Image img[36]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
-	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",//handgun.png
+Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+
+	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
 	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
 	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
 	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
 	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png", "./images/models/boss.png"};
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png","winFull2.png","./images/models/boss.png"}
+
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -259,6 +261,11 @@ extern bool getIntroComplete();
 extern int Rocks[][2];
 extern bool hasReadyGoBeenSaid();
 extern bool isInsideDeath(float circlex, float circley, float rad, float x, float y);
+extern void zoomOut(int l, int r, int b, int t);
+extern bool isTransitionComplete();
+extern int getZoom();
+extern void drawWinText(GLuint texture, int x, int y);
+extern bool winSoundPlayed();
 
 //==========================================================================
 // M A I N
@@ -662,14 +669,24 @@ void init_opengl()
 	unsigned char *goData = buildAlphaData(&img[34]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, goData);
-    //Boss Texture
-    glGenTextures(1, &gl.bossTexture);
+			
+	glGenTextures(1, &gl.ywTexture);
 	w = img[35].width;
 	h = img[35].height;
+	glBindTexture(GL_TEXTURE_2D, gl.ywTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *ywData = buildAlphaData(&img[35]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, ywData);
+    //Boss Texture
+    glGenTextures(1, &gl.bossTexture);
+	w = img[36].width;
+	h = img[36].height;
 	glBindTexture(GL_TEXTURE_2D, gl.bossTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	unsigned char *bossData = buildAlphaData(&img[35]);
+	unsigned char *bossData = buildAlphaData(&img[36]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, bossData);
 	//OpenGL initialization
@@ -1799,11 +1816,19 @@ void render()
 		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
 		//if (getCreditState()){
 		show_credits();
-	} else if(playerIsAlive()&&playerHasWon()==0){
+	} else if(playerIsAlive()){
 		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-		glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
+		//glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
+		
+		if(!isTransitionComplete()){
+			glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
+		}else{
+		if(isTransitionComplete()){
+			zoomOut(0, gl.xres, 0, gl.yres);
+			}
+		}
 		genBackground(gl.grassTexture);
 		/*
 		   healthPack(gl.hpTexture,500,600,0);
@@ -1912,9 +1937,11 @@ void render()
 		genTrees(gl.treeTexture);
 		//for (int i = 0; i)
 		gunSpawnManager(g.itemTimer);
-		genRifle(gl.rTexture);
-		genShotgun(gl.sTexture);
-		genMachineGun(gl.mgTexture);
+		if(!isTransitionComplete()){
+			genRifle(gl.rTexture);
+			genShotgun(gl.sTexture);
+			genMachineGun(gl.mgTexture);
+		}
 		//-------------
 		//Draw the ship/player
 		glColor3fv(g.ship.color);
@@ -1936,7 +1963,7 @@ void render()
 		glPopMatrix();
 		cout << "X: " <<g.ship.pos[0] << endl;
 		cout << "Y: " <<g.ship.pos[1] << endl;
-		if(getIntroComplete()){
+		if(getIntroComplete()&&!isTransitionComplete()){
 			getCharacter();
 		}
 		if (gl.keys[XK_Up] || g.mouseThrustOn) {
@@ -1982,7 +2009,7 @@ void render()
 			glVertex2f(0.0f, 0.0f);
 			glEnd();
 			glPopMatrix();
-			if(getIntroComplete()){
+			if(getIntroComplete()&&!playerHasWon()){
 				extern void enemy(int x, int y, int z, float angle, GLuint texid);
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
 				if(a->isBoss==1){
@@ -2047,47 +2074,52 @@ void render()
 		//----------------
 		//Draw the bullets
 		Bullet *b = &g.barr[0];
-		for (int i=0; i<g.nbullets; i++) {
-			//Log("draw bullet...\n");
-			glColor3f(1.0, 1.0, 0.0);
-			glBegin(GL_POINTS);
-			glVertex2f(b->pos[0],      b->pos[1]);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-			glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-			glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-			glColor3f(0.8, 0.8, 0.8);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-			glEnd();
-			++b;
+		if(!isTransitionComplete()){
+			for (int i=0; i<g.nbullets; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 0.0);
+				glBegin(GL_POINTS);
+				glVertex2f(b->pos[0],      b->pos[1]);
+				glVertex2f(b->pos[0]-1.0f, b->pos[1]);
+				glVertex2f(b->pos[0]+1.0f, b->pos[1]);
+				glVertex2f(b->pos[0],      b->pos[1]-1.0f);
+				glVertex2f(b->pos[0],      b->pos[1]+1.0f);
+				glColor3f(0.8, 0.8, 0.8);
+				glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
+				glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
+				glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
+				glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
+				glEnd();
+				++b;
+			}
+			//CHANGE draw ast bullet
+			Bullet *bAst = &g.barrAst[0];
+			for (int i=0; i<g.astBull; i++) {
+				//Log("draw bullet...\n");
+				glColor3f(1.0, 1.0, 0.0);
+				glBegin(GL_POINTS);
+				glVertex2f(bAst->pos[0],      bAst->pos[1]);
+				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]);
+				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]);
+				glVertex2f(bAst->pos[0],      bAst->pos[1]-1.0f);
+				glVertex2f(bAst->pos[0],      bAst->pos[1]+1.0f);
+				glColor3f(0.8, 0.8, 0.8);
+				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]-1.0f);
+				glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]+1.0f);
+				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]-1.0f);
+				glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]+1.0f);
+				glEnd();
+				++bAst;
+			}
 		}
-		//CHANGE draw ast bullet
-		Bullet *bAst = &g.barrAst[0];
-		for (int i=0; i<g.astBull; i++) {
-			//Log("draw bullet...\n");
-			glColor3f(1.0, 1.0, 0.0);
-			glBegin(GL_POINTS);
-			glVertex2f(bAst->pos[0],      bAst->pos[1]);
-			glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]);
-			glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]);
-			glVertex2f(bAst->pos[0],      bAst->pos[1]-1.0f);
-			glVertex2f(bAst->pos[0],      bAst->pos[1]+1.0f);
-			glColor3f(0.8, 0.8, 0.8);
-			glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]-1.0f);
-			glVertex2f(bAst->pos[0]-1.0f, bAst->pos[1]+1.0f);
-			glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]-1.0f);
-			glVertex2f(bAst->pos[0]+1.0f, bAst->pos[1]+1.0f);
-			glEnd();
-			++bAst;
+		if(!playerHasWon()){
+			healthPack(gl.hpTexture,500,600,0);
+			healthPack(gl.hpTexture,500,800,1);
+			healthPack(gl.hpTexture,500,1000,2);
+			healthPack(gl.hpTexture,500,1200,3);
+			healthPack(gl.hpTexture,500,1400,4);
+			health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		}
-		healthPack(gl.hpTexture,500,600,0);
-		healthPack(gl.hpTexture,500,800,1);
-		healthPack(gl.hpTexture,500,1000,2);
-		healthPack(gl.hpTexture,500,1200,3);
-		healthPack(gl.hpTexture,500,1400,4);
 		/*
 		if(g.nasteroids==1){
 			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
@@ -2108,15 +2140,16 @@ void render()
 			thread r1(readyGo);
 			r1.detach();
 		}
-		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
+		if(!playerHasWon()){
 		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 		if (g.ahead->isBoss==0)
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids-1);
+			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
 		else
 			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
 		genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
 		reloadAmmunition();
 		printCurrentWeapon(getCurrentWeapon(),r);
+		}
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -2131,8 +2164,17 @@ void render()
 				}
 				drawYouDied2(gl.ydTexture,gl.xres/2,gl.yres/2);
 			}
-		}else if(playerHasWon()==1){
-			genBackground(gl.tileTexture);
 		}
-		
+		if(playerHasWon()==1){
+			drawLine(0,0);
+			
+			if(getZoom()>=599){
+				if(!winSoundPlayed()){
+					thread y1(play_sound, gl.mgSound);
+					y1.detach();			
+				}
+				drawWinText(gl.ywTexture, gl.xres/2,gl.yres/2);
+
+			}
+		}	
 	}
