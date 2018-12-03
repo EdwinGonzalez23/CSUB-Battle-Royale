@@ -121,7 +121,7 @@ void letterBoxes(int x, int y, GLuint texture){
         glEnd();
         glPopMatrix();
         letterProg+=30;
-        
+
         int w = 150;
 		glPushMatrix();
 		glTranslatef(x,y,0);
@@ -137,7 +137,7 @@ void letterBoxes(int x, int y, GLuint texture){
 		glEnd();
 		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
-        
+
         if(letterProg>2500){
 			lbComplete=1;
 		}
@@ -146,7 +146,7 @@ void letterBoxes(int x, int y, GLuint texture){
 
 static int shake = 0;
 int getShake(){
-	
+
 	if(shake>0){
 	shake-=2;
 	}
@@ -219,7 +219,7 @@ void invuln(){
 	double timeDifference = timeDiff(&invulnTimer, &invulnComparison);
 	//std::cout<<timeDifference<<std::endl;
 	if(timeDifference>1){
-		playerInvuln=0;			
+		playerInvuln=0;
 	}
 }
 
@@ -259,14 +259,14 @@ void drawYouDied(GLuint texture, int x, int y){
 }
 
 void drawYouDied2(GLuint texture,int x, int y){
-       
-	
+
+
         glEnable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
         glColor4f(color, color, color, alpha);
-       	drawYouDied(texture, x, y);	
+       	drawYouDied(texture, x, y);
 	//alpha-=0.001f;
-	if(fadeIn){	
+	if(fadeIn){
 		color+=0.01;
 	}else if(fadeOut){
 		color-=0.01;
@@ -313,8 +313,8 @@ void genBackground(GLuint texture){
         glEnd();
         glPopMatrix();
 */
-	
-	bgPosX=0;	
+
+	bgPosX=0;
         for(bgPosX = -1000; bgPosX<xBoundary*2;) {
 		bgPosY=0;
 		for(bgPosY=-1000;bgPosY<yBoundary*2;){
@@ -339,7 +339,7 @@ void genBackground(GLuint texture){
 
 
 int hasBulletsLoaded(int weap){
-	return hasBullets[weap];	
+	return hasBullets[weap];
 }
 
 void printAmmo(){
@@ -371,7 +371,7 @@ void reloadAmmunition(){
 				}else if(i==4){
 					ammoCounts[i] = 20;
 				}
-			}	
+			}
 		}
 	}
 }
@@ -428,7 +428,7 @@ void setGunLocation(int &x, int &y)
 void getRiflePosition(int x[2])
 {
 	x[0] = riflePosX;
-	x[1] = riflePosY;	
+	x[1] = riflePosY;
 }
 
 void getShotgunPosition(int x[2])
@@ -445,7 +445,7 @@ void getMachineGunPosition(int x[2])
 
 bool rifleIsOnScreen()
 {
-	return rifleOnScreen;	
+	return rifleOnScreen;
 }
 
 bool shotgunIsOnScreen()
@@ -551,7 +551,7 @@ void genMachineGun(GLuint texture){
 //This makes sure that the timers have a short gap at runtime.
 void timeInit(struct timespec &lastItemTime){
 	clock_gettime(CLOCK_REALTIME, &currentItemTime);
-	timeCopy(&lastItemTime, &currentItemTime);	
+	timeCopy(&lastItemTime, &currentItemTime);
 }
 
 void gunSpawnManager(struct timespec &lastItemTime){
@@ -609,7 +609,7 @@ void damagePlayer()
 
 	if(playerCurrentHP-10<=0){
 		playerCurrentHP = 0;
-		playerHPMissing = playerMaxHP; 
+		playerHPMissing = playerMaxHP;
 		killPlayer();
 		return;
 	}
@@ -618,7 +618,7 @@ void damagePlayer()
 	shake=30;
 	clock_gettime(CLOCK_REALTIME, &invulnTimer);
 	playerInvuln=1;
-		
+
 }
 
 void healPlayer()
@@ -675,7 +675,7 @@ void printCurrentWeapon(int weap, Rect r)
 		case 1:
 			ggprint16(&r,34,0x00bbbbbb, "Weapon mode: Pistol");
 			break;
-		case 2: 
+		case 2:
 			ggprint16(&r,16,0x00bbbbbb, "Weapon mode: Rifle");
 			break;
 		case 3:
