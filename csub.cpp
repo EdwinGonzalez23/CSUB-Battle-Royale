@@ -152,17 +152,40 @@ void setup_sound(Global &gl){
 	gl.buffers[2] = alutCreateBufferFromFile ("./audio/playerHit.wav");
 	gl.buffers[3] = alutCreateBufferFromFile ("./audio/mg.wav");
 	gl.buffers[4] = alutCreateBufferFromFile ("./audio/sf.wav");
+	gl.buffers[5] = alutCreateBufferFromFile ("./audio/pistol.wav");
+	gl.buffers[6] = alutCreateBufferFromFile ("./audio/rifle.wav");
+	gl.buffers[7] = alutCreateBufferFromFile ("./audio/shotgun.wav");
+	gl.buffers[8] = alutCreateBufferFromFile ("./audio/ready.wav");
+	gl.buffers[9] = alutCreateBufferFromFile ("./audio/go.wav");
 	alGenSources (1, &gl.bulletSound);
 	alGenSources (1, &gl.youDiedSound);
 	alGenSources (1, &gl.playerHitSound);
 	alGenSources (1, &gl.mgSound);
 	alGenSources (1, &gl.sfSound);
+	alGenSources (1, &gl.pSound);
+	alGenSources (1, &gl.rSound);
+	alGenSources (1, &gl.sSound);
+	alGenSources (1, &gl.readySound);
+	alGenSources (1, &gl.goSound);
 	alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
 	alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
 	alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
 	alSourcei (gl.mgSound, AL_BUFFER, gl.buffers[3]);
 	alSourcei (gl.sfSound, AL_BUFFER, gl.buffers[4]);
+	alSourcei (gl.pSound, AL_BUFFER, gl.buffers[5]);
+	alSourcei (gl.rSound, AL_BUFFER, gl.buffers[6]);
+	alSourcei (gl.sSound, AL_BUFFER, gl.buffers[7]);
+	alSourcei (gl.readySound, AL_BUFFER, gl.buffers[8]);
+	alSourcei (gl.goSound, AL_BUFFER, gl.buffers[9]);
 }
+
+void readyGo(){
+	play_sound(gl.readySound);
+	sleep(1);
+	play_sound(gl.goSound);	
+}
+
+
 //function prototypes
 void init_opengl();
 void check_mouse(XEvent *e);
@@ -210,7 +233,7 @@ extern void genAmmo(GLuint texture, int x, int y);
 extern void reloadAmmunition();
 extern int hasBulletsLoaded(int x);
 extern void genBackground(GLuint bg);
-extern void genTree(GLuint tree,int x, int y);
+extern void genTrees(GLuint &tree);
 extern bool playerIsAlive();
 extern void drawYouDied(GLuint texture,int x, int y);
 extern void drawYouDied2(GLuint texture, int x, int y);
@@ -234,6 +257,9 @@ extern void letterBoxes(int x, int y, GLuint z);
 extern void drawLine(int x, int y);
 extern bool getIntroComplete();
 extern int Rocks[][2];
+extern bool hasReadyGoBeenSaid();
+extern bool isInsideDeath(float circlex, float circley, float rad, float x, float y);
+
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -1273,11 +1299,11 @@ void firePistol(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.2){
+	if(ts>0.6){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.pSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *b = &g.barr[g.nbullets];
@@ -1333,11 +1359,11 @@ void fireRifle(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.5){
+	if(ts>1.5){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS) {
 			//shoot a bullet...
-			thread t1(play_sound, gl.bulletSound);
+			thread t1(play_sound, gl.rSound);
 			t1.detach();
 			//Bullet *b = new Bullet;
 			Bullet *b = &g.barr[g.nbullets];
@@ -1528,8 +1554,7 @@ void eFireShotgun(Asteroid *a, int k)
 }
 void generatePellet(timespec bt){
 	//shoot a bullet...
-	thread t1(play_sound, gl.bulletSound);
-	t1.detach();
+
 	//Bullet *b = new Bullet;
 	Bullet *b = &g.barr[g.nbullets];
 	timeCopy(&b->time, &bt);
@@ -1555,9 +1580,11 @@ void fireShotgun(){
 	struct timespec bt;
 	clock_gettime(CLOCK_REALTIME, &bt);
 	double ts = timeDiff(&g.bulletTimer, &bt);
-	if(ts>0.4){
+	if(ts>1){
 		timeCopy(&g.bulletTimer, &bt);
 		if (g.nbullets < MAX_BULLETS-6) {
+			thread t1(play_sound, gl.sSound);
+			t1.detach();
 			generatePellet(bt);
 			generatePellet(bt);
 			generatePellet(bt);
@@ -1702,15 +1729,15 @@ void render()
 		//Draw Walls
 		extern void genWall(int x, int y, GLuint texid);
 		extern void genWallCorner(int x, int y, int angle, GLuint texid);
-		extern void genRock(int x, int y, GLuint texid);
+		extern void genRocks(GLuint &texid1, GLuint &texid2);
 		extern void genBush(int x, int y, GLuint texid);
 		for (int i = 0; i < 27; i++) {
 			for (int j = 0; j < 2; j++){
 				if (j == 0) {
-					genRock(Rocks[i][j], Rocks[i][j+1], gl.rockTexture1);
+					genRocks(gl.rockTexture1,gl.rockTexture2);
 				}
 				else {
-					genRock(Rocks[i][j],Rocks[i][j+1], gl.rockTexture2);
+					genRocks(gl.rockTexture1, gl.rockTexture2);
 				}
 			}
 		}
@@ -1777,17 +1804,7 @@ void render()
 		genWall(704-576, 640+468, gl.wallEmpty);
 		genWall(768-576, 704+468, gl.wallEmpty);
 		genWall(704-576, 704+468, gl.wallEmpty);
-		genTree(gl.treeTexture,1318,1085);
-		genTree(gl.treeTexture,1444,532);
-		genTree(gl.treeTexture,1906,1701);
-		genTree(gl.treeTexture,1325,2107);
-		genTree(gl.treeTexture,72,569);
-		genTree(gl.treeTexture,191,-60);
-		genTree(gl.treeTexture,3110,-60);
-		genTree(gl.treeTexture,3250,1043);
-		genTree(gl.treeTexture,3026,1743);
-		genTree(gl.treeTexture,2501,2205);
-		genTree(gl.treeTexture,1577,2359);
+		genTrees(gl.treeTexture);
 		//for (int i = 0; i)
 		gunSpawnManager(g.itemTimer);
 		genRifle(gl.rTexture);
@@ -1964,7 +1981,26 @@ void render()
 		healthPack(gl.hpTexture,500,1000,2);
 		healthPack(gl.hpTexture,500,1200,3);
 		healthPack(gl.hpTexture,500,1400,4);
+		/*
+		if(g.nasteroids==1){
+			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
+			Asteroid *a = g.ahead;
+			a->health=500;
+			a->maxHp=500;
+			a->isBoss=1;
+			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+			extern void death_circle();
+			a->pos[0]=1638;
+			a->pos[1]=182;
+			death_circle();
+			isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
+		}*/
+		
 		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
+		if(!hasReadyGoBeenSaid()){
+			thread r1(readyGo);
+			r1.detach();
+		}
 		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
 		if (g.ahead->isBoss==0)
@@ -1991,18 +2027,5 @@ void render()
 		}else if(playerHasWon()==1){
 			genBackground(gl.tileTexture);
 		}
-		if(g.nasteroids==1){
-			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
-			Asteroid *a = g.ahead;
-			a->health=500;
-			a->maxHp=500;
-			a->isBoss=1;
-			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
-	extern void death_circle();
-	a->pos[0]=1638;
-	a->pos[1]=182;
-	death_circle();
-	extern bool isInsideDeath(float circlex, float circley, float rad, float x, float y);
-	isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
-		}
+		
 	}
