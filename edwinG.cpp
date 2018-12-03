@@ -1,6 +1,8 @@
 /* Edwin Gonzalez
  * Special Functions to interact with main project
- *
+ * Mostly linked to physics() in csub.cpp
+ * Movement, collisions, AI, AI tracking, AI movement
+ * Most logic with enemies and players lies in this file. 
  */
 #include <iostream>
 #include "fonts.h"

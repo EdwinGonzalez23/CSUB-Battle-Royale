@@ -197,7 +197,7 @@ class Game {
 			astBull = 0;
 			mouseThrustOn = false;
 			//build 10 asteroids...
-			for (int j=0; j<9; j++) { //Change num asteroid
+			for (int j=0; j<1; j++) { //Change num asteroid
 				Asteroid *a = new Asteroid;
 				a->nverts = 8;
 				a->radius = rnd()*80.0 + 40.0;
