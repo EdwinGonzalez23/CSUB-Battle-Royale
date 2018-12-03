@@ -118,6 +118,7 @@ class Asteroid {
 		int isBoss=0;
 		int health = 50;
 		int maxHp = 50;
+		int bar_num=50;
 		int hpMissing = maxHp-health;
 		bool invuln = 0;
 		struct timespec invulnTimer;
@@ -136,14 +137,16 @@ class Asteroid {
 			next = NULL;
 		}
 		void drawHealthBar(int x, int y){
+			if(isBoss==1)
+				bar_num=500;
 			glColor3f(0,1,0.5);
 			glPushMatrix();
 			glTranslatef(0, 0, 0);
 			glBegin(GL_QUAD_STRIP);
 			glVertex2f(x,y);
 			glVertex2f(x, y-10);
-			glVertex2f(x+50, y);
-			glVertex2f(x+50,y-10);
+			glVertex2f(x+bar_num, y);
+			glVertex2f(x+bar_num,y-10);
 			glEnd();
 			glPopMatrix();
 			//Current MISSING player HP
@@ -151,10 +154,10 @@ class Asteroid {
 			glPushMatrix();
 			glTranslatef(0, 0, 0);
 			glBegin(GL_QUAD_STRIP);
-			glVertex2f(x+50-hpMissing,y);
-			glVertex2f(x+50-hpMissing, y-10);
-			glVertex2f(x+50, y);
-			glVertex2f(x+50,y-10);
+			glVertex2f(x+bar_num-hpMissing,y);
+			glVertex2f(x+bar_num-hpMissing, y-10);
+			glVertex2f(x+bar_num, y);
+			glVertex2f(x+bar_num,y-10);
 			glEnd();
 			glPopMatrix();
 		}
