@@ -1113,8 +1113,13 @@ void physics()
 		a->checkInvuln();
 		while (bulls < g.nbullets) {
 			Bullet *b = &g.barr[bulls];
-			if((b->pos[0]>=a->pos[0]-25&&b->pos[0]<=a->pos[0]+25)&&
-					(b->pos[1]>=a->pos[1]-25&&b->pos[1]<=a->pos[1]+25)&&a->invuln==0){
+			//Assign proper hitbox.
+			int enemySize = 25;
+			if(a->isBoss==1){
+				enemySize=100;
+			}
+			if((b->pos[0]>=a->pos[0]-enemySize&&b->pos[0]<=a->pos[0]+enemySize)&&
+					(b->pos[1]>=a->pos[1]-enemySize&&b->pos[1]<=a->pos[1]+enemySize)&&a->invuln==0){
 				thread t1(play_sound, gl.playerHitSound);
 				t1.detach();
 				a->health-=10;
@@ -1122,9 +1127,13 @@ void physics()
 				clock_gettime(CLOCK_REALTIME, &a->invulnTimer);
 				a->invuln=1;
 				if(a->health<=0){
-					if(g.nasteroids==1){
+					if(g.nasteroids==1&&a->isBoss==1){
 						cout<<"You Win!"<<endl;
 						win();
+					}else if(g.nasteroids==1&&a->isBoss==0){
+						a->isBoss=1;
+						a->health=50;
+						a->hpMissing=0;
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
@@ -1868,12 +1877,13 @@ void render()
 				if(a->isBoss==1){
 
 				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-20,a->pos[1]+150);
-				}
-				if (a->gunNum == 2) {
+				a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+				}else if (a->gunNum == 2&&a->isBoss==0) {
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
-				}   else enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
+					a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
+				}else if(a->isBoss==0){ enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
+					a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
+				}
 			}
 			// if (gl.keys[XK_Up] || g.mouseThrustOn) {
 			// 	int i;
@@ -1987,13 +1997,5 @@ void render()
 			}
 		}else if(playerHasWon()==1){
 			genBackground(gl.tileTexture);
-		}
-		if(g.nasteroids==1){
-			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
-			Asteroid *a = g.ahead;
-			a->health=500;
-			a->maxHp=500;
-			a->isBoss=1;
-			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
 		}
 	}
