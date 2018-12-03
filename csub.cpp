@@ -899,6 +899,10 @@ extern void wallCollision(int x, int y, int i, Bullet *b, int check, Game &g);
 extern void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int check, Game &g);
 extern void enemyWallCollision(int x, int y, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 extern void enemyRockCollision(int x, int y, int ex, int ey, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
+extern void spawn(Asteroid *a, vector<vector<int>> vector, float xLen, float yLen, Game &g);
+vector<vector<int>> spawnVector{{240,1892},{1040,1892},{2395,1885},
+	{338,1071},{1458,1017},{2459,779},
+	{182,77},{1000,378},{2606,574}};
 void physics()
 {
 	regulateSpeed(g);
@@ -914,16 +918,18 @@ void physics()
 		Asteroid *a = g.ahead;
 		int tracker = 1;
 		int xCord, yCord;
+		int ct = 0;
 		while (a) {
 			int num =  rand() % 3;
 			a->gunNum =(int) num;
-			xCord = spawnRand_XSection(spawnX, section);
-			yCord = spawnRand_YSection(spawnY, section);
-			a->pos[0] = xCord; //spawnRand_XSection(spawnX, section);
-			a->pos[1] = yCord; //spawnRand_YSection(spawnY, section);
+			//xCord = spawnRand_XSection(spawnX, section);
+			//yCord = spawnRand_YSection(spawnY, section);
+			a->pos[0] = spawnVector[ct][0]; //spawnRand_XSection(spawnX, section);
+			a->pos[1] = spawnVector[ct][1];//yCord; //spawnRand_YSection(spawnY, section);
 			a = a->next;
 			section++;
 			tracker++;
+			ct++;
 		}
 		hasSpawned = spawned();
 	}
@@ -1054,6 +1060,9 @@ void physics()
 	}
 	//
 	//Update asteroid positions
+	extern void flipPos(vector<int> &flipVel, int velSwitchCounter, Asteroid *a);
+	extern void flipNeg(vector<int> &flipVel, int velSwitchCounter, Asteroid *a);
+	extern void bounceOffWall(vector<int> &flipVel, int velSwitchCounter);
 	float angleLockOn;// trigger;
 	float accuracy = 90;
 	//float triggerDist = setTriggerDist();
@@ -1065,44 +1074,24 @@ void physics()
 		enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
 		enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
 		enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
-		if (flipVel[velSwitchCounter]==0){
-			a->pos[0] += a->vel[0];
-			a->pos[1] += a->vel[1];
-			a->angle += a->rotate;
-		}
-		if (flipVel[velSwitchCounter]==1) {
-			a->pos[0] -= a->vel[0];
-			a->pos[1] -= a->vel[1];
-			a->angle += a->rotate;
-		}
+		flipPos(flipVel, velSwitchCounter, a);
+		flipNeg(flipVel, velSwitchCounter, a);
 		//Check for collision with window edges
 		if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
 			//a->pos[0] += (float)(gl.xres)+200;
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
+			bounceOffWall(flipVel, velSwitchCounter);
 		}
 		else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
 			//a->pos[0] -= (float)gl.xres+200; //XPOS
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
+			bounceOffWall(flipVel, velSwitchCounter);
 		}
 		else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
 			//a->pos[1] += (float)gl.yres+200; //YNEG
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
+			bounceOffWall(flipVel, velSwitchCounter);
 		}
 		else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
 			//a->pos[1] -= (float)gl.yres+200; //YPOS
-			if (flipVel[velSwitchCounter] == 1) {
-				flipVel[velSwitchCounter] = 0;
-			} else
-				flipVel[velSwitchCounter] = 1;
+			bounceOffWall(flipVel, velSwitchCounter);
 		}
 		for (int i = 0; i < 27; i++){
 			enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
@@ -1867,8 +1856,8 @@ void render()
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
 				if(a->isBoss==1){
 
-				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-20,a->pos[1]+150);
+					bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
+					a->drawHealthBar(a->pos[0]-20,a->pos[1]+150);
 				}
 				if (a->gunNum == 2) {
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
