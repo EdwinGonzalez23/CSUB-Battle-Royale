@@ -1603,7 +1603,7 @@ void fireMachineGun(){
 			decrementAmmo();
 		}
 	}
-}
+}/*
 void DrawCircle(float cx, float cy, float r, int num_segments)
 {
 	glBegin(GL_LINE_LOOP);
@@ -1615,7 +1615,7 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 		glVertex2f(x + cx, y + cy);//output vertex
 	}
 	glEnd();
-}
+}*/
 void show_credits()
 {
 	Rect r;
@@ -1967,7 +1967,10 @@ void render()
 		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
 		health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-		ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+		if (g.ahead->isBoss==0)
+			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids-1);
+		else
+			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
 		genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
 		reloadAmmunition();
 		printCurrentWeapon(getCurrentWeapon(),r);
@@ -1995,5 +1998,11 @@ void render()
 			a->maxHp=500;
 			a->isBoss=1;
 			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+	extern void death_circle();
+	a->pos[0]=1638;
+	a->pos[1]=182;
+	death_circle();
+	extern bool isInsideDeath(float circlex, float circley, float rad, float x, float y);
+	isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
 		}
 	}

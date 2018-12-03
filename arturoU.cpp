@@ -12,6 +12,25 @@
 typedef float Flt;
 static int creditsState;
 static int menuState=1;
+static float cx=1638;
+static float cy=182;
+static float circle_radius=1000;
+static struct timespec circletimer;
+extern double timeDiff(struct timespec *start, struct timespec *end);
+extern void timeCopy(struct timespec *dest, struct timespec *source);
+static float circle_stage=0;
+float getcircleRadius()
+{
+	return circle_radius;
+}
+float getCircleX()
+{
+	return cx;
+}
+float getCircley()
+{
+	return cy;
+}
 struct Vec{
 	Flt x, y, z;
 };
@@ -36,6 +55,11 @@ int getCreditState()
 {
 	return creditsState;
 }
+float getCircleStage()
+{
+	return circle_stage;
+}
+
 int getMenuState()
 {
 	return menuState;
@@ -125,7 +149,51 @@ void bigBoss(int x, int y, int z, float angle, GLuint texid)
  *  Description:  
  * =====================================================================================
  */
-void death_circle ( int x, int y, int time )
+void death_circle()
 {
-	return;
-}		/* -----  end of function death_circle  ----- */
+	float theta = 2 * 3.1415926 / float(1000); 
+	float tangetial_factor = tanf(theta);//calculate the tangential factor 
+	float radial_factor = cosf(theta);//calculate the radial factor 
+	struct timespec difference;
+	clock_gettime(CLOCK_REALTIME, &difference);
+	double ts = timeDiff(&circletimer, &difference);
+	if(ts>10)
+		circle_radius=500;
+	float x = circle_radius;//we start at angle = 0 
+	float y = 0; 
+
+	glBegin(GL_LINE_LOOP); 
+	for(int ii = 0; ii < 1000; ii++) 
+	{ 
+		glVertex2f(x + cx, y + cy);//output vertex 
+
+		//calculate the tangential vector 
+		//remember, the radial vector is (x, y) 
+		//to get the tangential vector we flip those coordinates and negate one of them 
+		float tx = -y; 
+		float ty = x; 
+
+		//add the tangential vector 
+		x += tx * tangetial_factor; 
+		y += ty * tangetial_factor; 
+
+		//correct using the radial factor 
+		x *= radial_factor; 
+		y *= radial_factor; 
+	} 
+	glEnd(); 
+}
+bool isInsideDeath(float circlex, float circley, float rad,float x, float y)
+{
+	// Compare radius of circle with distance  
+	// of its center from given point 
+	if ((x - circlex) * (x - circlex) +
+			(y - circley) * (y - circley) <= rad * rad)
+		return true;
+	else
+	{
+		void extern damagePlayer();
+		damagePlayer();
+		return false;
+	}
+}
