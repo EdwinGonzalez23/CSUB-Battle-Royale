@@ -137,14 +137,16 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
-Image img[36]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
 	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
 	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
 	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
 	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png","winFull2.png"};
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png","winFull2.png","./images/models/boss.png"}
+
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -668,7 +670,6 @@ void init_opengl()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, goData);
 			
-	//Win Image
 	glGenTextures(1, &gl.ywTexture);
 	w = img[35].width;
 	h = img[35].height;
@@ -678,6 +679,16 @@ void init_opengl()
 	unsigned char *ywData = buildAlphaData(&img[35]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, ywData);
+    //Boss Texture
+    glGenTextures(1, &gl.bossTexture);
+	w = img[36].width;
+	h = img[36].height;
+	glBindTexture(GL_TEXTURE_2D, gl.bossTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *bossData = buildAlphaData(&img[36]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, bossData);
 	//OpenGL initialization
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -942,9 +953,11 @@ extern void rockCollision(int x, int y, int bx, int by, int i, Bullet *b, int ch
 extern void enemyWallCollision(int x, int y, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 extern void enemyRockCollision(int x, int y, int ex, int ey, Asteroid *a, int velSwitchCounter, vector<int> &flipVel);
 extern void spawn(Asteroid *a, vector<vector<int>> vector, float xLen, float yLen, Game &g);
+bool spawnBoss = false;
 vector<vector<int>> spawnVector{{240,1892},{1040,1892},{2395,1885},
 	{338,1071},{1458,1017},{2459,779},
 	{182,77},{1000,378},{2606,574}};
+int path1=1, path2=0, path3=0, path4=0, path5=0, path6=0, path7=0, path8=0, path9=0;
 void physics()
 {
 	regulateSpeed(g);
@@ -1100,6 +1113,15 @@ void physics()
 		}
 		j++;
 	}
+	//Center Boss
+	if (a->isBoss ==1) {
+		if (!spawnBoss) {
+			a->pos[0] = gl.xres/2;
+			a->pos[1] = gl.yres/2;
+		}
+		spawnBoss = true;
+	}
+
 	//
 	//Update asteroid positions
 	extern void flipPos(vector<int> &flipVel, int velSwitchCounter, Asteroid *a);
@@ -1113,6 +1135,7 @@ void physics()
 	int velSwitchCounter = 0;
 	int enemyTracker = 1;
 	while (a) {
+		if (a->isBoss == 0) {
 		enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
 		enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
 		enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
@@ -1137,6 +1160,85 @@ void physics()
 		}
 		for (int i = 0; i < 27; i++){
 			enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
+		}
+		}
+		if (a->isBoss == 1) {
+			if (path1 == 1) {
+				a->pos[0] += a->vel[0]*2;
+				cout << "en coord" << a->pos[0];
+			}
+			if (a->pos[0] < 200 && path1 == 1) {
+				path1 = 0;
+				path2 = 1;
+			}
+			if (path2 == 1){
+				a->pos[1] -= a->vel[1]*8;
+				cout << "en x coord" << a->pos[1] << endl;
+			}
+			if (a->pos[1] > 2000 && path2 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 1;
+			}
+			if (path3 == 1) {
+				a->pos[0] -= a->vel[0]*3;
+			}
+			if (a->pos[0] > 2000 && path3 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 1;
+			}
+			if (path4 == 1) {
+				a->pos[0] += a->vel[0]*5;
+				a->pos[1] += a->vel[0]*5;
+			}
+			if (a->pos[1] < 1800 && path4 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 1;
+			}
+			if (path5 == 1) {
+				a->pos[1] += a->vel[1]*5;
+			}			
+			if (a->pos[1] < 100 && path5 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 1;
+			}
+			if (path6 == 1) {
+				a->pos[0] -= a->vel[0]*5;
+				a->pos[1] -= a->vel[0]*5;
+			}
+			int xMid = (int) gl.xres/2;
+			if (a->pos[1] >= gl.yres/2 && path6 == 1) {
+				path1 = 0;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 0;
+				path7 = 1;
+			}
+			if (path7 == 1) {
+				a->pos[0] += a->vel[0]*8;
+			}
+			if (a->pos[0] <= (gl.xres/2)-20 && path7 == 1) {
+				a->pos[0] = gl.xres/2;
+				a->pos[1] = gl.xres/2;
+				path1 = 1;
+				path2 = 0;
+				path3 = 0;
+				path4 = 0;
+				path5 = 0;
+				path6 = 0;
+				path7 = 0;
+			}
 		}
 		//This code checks for player bullet and enemy collision.
 		int bulls=0;
@@ -1693,6 +1795,10 @@ void render()
 	r.bot = g.ship.pos[1]+260;
 	r.left = g.ship.pos[0]-450;
 	r.center = 0;
+	Rect bR;
+	bR.bot = g.ship.pos[1] - 290;
+	bR.left = g.ship.pos[0];
+	r.center = 0;
 	if(getMenuState()){
 		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -1908,8 +2014,10 @@ void render()
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
 				if(a->isBoss==1){
 
-				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
-				a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.bossTexture);
+			//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+				ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
+				a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);
 				}else if (a->gunNum == 2&&a->isBoss==0) {
 
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
