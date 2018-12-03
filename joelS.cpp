@@ -60,8 +60,48 @@ static struct timespec invulnTimer;
 
 static bool winState = 0;
 
-static bool readyGoSaid = 0;
+static bool finalWinSound = 0;
+bool winSoundPlayed(){
+	if(finalWinSound==0){
+		finalWinSound = 1;
+		return 0;
+	}
+	return 1;
+}
 
+static int zoom = 0;
+int getZoom(){
+	return zoom;
+}
+
+void zoomOut(int left, int right, int bottom,  int top){
+	glOrtho((left)-zoom, (right)+zoom, (bottom)-zoom+zoom/2.5, (top)+zoom-zoom/2.5, -100, 1000);
+	if(zoom<600){
+		zoom+=2;
+		return;
+	}
+}
+
+void drawWinText(GLuint texture, int x, int y){
+	int w = 1000;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(255,255,255,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+static bool readyGoSaid = 0;
 bool hasReadyGoBeenSaid(){
 	if(readyGoSaid == 0){
 		readyGoSaid = 1;
@@ -72,19 +112,28 @@ bool hasReadyGoBeenSaid(){
 
 static int transitionProgress = 0;
 static bool transitionComplete = 0;
+
+bool isTransitionComplete(){
+	return transitionComplete;
+}
+
 void drawLine(int x, int y){
+	if(transitionProgress<5000){
         glColor3f(0,0,0);
         glPushMatrix();
         glTranslatef(0, 0, 0);
         glBegin(GL_QUAD_STRIP);
-        glVertex2f(x,y+3000);
-        glVertex2f(x, y);
+        glVertex2f(x-5000,y+3000);
+        glVertex2f(x-5000, y);
 	//right
         glVertex2f(x+transitionProgress, y+3000);
         glVertex2f(x+transitionProgress,y);
         glEnd();
         glPopMatrix();
-	transitionProgress+=50;
+		transitionProgress+=50;
+	}else{
+		transitionComplete = 1;
+	}
 }
 
 

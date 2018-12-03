@@ -70,6 +70,7 @@ class Global {
 		GLuint rockTexture2;
 		GLuint bushTexture1;
 		GLuint bushTexture2;
+		GLuint ywTexture;
 		//Store sound sources here.
 		ALuint bulletSound;
 		ALuint youDiedSound;
