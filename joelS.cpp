@@ -61,8 +61,9 @@ static struct timespec invulnTimer;
 static bool winState = 0;
 
 static bool finalWinSound = 0;
-bool winSoundPlayed(){
-	if(finalWinSound==0){
+bool winSoundPlayed()
+{
+	if (finalWinSound==0) {
 		finalWinSound = 1;
 		return 0;
 	}
@@ -70,13 +71,15 @@ bool winSoundPlayed(){
 }
 
 static int zoom = 0;
-int getZoom(){
+int getZoom()
+{
 	return zoom;
 }
 
-void zoomOut(int left, int right, int bottom,  int top){
+void zoomOut(int left, int right, int bottom,  int top)
+{
 	glOrtho((left)-zoom, (right)+zoom, (bottom)-zoom+zoom/2.5, (top)+zoom-zoom/2.5, -100, 1000);
-	if(zoom<600){
+	if (zoom<600) {
 		zoom+=2;
 		return;
 	}
@@ -86,38 +89,43 @@ static int bossTransitionProgress = 0;
 static bool bossTransitionComplete = 0;
 static bool needsBossTransition = 0;
 
-void needBossTransition(){
-    needsBossTransition = 1;
+void needBossTransition()
+{
+	needsBossTransition = 1;
 }
 
-bool doWeNeedABossTransitionToTakePlace(){
-    return needsBossTransition;
+bool doWeNeedABossTransitionToTakePlace()
+{
+	return needsBossTransition;
 }
 
-bool isBossTransitionComplete(){
+bool isBossTransitionComplete()
+{
 	return bossTransitionComplete;
 }
 
-void bossTransition(int x, int y){
-	if(bossTransitionProgress<5000){
-        glColor3f(0,0,0);
-        glPushMatrix();
-        glTranslatef(0, 0, 0);
-        glBegin(GL_QUAD_STRIP);
-        glVertex2f(x-5000,y+3000);
-        glVertex2f(x-5000, y);
-	//right
-        glVertex2f(x+bossTransitionProgress, y+3000);
-        glVertex2f(x+bossTransitionProgress,y);
-        glEnd();
-        glPopMatrix();
+void bossTransition(int x, int y)
+{
+	if (bossTransitionProgress<5000) {
+		glColor3f(0,0,0);
+		glPushMatrix();
+		glTranslatef(0, 0, 0);
+		glBegin(GL_QUAD_STRIP);
+		glVertex2f(x-5000,y+3000);
+		glVertex2f(x-5000, y);
+		//right
+		glVertex2f(x+bossTransitionProgress, y+3000);
+		glVertex2f(x+bossTransitionProgress,y);
+		glEnd();
+		glPopMatrix();
 		bossTransitionProgress+=100;
-	}else{
-		bossTransitionComplete = 1;
+		} else {
+			bossTransitionComplete = 1;
 	}
 }
 
-void drawWinText(GLuint texture, int x, int y){
+void drawWinText(GLuint texture, int x, int y)
+{
 	int w = 1000;
 	glPushMatrix();
 	glTranslatef(x,y,0);
@@ -137,8 +145,9 @@ void drawWinText(GLuint texture, int x, int y){
 }
 
 static bool readyGoSaid = 0;
-bool hasReadyGoBeenSaid(){
-	if(readyGoSaid == 0){
+bool hasReadyGoBeenSaid()
+{
+	if (readyGoSaid == 0) {
 		readyGoSaid = 1;
 		return 0;
 	}
@@ -148,39 +157,43 @@ bool hasReadyGoBeenSaid(){
 static int transitionProgress = 0;
 static bool transitionComplete = 0;
 
-bool isTransitionComplete(){
+bool isTransitionComplete()
+{
 	return transitionComplete;
 }
 
-void drawLine(int x, int y){
-	if(transitionProgress<5000){
-        glColor3f(0,0,0);
-        glPushMatrix();
-        glTranslatef(0, 0, 0);
-        glBegin(GL_QUAD_STRIP);
-        glVertex2f(x-5000,y+3000);
-        glVertex2f(x-5000, y);
-	//right
-        glVertex2f(x+transitionProgress, y+3000);
-        glVertex2f(x+transitionProgress,y);
-        glEnd();
-        glPopMatrix();
+void drawLine(int x, int y)
+{
+	if (transitionProgress<5000) {
+		glColor3f(0,0,0);
+		glPushMatrix();
+		glTranslatef(0, 0, 0);
+		glBegin(GL_QUAD_STRIP);
+		glVertex2f(x-5000,y+3000);
+		glVertex2f(x-5000, y);
+		//right
+		glVertex2f(x+transitionProgress, y+3000);
+		glVertex2f(x+transitionProgress,y);
+		glEnd();
+		glPopMatrix();
 		transitionProgress+=100;
-	}else{
-		transitionComplete = 1;
+		} else {
+			transitionComplete = 1;
 	}
 }
 
 
 static bool lbComplete = 0;
 
-bool getIntroComplete(){
+bool getIntroComplete()
+{
 	return lbComplete;
 }
 
 static int letterProg = 0;
-void letterBoxes(int x, int y, GLuint texture){
-	if(!lbComplete){
+void letterBoxes(int x, int y, GLuint texture)
+{
+	if (!lbComplete) {
         glColor3f(0,0,0);
         glPushMatrix();
         glTranslatef(0, 0, 0);
@@ -222,24 +235,25 @@ void letterBoxes(int x, int y, GLuint texture){
 		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-        if(letterProg>2500){
+		if (letterProg>2500) {
 			lbComplete=1;
 		}
-}
+	}
 }
 
 static int shake = 0;
-int getShake(){
-
-	if(shake>0){
+int getShake()
+{
+	if (shake>0) {
 	shake-=2;
 	}
 	return shake;
 }
 
 
-void shakeScreen(int left, int right, int bottom, int top){
-		glOrtho(left-shake, right-shake, bottom, top, -100, 1000);
+void shakeScreen(int left, int right, int bottom, int top)
+{
+	glOrtho(left-shake, right-shake, bottom, top, -100, 1000);
 }
 
 
@@ -248,67 +262,73 @@ void shakeScreen(int left, int right, int bottom, int top){
 int hpLocations[5][2];
 bool packsPickedUp[5]={0,0,0,0,0};
 
-void getPackLocations(int i, int x[2]){
-
+void getPackLocations(int i, int x[2])
+{
 	x[0] = hpLocations[i][0];
 	x[1] = hpLocations[i][1];
 }
 
 
 void healPlayer();
-void pickUpPack(int i){
-    	if(packsPickedUp[i]==0){
+void pickUpPack(int i)
+{
+	if (packsPickedUp[i]==0) {
 		healPlayer();
 	}
 	packsPickedUp[i]=1;
 }
 
 
-void healthPack(GLuint texture, int x, int y,int i){
-        hpLocations[i][0]=x;
+void healthPack(GLuint texture, int x, int y,int i)
+{
+	hpLocations[i][0]=x;
 	hpLocations[i][1]=y;
- 	if(!packsPickedUp[i]){
-	    int w = 20;
-	    //int h = 150;
-	    glPushMatrix();
-	    glTranslatef(x,y,0);
-	    glBindTexture(GL_TEXTURE_2D, texture);
-	    glEnable(GL_ALPHA_TEST);
-	    glAlphaFunc(GL_GREATER, 0.0f);
-	    glColor4ub(255,255,255,255);
-	    glBegin(GL_QUADS);
-	    glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
-	    glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
-	    glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
-	    glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
-	    glEnd();
-	    glPopMatrix();
-	    glBindTexture(GL_TEXTURE_2D, 0);
-    }
+ 	if (!packsPickedUp[i]) {
+		int w = 20;
+		//int h = 150;
+		glPushMatrix();
+		glTranslatef(x,y,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glColor4ub(255,255,255,255);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-w,-w);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-w, w);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( w, w);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( w,-w);
+		glEnd();
+		glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }
 
-bool playerHasWon(){
+bool playerHasWon()
+{
 	return winState;
 }
 
-void win(){
+void win()
+{
 	winState = 1;
 }
 
 
-void invuln(){
+void invuln()
+{
 	struct timespec invulnComparison;
-        clock_gettime(CLOCK_REALTIME, &invulnComparison);
+	clock_gettime(CLOCK_REALTIME, &invulnComparison);
 
 	double timeDifference = timeDiff(&invulnTimer, &invulnComparison);
 	//std::cout<<timeDifference<<std::endl;
-	if(timeDifference>1){
+	if (timeDifference>1) {
 		playerInvuln=0;
 	}
 }
 
-bool deathSoundPlayed(){
-	if(deathSoundHasBeenPlayed==0){
+bool deathSoundPlayed()
+{
+	if (deathSoundHasBeenPlayed==0) {
 		deathSoundHasBeenPlayed = 1;
 		return false;
 	}
@@ -316,62 +336,58 @@ bool deathSoundPlayed(){
 }
 
 
-void drawYouDied(GLuint texture, int x, int y){
-	//int w = 500;
-	//int h = 500;
-
-	if(wdW<700){
+void drawYouDied(GLuint texture, int x, int y)
+{
+	if (wdW<700) {
 		wdW+=1;
 	}
-
-
-        glPushMatrix();
-        glTranslatef(x,y,0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        //glColor4ub(255,255,255,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(-wdW,-wdW);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(-wdW, wdW);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i( wdW, wdW);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i( wdW,-wdW);
-        glEnd();
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	//glColor4ub(255,255,255,255);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-wdW,-wdW);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-wdW, wdW);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( wdW, wdW);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( wdW,-wdW);
+	glEnd();
+	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void drawYouDied2(GLuint texture,int x, int y){
-
-
-        glEnable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
-        glColor4f(color, color, color, alpha);
-       	drawYouDied(texture, x, y);
+void drawYouDied2(GLuint texture,int x, int y)
+{
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glColor4f(color, color, color, alpha);
+	drawYouDied(texture, x, y);
 	//alpha-=0.001f;
-	if(fadeIn){
+	if (fadeIn) {
 		color+=0.01;
-	}else if(fadeOut){
+	}else if (fadeOut) {
 		color-=0.01;
 	}
-	if(color>=1.0){
+	if (color>=1.0) {
 		fadeIn=0;
 		fadeOut=1;
 	}
 }
 
-void fadeToBlack(){
+void fadeToBlack()
+{
 	glColor3f(screenFade,screenFade,screenFade);
 	screenFade-=0.01;
 
-	if(screenFade<=0){
+	if (screenFade<=0) {
 		fadeToBlackComplete = 1;
 	}
 }
 
-bool doneFading(){
-	if(fadeToBlackComplete==0){
+bool doneFading()
+{
+	if (fadeToBlackComplete==0) {
 		return false;
 	}
 	return true;
@@ -384,24 +400,12 @@ extern bool fadeBegin();
 extern int getColors();
 
 
-void genBackground(GLuint texture){
-/*
-	glColor3f(0.01,0.45,0.15);
-        glPushMatrix();
-        glTranslatef(0, 0, 0);
-        glBegin(GL_QUAD_STRIP);
-        glVertex2f(0,yBoundary);
-        glVertex2f(0, 0);
-        glVertex2f(xBoundary+25, yBoundary);
-        glVertex2f(xBoundary+25,0);
-        glEnd();
-        glPopMatrix();
-*/
-
+void genBackground(GLuint texture)
+{
 	bgPosX=0;
-        for(bgPosX = -1000; bgPosX<xBoundary*2;) {
+		for (bgPosX = -1000; bgPosX<xBoundary*2;) {
 		bgPosY=0;
-		for(bgPosY=-1000;bgPosY<yBoundary*2;){
+		for (bgPosY=-1000;bgPosY<yBoundary*2;) {
 			glColor3ub(getColors(),getColors(),getColors());
 			int wid=100;
 			glPushMatrix();
@@ -422,7 +426,8 @@ void genBackground(GLuint texture){
 }
 
 
-int hasBulletsLoaded(int weap){
+int hasBulletsLoaded(int weap)
+{
 	return hasBullets[weap];
 }
 
@@ -448,11 +453,11 @@ void reloadAmmunition(){
 				hasBullets[i]=1;
 				if(i==1){
 					ammoCounts[i] = 10;
-				}else if(i==2){
+				}else if (i==2) {
 					ammoCounts[i] = 5;
-				}else if(i==3){
+				}else if (i==3) {
 					ammoCounts[i] = 4;
-				}else if(i==4){
+				}else if (i==4) {
 					ammoCounts[i] = 20;
 				}
 			}
@@ -462,7 +467,7 @@ void reloadAmmunition(){
 
 void decrementAmmo(){
 	ammoCounts[currentWeapon]--;
-	if(ammoCounts[currentWeapon]==0){
+	if (ammoCounts[currentWeapon]==0) {
 		hasBullets[currentWeapon]=0;
 		clock_gettime(CLOCK_REALTIME, &reloadTimers[currentWeapon]);
 	}
@@ -470,7 +475,7 @@ void decrementAmmo(){
 
 void genAmmo(GLuint texture, int x, int y)
 {
-	for(int i = 0; i < ammoCounts[currentWeapon];i++) {
+	for (int i = 0; i < ammoCounts[currentWeapon];i++) {
 		glColor3ub(255,255,255);
 		int w=12;
 		int h=16;
@@ -489,9 +494,7 @@ void genAmmo(GLuint texture, int x, int y)
 		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		x+=20;
-
 	}
-
 }
 
 
@@ -596,49 +599,52 @@ void genRifle(GLuint texture)
 
 void genShotgun(GLuint texture)
 {
-        if (shotgunOnScreen == 1) {
-                glColor3ub(255,255,255);
-                int wid=25;
-                glPushMatrix();
-                glTranslatef(shotgunPosX,shotgunPosY,0);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                glBegin(GL_QUADS);
-                glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
-                glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-                glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
-                glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
-                glEnd();
-                glPopMatrix();
+	if (shotgunOnScreen == 1) {
+		glColor3ub(255,255,255);
+		int wid=25;
+		glPushMatrix();
+		glTranslatef(shotgunPosX,shotgunPosY,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+		glEnd();
+		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
-        }
+	}
 }
 
-void genMachineGun(GLuint texture){
-        if (machineGunOnScreen == 1) {
-                glColor3ub(255,255,255);
-                int wid=25;
-                glPushMatrix();
-                glTranslatef(machineGunPosX,machineGunPosY,0);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                glBegin(GL_QUADS);
-                glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
-                glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-                glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
-                glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
-                glEnd();
-                glPopMatrix();
+void genMachineGun(GLuint texture)
+{
+	if (machineGunOnScreen == 1) {
+		glColor3ub(255,255,255);
+		int wid=25;
+		glPushMatrix();
+		glTranslatef(machineGunPosX,machineGunPosY,0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+		glEnd();
+		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
-        }
+	}
 }
 
 
 //This makes sure that the timers have a short gap at runtime.
-void timeInit(struct timespec &lastItemTime){
+void timeInit(struct timespec &lastItemTime)
+{
 	clock_gettime(CLOCK_REALTIME, &currentItemTime);
 	timeCopy(&lastItemTime, &currentItemTime);
 }
 
-void gunSpawnManager(struct timespec &lastItemTime){
+void gunSpawnManager(struct timespec &lastItemTime)
+{
 	clock_gettime(CLOCK_REALTIME, &currentItemTime);
 	double timeDifference = timeDiff(&lastItemTime, &currentItemTime);
 	//std::cout<<timeDifference<<std::endl;
@@ -686,12 +692,11 @@ bool playerIsInvulnerable(){
 
 void damagePlayer()
 {
+	if(playerInvuln==1){
+	return;
+}
 
-    	if(playerInvuln==1){
-		return;
-	}
-
-	if(playerCurrentHP-10<=0){
+	if (playerCurrentHP-10<=0) {
 		playerCurrentHP = 0;
 		playerHPMissing = playerMaxHP;
 		killPlayer();
@@ -790,27 +795,26 @@ void play_BGM(ALuint bgmSrc)
 //Function required for lab 5
 void joel_credits(int x, int y)
 {
-
-        Rect r;
-        r.bot = y;
-        r.left = x;
-        ggprint8b(&r, 16, 0x00ff0000, "Joel Staggs");
+	Rect r;
+	r.bot = y;
+	r.left = x;
+	ggprint8b(&r, 16, 0x00ff0000, "Joel Staggs");
 }
 
 void joel_picture(int x, int y, GLuint texture)
 {
-        glColor3ub(255,255,255);
-        int wid=50;
-        glPushMatrix();
-        glTranslatef(x,y,0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
-
-        glEnd();
-        glPopMatrix();
+	glColor3ub(255,255,255);
+	int wid=50;
+	glPushMatrix();
+	glTranslatef(x,y,0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid,-wid);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( wid,-wid);
+	glEnd();
+	glPopMatrix();
 
 }
+

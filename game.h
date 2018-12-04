@@ -138,28 +138,53 @@ class Asteroid {
 		}
 		void drawHealthBar(int x, int y){
 			if(isBoss==1)
-				bar_num=500;
-			glColor3f(0,1,0.5);
-			glPushMatrix();
-			glTranslatef(0, 0, 0);
-			glBegin(GL_QUAD_STRIP);
-			glVertex2f(x,y);
-			glVertex2f(x, y-10);
-			glVertex2f(x+bar_num, y);
-			glVertex2f(x+bar_num,y-10);
-			glEnd();
-			glPopMatrix();
-			//Current MISSING player HP
-			glColor3f(0.5f,0,0);
-			glPushMatrix();
-			glTranslatef(0, 0, 0);
-			glBegin(GL_QUAD_STRIP);
-			glVertex2f(x+bar_num-hpMissing,y);
-			glVertex2f(x+bar_num-hpMissing, y-10);
-			glVertex2f(x+bar_num, y);
-			glVertex2f(x+bar_num,y-10);
-			glEnd();
-			glPopMatrix();
+				bar_num=300;
+				
+			if(isBoss==0){
+				glColor3f(0,1,0.5);
+				glPushMatrix();
+				glTranslatef(0, 0, 0);
+				glBegin(GL_QUAD_STRIP);
+				glVertex2f(x,y);
+				glVertex2f(x, y-10);
+				glVertex2f(x+bar_num, y);
+				glVertex2f(x+bar_num,y-10);
+				glEnd();
+				glPopMatrix();
+				//Current MISSING player HP
+				glColor3f(0.5f,0,0);
+				glPushMatrix();
+				glTranslatef(0, 0, 0);
+				glBegin(GL_QUAD_STRIP);
+				glVertex2f(x+bar_num-hpMissing,y);
+				glVertex2f(x+bar_num-hpMissing, y-10);
+				glVertex2f(x+bar_num, y);
+				glVertex2f(x+bar_num,y-10);
+				glEnd();
+				glPopMatrix();
+			}else if(isBoss==1){
+				glColor3f(0,1,0.5);
+				glPushMatrix();
+				glTranslatef(0, 0, 0);
+				glBegin(GL_QUAD_STRIP);
+				glVertex2f(x,y);
+				glVertex2f(x, y-10);
+				glVertex2f(x+bar_num*2, y);
+				glVertex2f(x+bar_num*2,y-10);
+				glEnd();
+				glPopMatrix();
+				//Current MISSING player HP
+				glColor3f(0.5f,0,0);
+				glPushMatrix();
+				glTranslatef(0, 0, 0);
+				glBegin(GL_QUAD_STRIP);
+				glVertex2f(x+bar_num*2-hpMissing*2,y);
+				glVertex2f(x+bar_num*2-hpMissing*2, y-10);
+				glVertex2f(x+bar_num*2, y);
+				glVertex2f(x+bar_num*2,y-10);
+				glEnd();
+				glPopMatrix();
+			}
 		}
 		void checkInvuln(){
 			struct timespec invulnComparison;
@@ -328,3 +353,4 @@ void genTitleScreen(GLuint texture,GLuint texture2, int x, int y){
 		colors=255;
 	}
 }
+

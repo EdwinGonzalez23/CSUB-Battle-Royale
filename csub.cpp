@@ -1253,7 +1253,7 @@ void physics()
 			//Assign proper hitbox.
 			int enemySize = 25;
 			if(a->isBoss==1){
-				enemySize=100;
+				enemySize=300;
 			}
 			if((b->pos[0]>=a->pos[0]-enemySize&&b->pos[0]<=a->pos[0]+enemySize)&&
 					(b->pos[1]>=a->pos[1]-enemySize&&b->pos[1]<=a->pos[1]+enemySize)&&a->invuln==0){
@@ -1269,7 +1269,7 @@ void physics()
 						win();
 					}else if(g.nasteroids==1&&a->isBoss==0){
 						a->isBoss=1;
-						a->health=50;
+						a->health=300;
 						a->hpMissing=0;
                         needBossTransition();
 					}else if(a->next==nullptr){
@@ -1692,8 +1692,8 @@ void generatePellet(timespec bt){
 	Flt ydir = sin(rad);
 	b->pos[0] += xdir*20.0f;
 	b->pos[1] += ydir*20.0f;
-	b->vel[0] += xdir*15.0f + rnd()*.5;
-	b->vel[1] += ydir*15.0f + rnd()*.5;
+	b->vel[0] += xdir*15.0f + rnd()*2.5;
+	b->vel[1] += ydir*15.0f + rnd()*2.5;
 	b->color[0] = 1;
 	b->color[1] = 1.0f;
 	b->color[2] = 1.0f;
