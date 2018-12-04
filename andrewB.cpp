@@ -1,5 +1,6 @@
 //Resource file for Andrew Burt.
 //This file will include the functions to display graphics to the program.
+//Final Dec 4th 2018
 
 #include <iostream>
 #include "fonts.h"
