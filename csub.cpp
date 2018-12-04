@@ -266,6 +266,15 @@ extern void bossTransition(int x, int y);
 extern bool isBossTransitionComplete();
 void needBossTransition();
 bool doWeNeedABossTransitionToTakePlace();
+extern void genRoadHorizontal(int x, int y, GLuint texid);
+extern void genRoadVertical(int x, int y, GLuint texid);
+extern void genWall(int x, int y, GLuint texid);
+extern void genWallCorner(int x, int y, int angle, GLuint texid);
+extern void genRocks(GLuint &te, GLuint &texid2);
+extern void genBush(int x, int y, GLuint texid);
+extern void genRocks(GLuint &rockTexture1, GLuint &rockTexture2);
+extern void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num);
+extern void genRoads(GLuint &roadTexture);
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -965,12 +974,12 @@ void physics()
 	//
 	//Initial Spawn
 	if(!hasSpawned) {
-		int spawnX = xLen/3;
-		int spawnY = yLen/3;
+		//int spawnX = xLen/3;
+		//int spawnY = yLen/3;
 		int section = 1;
 		Asteroid *a = g.ahead;
 		int tracker = 1;
-		int xCord, yCord;
+		//int xCord, yCord;
 		int ct = 0;
 		while (a) {
 			int num =  rand() % 3;
@@ -1212,7 +1221,7 @@ void physics()
 				a->pos[0] -= a->vel[0]*5;
 				a->pos[1] -= a->vel[0]*5;
 			}
-			int xMid = (int) gl.xres/2;
+			//int xMid = (int) gl.xres/2;
 			if (a->pos[1] >= gl.yres/2 && path6 == 1) {
 				path1 = 0;
 				path2 = 0;
@@ -1265,6 +1274,7 @@ void physics()
 						a->health=300;
 						a->hpMissing=0;
 						needBossTransition();
+						healPlayer();
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
@@ -1834,28 +1844,15 @@ void render()
 		   healthPack(gl.hpTexture,500,1400,4);
 		   */
 		//Draw Map
-		extern void genRoadHorizontal(int x, int y, GLuint texid);
-		extern void genRoadVertical(int x, int y, GLuint texid);
-		extern void genWall(int x, int y, GLuint texid);
-		extern void genWallCorner(int x, int y, int angle, GLuint texid);
-		extern void genRocks(GLuint &te, GLuint &texid2);
-		extern void genBush(int x, int y, GLuint texid);
-		extern void genRocks(GLuint &rockTexture1, GLuint &rockTexture2);
-		extern void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num);
-		extern void genRoads(GLuint &roadTexture);
+		genTrees(gl.treeTexture);
 		genRoads(gl.roadTexture);
 		genRocks(gl.rockTexture1, gl.rockTexture2);
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 1);
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 2);
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 3);
-		genTrees(gl.treeTexture);
+		
 		//for (int i = 0; i)
-		gunSpawnManager(g.itemTimer);
-		if(!isTransitionComplete()){
-			genRifle(gl.rTexture);
-			genShotgun(gl.sTexture);
-			genMachineGun(gl.mgTexture);
-		}
+		
 		//-------------
 		//Draw the ship/player
 		glColor3fv(g.ship.color);
@@ -1879,6 +1876,12 @@ void render()
 		cout << "Y: " <<g.ship.pos[1] << endl;
 		if(getIntroComplete()&&!isTransitionComplete()){
 			getCharacter();
+		}
+		gunSpawnManager(g.itemTimer);
+		if(!isTransitionComplete()){
+			genRifle(gl.rTexture);
+			genShotgun(gl.sTexture);
+			genMachineGun(gl.mgTexture);
 		}
 		if (gl.keys[XK_Up] || g.mouseThrustOn) {
 			int i;
@@ -2035,10 +2038,10 @@ void render()
 			}
 		}
 		if(!playerHasWon()){
-			healthPack(gl.hpTexture,500,600,0);
-			healthPack(gl.hpTexture,500,800,1);
+			healthPack(gl.hpTexture,1030,400,0);
+			healthPack(gl.hpTexture,1030,800,1);
 			healthPack(gl.hpTexture,500,1000,2);
-			healthPack(gl.hpTexture,500,1200,3);
+			healthPack(gl.hpTexture,1030,1400,3);
 			healthPack(gl.hpTexture,500,1400,4);
 			health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
 		}

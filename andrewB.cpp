@@ -303,10 +303,27 @@ void genRocks(GLuint &rockTexture1, GLuint &rockTexture2)
 
 void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num)
 {
-	if (num == 1) { 
+	if (num == 1) {
+
+		genWall(1768, 576+412, wallEmpty);
+		genWall(1704, 576+412, wallEmpty);
+		genWall(1768, 640+412, wallEmpty);
+		genWall(1704, 640+412, wallEmpty);
+		genWall(1768, 704+412, wallEmpty);
+		genWall(1704, 704+412, wallEmpty);
+		genWall(1768, 768+412, wallEmpty);
+
+		genWall(1832, 768+412, wallEmpty);
+		genWall(1832, 640+412, wallEmpty);
+		genWall(1832, 704+412, wallEmpty);
+		genWall(1832, 576+412, wallEmpty);
+
+		genWall(1704, 512+412, wallEmpty);
+		genWall(1768, 512+412, wallEmpty);
+		genWall(1832, 512+412, wallEmpty);
+
 		genWallCorner(1640, 768+412, 0, wallCorner);
 		genWall(1704, 768+412, wallT);
-		genWall(1768, 768+412, wallEmpty);
 		genWallCorner(1832, 768+412, 270, wallCorner);
 		genWall(1832, 704+412, wallR);
 		genWall(1832, 640+412, wallR);
@@ -319,21 +336,29 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 		genWall(1640, 640+412, wallL);
 		genWall(1640, 576+412, wallL);
 
-		genWall(1768, 576+412, wallEmpty);
-		genWall(1704, 576+412, wallEmpty);
-		genWall(1768, 640+412, wallEmpty);
-		genWall(1704, 640+412, wallEmpty);
-		genWall(1768, 704+412, wallEmpty);
-		genWall(1704, 704+412, wallEmpty);
 	}
 	else if (num == 2) {
+		genWall(645, 512, wallEmpty);
+		genWall(704, 512, wallEmpty);
+		genWall(768, 512, wallEmpty);
+		genWall(645, 576, wallEmpty);
+		genWall(704, 576, wallEmpty);
+		genWall(704, 640, wallEmpty);
+		genWall(704, 704, wallEmpty);
+		genWall(768, 640, wallEmpty);
+		genWall(768, 704, wallEmpty);
+		genWall(768, 576, wallEmpty);
+		genWall(832, 576, wallEmpty);
+		genWall(832, 640, wallEmpty);
+		genWall(832, 704, wallEmpty);
+
 		genWallCorner(640, 768, 0, wallCorner);
 		genWall(704, 768, wallT);
 		genWall(768, 768, wallT);
 		genWallCorner(832, 768, 270, wallCorner);
 		genWall(832, 704, wallR);
 		genWall(832, 640, wallR);
-		genWall(832, 576, wallEmpty);
+		
 		genWallCorner(832, 512, 180, wallCorner);
 		genWall(704, 512, wallB);
 		genWall(768, 512, wallB);
@@ -341,22 +366,37 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 		genWall(640, 704, wallL);
 		genWall(640, 640, wallL);
 		genWall(640, 576, wallL);
-
-		genWall(768, 576, wallEmpty);
-		genWall(704, 576, wallEmpty);
-		genWall(768, 640, wallEmpty);
-		genWall(704, 640, wallEmpty);
-		genWall(768, 704, wallEmpty);
-		genWall(704, 704, wallEmpty);
+		
 	}
 	else if (num == 3) {
+
+		genWall(832-576, 576+468, wallEmpty);
+		genWall(832-576, 640+468, wallEmpty);
+		genWall(832-576, 704+468, wallEmpty);
+		genWall(768-576, 512+468, wallEmpty);
+		genWall(704-576, 512+468, wallEmpty);
+		genWall(768-576, 640+468, wallEmpty);
+		genWall(768-576, 640+468, wallEmpty);
+		genWall(704-576, 640+468, wallEmpty);
+		genWall(704-576, 576+468, wallEmpty);
+        genWall(645-576, 576+468, wallEmpty);
+        genWall(645-576, 576+468, wallEmpty);
+        genWall(768-576, 576+468, wallEmpty);
+		genWall(768-576, 704+468, wallEmpty);
+		genWall(704-576, 704+468, wallEmpty);
+        genWall(768-576, 704+468, wallEmpty);
+
+
+
 		genWallCorner(640-576, 768+468, 0, wallCorner);
 		genWall(704-576, 768+468, wallT);
 		genWall(768-576, 768+468, wallT);
 		genWallCorner(832-576, 768+468, 270, wallCorner);
 		genWall(832-576, 704+468, wallR);
 		genWall(832-576, 640+468, wallR);
-		genWall(832-576, 576+468, wallEmpty);
+		
+
+
 		genWallCorner(832-576, 512+468, 180, wallCorner);
 		genWall(704-576, 512+468, wallB);
 		genWall(768-576, 512+468, wallB);
@@ -365,12 +405,8 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 		genWall(640-576, 640+468, wallL);
 		genWall(640-576, 576+468, wallL);
 
-		genWall(768-576, 576+468, wallEmpty);
-		genWall(704-576, 576+468, wallEmpty);
-		genWall(768-576, 640+468, wallEmpty);
-		genWall(704-576, 640+468, wallEmpty);
-		genWall(768-576, 704+468, wallEmpty);
-		genWall(704-576, 704+468, wallEmpty);
+
+
 	}
 }
 
