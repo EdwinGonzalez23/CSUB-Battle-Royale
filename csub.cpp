@@ -1278,6 +1278,8 @@ void physics()
 						a->hpMissing=0;
 						needBossTransition();
 						healPlayer();
+						thread bgm1(play_sound, gl.bgmSound);
+						bgm1.detach();
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
