@@ -1843,102 +1843,21 @@ void render()
 		   healthPack(gl.hpTexture,500,1400,4);
 		   */
 		//Draw Map
-		//Draw Roads
 		extern void genRoadHorizontal(int x, int y, GLuint texid);
 		extern void genRoadVertical(int x, int y, GLuint texid);
-		for (int i = -7; i < 35; i++) {
-			genRoadHorizontal((i*128), 192, gl.roadTexture);
-		}
-		for (int i = -7; i < 35; i++) {
-			genRoadHorizontal((i*128), 1408, gl.roadTexture);
-		}
-		for (int i = -7; i < 35; i++) {
-			genRoadVertical(512, (i*128), gl.roadTexture);
-		}
-		for (int i = -7; i < 35; i++) {
-			genRoadVertical(1024, (i*128), gl.roadTexture);
-		}
-		for (int i = -7; i < 35; i++) {
-			genRoadVertical(512, (i*128), gl.roadTexture);
-		}
-		//Draw Walls
 		extern void genWall(int x, int y, GLuint texid);
 		extern void genWallCorner(int x, int y, int angle, GLuint texid);
-		extern void genRocks(GLuint &texid1, GLuint &texid2);
+		extern void genRocks(GLuint &te, GLuint &texid2);
 		extern void genBush(int x, int y, GLuint texid);
-		for (int i = 0; i < 27; i++) {
-			for (int j = 0; j < 2; j++){
-				if (j == 0) {
-					genRocks(gl.rockTexture1,gl.rockTexture2);
-				}
-				else {
-					genRocks(gl.rockTexture1, gl.rockTexture2);
-				}
-			}
-		}
-		//House 1
-		genWallCorner(1640, 768+412, 0, gl.wallCorner);
-		genWall(1704, 768+412, gl.wallT);
-		genWall(1768, 768+412, gl.wallEmpty);
-		genWallCorner(1832, 768+412, 270, gl.wallCorner);
-		genWall(1832, 704+412, gl.wallR);
-		genWall(1832, 640+412, gl.wallR);
-		genWall(1832, 576+412, gl.wallR);
-		genWallCorner(1832, 512+412, 180, gl.wallCorner);
-		genWall(1704, 512+412, gl.wallB);
-		genWall(1768, 512+412, gl.wallB);
-		genWallCorner(1640, 512+412, 90, gl.wallCorner);
-		genWall(1640, 704+412,gl.wallL);
-		genWall(1640, 640+412, gl.wallL);
-		genWall(1640, 576+412, gl.wallL);
-		genWall(1768, 576+412, gl.wallEmpty);
-		genWall(1704, 576+412, gl.wallEmpty);
-		genWall(1768, 640+412, gl.wallEmpty);
-		genWall(1704, 640+412, gl.wallEmpty);
-		genWall(1768, 704+412, gl.wallEmpty);
-		genWall(1704, 704+412, gl.wallEmpty);
-		//House 2
-		genWallCorner(640, 768, 0, gl.wallCorner);
-		genWall(704, 768, gl.wallT);
-		genWall(768, 768, gl.wallT);
-		genWallCorner(832, 768, 270, gl.wallCorner);
-		genWall(832, 704, gl.wallR);
-		genWall(832, 640, gl.wallR);
-		genWall(832, 576, gl.wallEmpty);
-		genWallCorner(832, 512, 180, gl.wallCorner);
-		genWall(704, 512, gl.wallB);
-		genWall(768, 512, gl.wallB);
-		genWallCorner(640, 512, 90, gl.wallCorner);
-		genWall(640, 704, gl.wallL);
-		genWall(640, 640, gl.wallL);
-		genWall(640, 576, gl.wallL);
-		genWall(768, 576, gl.wallEmpty);
-		genWall(704, 576, gl.wallEmpty);
-		genWall(768, 640, gl.wallEmpty);
-		genWall(704, 640, gl.wallEmpty);
-		genWall(768, 704, gl.wallEmpty);
-		genWall(704, 704, gl.wallEmpty);
-		//House 3
-		genWallCorner(640-576, 768+468, 0, gl.wallCorner);
-		genWall(704-576, 768+468, gl.wallT);
-		genWall(768-576, 768+468, gl.wallT);
-		genWallCorner(832-576, 768+468, 270, gl.wallCorner);
-		genWall(832-576, 704+468, gl.wallR);
-		genWall(832-576, 640+468, gl.wallR);
-		genWall(832-576, 576+468, gl.wallEmpty);
-		genWallCorner(832-576, 512+468, 180, gl.wallCorner);
-		genWall(704-576, 512+468, gl.wallB);
-		genWall(768-576, 512+468, gl.wallB);
-		genWallCorner(640-576, 512+468, 90, gl.wallCorner);
-		genWall(640-576, 704+468, gl.wallL);
-		genWall(640-576, 640+468, gl.wallL);
-		genWall(640-576, 576+468, gl.wallL);
-		genWall(768-576, 576+468, gl.wallEmpty);
-		genWall(704-576, 576+468, gl.wallEmpty);
-		genWall(768-576, 640+468, gl.wallEmpty);
-		genWall(704-576, 640+468, gl.wallEmpty);
-		genWall(768-576, 704+468, gl.wallEmpty);
-		genWall(704-576, 704+468, gl.wallEmpty);
+		extern void genRocks(GLuint &rockTexture1, GLuint &rockTexture2);
+		extern void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, GLuint &wallB, GLuint &wallEmpty, int num);
+		extern void genRoads(GLuint &roadTexture);
+		genRoads(gl.roadTexture);
+		genRocks(gl.rockTexture1, gl.rockTexture2);
+		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 1);
+		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 2);
+		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 3);
+
 		genTrees(gl.treeTexture);
 		//for (int i = 0; i)
 		gunSpawnManager(g.itemTimer);

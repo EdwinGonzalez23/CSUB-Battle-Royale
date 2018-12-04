@@ -329,7 +329,6 @@ void genHouse(GLuint &wallCorner, GLuint &wallT, GLuint &wallR, GLuint &wallL, G
 
 void genTrees(GLuint &treeTexture)
 {
-	
 	genTreeTexture(treeTexture,1318,1085, rand()%2);
 	genTreeTexture(treeTexture,1444,532, rand()%2);
 	genTreeTexture(treeTexture,1906,1701, rand()%2);
@@ -343,3 +342,21 @@ void genTrees(GLuint &treeTexture)
 	genTreeTexture(treeTexture,1577,2359, rand()%2);
 }
 
+void genRoads(GLuint &roadTexture)
+{
+	for (int i = -7; i < 35; i++) {
+		genRoadHorizontal((i*128), 192, roadTexture);
+	}
+	for (int i = -7; i < 35; i++) {
+		genRoadHorizontal((i*128), 1408, roadTexture);
+	}
+	for (int i = -7; i < 35; i++) {
+		genRoadVertical(512, (i*128), roadTexture);
+	}
+	for (int i = -7; i < 35; i++) {
+		genRoadVertical(1024, (i*128), roadTexture);
+	}
+	for (int i = -7; i < 35; i++) {
+		genRoadVertical(512, (i*128), roadTexture);
+	}
+}
