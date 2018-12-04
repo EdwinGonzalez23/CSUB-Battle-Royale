@@ -138,7 +138,6 @@ class X11_wrapper {
 		}
 } x11;
 Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
-
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
 	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
@@ -147,7 +146,6 @@ Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jp
 	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
 	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png",
 	"winFull2.png","./images/models/boss.png"};
-
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -181,14 +179,11 @@ void setup_sound(Global &gl){
 	alSourcei (gl.readySound, AL_BUFFER, gl.buffers[8]);
 	alSourcei (gl.goSound, AL_BUFFER, gl.buffers[9]);
 }
-
 void readyGo(){
 	play_sound(gl.readySound);
 	sleep(1);
 	play_sound(gl.goSound);	
 }
-
-
 //function prototypes
 void init_opengl();
 void check_mouse(XEvent *e);
@@ -673,7 +668,6 @@ void init_opengl()
 	unsigned char *goData = buildAlphaData(&img[34]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, goData);
-			
 	glGenTextures(1, &gl.ywTexture);
 	w = img[35].width;
 	h = img[35].height;
@@ -683,8 +677,8 @@ void init_opengl()
 	unsigned char *ywData = buildAlphaData(&img[35]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, ywData);
-    //Boss Texture
-    glGenTextures(1, &gl.bossTexture);
+	//Boss Texture
+	glGenTextures(1, &gl.bossTexture);
 	w = img[36].width;
 	h = img[36].height;
 	glBindTexture(GL_TEXTURE_2D, gl.bossTexture);
@@ -1125,7 +1119,6 @@ void physics()
 		}
 		spawnBoss = true;
 	}
-
 	//
 	//Update asteroid positions
 	extern void flipPos(vector<int> &flipVel, int velSwitchCounter, Asteroid *a);
@@ -1140,31 +1133,31 @@ void physics()
 	int enemyTracker = 1;
 	while (a) {
 		if (a->isBoss == 0) {
-		enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
-		enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
-		enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
-		flipPos(flipVel, velSwitchCounter, a);
-		flipNeg(flipVel, velSwitchCounter, a);
-		//Check for collision with window edges
-		if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
-			//a->pos[0] += (float)(gl.xres)+200;
-			bounceOffWall(flipVel, velSwitchCounter);
-		}
-		else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
-			//a->pos[0] -= (float)gl.xres+200; //XPOS
-			bounceOffWall(flipVel, velSwitchCounter);
-		}
-		else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
-			//a->pos[1] += (float)gl.yres+200; //YNEG
-			bounceOffWall(flipVel, velSwitchCounter);
-		}
-		else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
-			//a->pos[1] -= (float)gl.yres+200; //YPOS
-			bounceOffWall(flipVel, velSwitchCounter);
-		}
-		for (int i = 0; i < 27; i++){
-			enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
-		}
+			enemyWallCollision(723, 646, a, velSwitchCounter, flipVel);
+			enemyWallCollision(1738, 1045, a, velSwitchCounter, flipVel);
+			enemyWallCollision(149, 1115, a, velSwitchCounter, flipVel);
+			flipPos(flipVel, velSwitchCounter, a);
+			flipNeg(flipVel, velSwitchCounter, a);
+			//Check for collision with window edges
+			if (a->pos[0] < xNegCheck(xLen, enemyTracker)) { //XNEG
+				//a->pos[0] += (float)(gl.xres)+200;
+				bounceOffWall(flipVel, velSwitchCounter);
+			}
+			else if (a->pos[0] > xPlusCheck(xLen, enemyTracker)) {//float)gl.xres+100
+				//a->pos[0] -= (float)gl.xres+200; //XPOS
+				bounceOffWall(flipVel, velSwitchCounter);
+			}
+			else if (a->pos[1] < yNegCheck(yLen, enemyTracker)) {//-100.0
+				//a->pos[1] += (float)gl.yres+200; //YNEG
+				bounceOffWall(flipVel, velSwitchCounter);
+			}
+			else if (a->pos[1] > yPlusCheck(yLen, enemyTracker)) {
+				//a->pos[1] -= (float)gl.yres+200; //YPOS
+				bounceOffWall(flipVel, velSwitchCounter);
+			}
+			for (int i = 0; i < 27; i++){
+				enemyRockCollision(Rocks[i][0], Rocks[i][1], a->pos[0], a->pos[1], a, velSwitchCounter, flipVel);
+			}
 		}
 		if (a->isBoss == 1) {
 			if (path1 == 1) {
@@ -1271,7 +1264,7 @@ void physics()
 						a->isBoss=1;
 						a->health=300;
 						a->hpMissing=0;
-                        needBossTransition();
+						needBossTransition();
 					}else if(a->next==nullptr){
 						Asteroid *savea = a->prev;
 						deleteAsteroid(&g, a);
@@ -1677,7 +1670,6 @@ void eFireShotgun(Asteroid *a, int k)
 }
 void generatePellet(timespec bt){
 	//shoot a bullet...
-
 	//Bullet *b = new Bullet;
 	Bullet *b = &g.barr[g.nbullets];
 	timeCopy(&b->time, &bt);
@@ -1752,18 +1744,18 @@ void fireMachineGun(){
 		}
 	}
 }/*
-void DrawCircle(float cx, float cy, float r, int num_segments)
-{
+	void DrawCircle(float cx, float cy, float r, int num_segments)
+	{
 	glBegin(GL_LINE_LOOP);
 	for(int ii = 0; ii < num_segments; ii++)
 	{
-		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
-		float x = r * cosf(theta);//calculate the x component
-		float y = r * sinf(theta);//calculate the y component
-		glVertex2f(x + cx, y + cy);//output vertex
+	float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+	float x = r * cosf(theta);//calculate the x component
+	float y = r * sinf(theta);//calculate the y component
+	glVertex2f(x + cx, y + cy);//output vertex
 	}
 	glEnd();
-}*/
+	}*/
 void show_credits()
 {
 	Rect r;
@@ -1826,12 +1818,11 @@ void render()
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 		//glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
-		
 		if(!isTransitionComplete()){
 			glOrtho((g.ship.pos[0]-gl.xres/5), (g.ship.pos[0]+gl.xres/5), (g.ship.pos[1]-gl.yres/5)-getShake(), (g.ship.pos[1]+gl.yres/5)-getShake(), -100, 1000);
 		}else{
-		if(isTransitionComplete()){
-			zoomOut(0, gl.xres, 0, gl.yres);
+			if(isTransitionComplete()){
+				zoomOut(0, gl.xres, 0, gl.yres);
 			}
 		}
 		genBackground(gl.grassTexture);
@@ -1857,7 +1848,6 @@ void render()
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 1);
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 2);
 		genHouse(gl.wallCorner, gl.wallT, gl.wallR, gl.wallL, gl.wallB, gl.wallEmpty, 3);
-
 		genTrees(gl.treeTexture);
 		//for (int i = 0; i)
 		gunSpawnManager(g.itemTimer);
@@ -1936,14 +1926,22 @@ void render()
 			if(getIntroComplete()&&!playerHasWon()){
 				extern void enemy(int x, int y, int z, float angle, GLuint texid);
 				extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
+				extern bool isInsideDeath(float circlex, float circley, float rad,float x, float y);
+				extern void death_circle(float ex, float ey);
+				extern float getcircleRadius();
 				if(a->isBoss==1&&isBossTransitionComplete()){
-
-				bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.bossTexture);
-			//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
-				ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
-				a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);
+					bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle, gl.bossTexture);
+					//	a->drawHealthBar(a->pos[0]-150,a->pos[1]+150);
+					ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
+					a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);
+					death_circle(g.ahead->pos[0],g.ahead->pos[1]);
+					isInsideDeath(g.ahead->pos[0],g.ahead->pos[1], getcircleRadius(),g.ship.pos[0], g.ship.pos[1]);
+					glBegin(GL_LINES);
+					glVertex2i(10,10);
+					glVertex2i(100,100);
+					glEnd();
+					glFlush();
 				}else if (a->gunNum == 2&&a->isBoss==0) {
-
 					enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
 					a->drawHealthBar(a->pos[0]-20,a->pos[1]+25);
 				}else if(a->isBoss==0){ enemy(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterRifle);
@@ -2043,41 +2041,39 @@ void render()
 			healthPack(gl.hpTexture,500,1200,3);
 			healthPack(gl.hpTexture,500,1400,4);
 			health_bar(g.ship.pos[0]-450,g.ship.pos[1]+350);
-            
 		}
 		/*
-		if(g.nasteroids==1){
-			extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
-			Asteroid *a = g.ahead;
-			a->health=500;
-			a->maxHp=500;
-			a->isBoss=1;
-			bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
-			extern void death_circle();
-			a->pos[0]=1638;
-			a->pos[1]=182;
-			death_circle();
-			isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
-		}*/
-		
+		   if(g.nasteroids==1){
+		   extern void bigBoss(int x, int y, int z, float angle, GLuint texid);
+		   Asteroid *a = g.ahead;
+		   a->health=500;
+		   a->maxHp=500;
+		   a->isBoss=1;
+		   bigBoss(a->pos[0], a->pos[1], a->pos[2], a->angle+90, gl.characterHandgun);
+		   extern void death_circle();
+		   a->pos[0]=1638;
+		   a->pos[1]=182;
+		   death_circle();
+		   isInsideDeath(1638, 182,1000,g.ship.pos[0],g.ship.pos[1]);
+		   }*/
 		letterBoxes(g.ship.pos[0],g.ship.pos[1], gl.goTexture);
 		if(!hasReadyGoBeenSaid()){
 			thread r1(readyGo);
 			r1.detach();
 		}
 		if(!playerHasWon()){
-		ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
-		if (g.ahead->isBoss==0)
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
-		else
-			ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
-		genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
-		reloadAmmunition();
-		printCurrentWeapon(getCurrentWeapon(),r);
+			ggprint16(&r, 16, 0x00ffffff, "3350 - CSUB Battle Royale");
+			if (g.ahead->isBoss==0)
+				ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+			else
+				ggprint16(&r, 16, 0x00bbbbbb, "Enemies Remaining: %i", g.nasteroids);
+			genAmmo(gl.bulletTexture, g.ship.pos[0]-460,g.ship.pos[1]+300);
+			reloadAmmunition();
+			printCurrentWeapon(getCurrentWeapon(),r);
 		}
-        if(doWeNeedABossTransitionToTakePlace()){
-                bossTransition(0,0);
-            }
+		if(doWeNeedABossTransitionToTakePlace()){
+			bossTransition(0,0);
+		}
 		}else if(!playerIsAlive()){
 			glClear(GL_COLOR_BUFFER_BIT);
 			glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -2095,14 +2091,12 @@ void render()
 		}
 		if(playerHasWon()==1){
 			drawLine(0,0);
-			
 			if(getZoom()>=599){
 				if(!winSoundPlayed()){
 					thread y1(play_sound, gl.mgSound);
 					y1.detach();			
 				}
 				drawWinText(gl.ywTexture, gl.xres/2,gl.yres/2);
-
 			}
 		}	
 	}

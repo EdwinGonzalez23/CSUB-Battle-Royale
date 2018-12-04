@@ -149,7 +149,7 @@ void bigBoss(int x, int y, int z, float angle, GLuint texid)
  *  Description:  
  * =====================================================================================
  */
-void death_circle()
+void death_circle(float ex, float ey)
 {
 	float theta = 2 * 3.1415926 / float(1000); 
 	float tangetial_factor = tanf(theta);//calculate the tangential factor 
@@ -165,7 +165,7 @@ void death_circle()
 	glBegin(GL_LINE_LOOP); 
 	for(int ii = 0; ii < 1000; ii++) 
 	{ 
-		glVertex2f(x + cx, y + cy);//output vertex 
+		glVertex2f(x + ex, y + ey);//output vertex 
 
 		//calculate the tangential vector 
 		//remember, the radial vector is (x, y) 
