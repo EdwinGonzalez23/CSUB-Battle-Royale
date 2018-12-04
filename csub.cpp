@@ -1937,8 +1937,8 @@ void render()
 					death_circle(g.ahead->pos[0],g.ahead->pos[1]);
 					isInsideDeath(g.ahead->pos[0],g.ahead->pos[1], getcircleRadius(),g.ship.pos[0], g.ship.pos[1]);
 					glBegin(GL_LINES);
-					glVertex2i(10,10);
-					glVertex2i(100,100);
+					glVertex2i(g.ship.pos[0],g.ship.pos[1]);
+					glVertex2i(g.ahead->pos[0],g.ahead->pos[1]);
 					glEnd();
 					glFlush();
 				}else if (a->gunNum == 2&&a->isBoss==0) {
