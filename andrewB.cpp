@@ -247,7 +247,7 @@ void genTreeTexture(GLuint texture, int x, int y, int angle)
 
 }
 
-void genBush(int x, int y, GLuint texid)
+void genBushTexture(int x, int y, GLuint texid)
 {
     int w = 150;
 	//int h = 150;
@@ -441,5 +441,19 @@ void genRoads(GLuint &roadTexture)
 	}
 	for (int i = -7; i < 35; i++) {
 		genRoadVertical(512, (i*128), roadTexture);
+	}
+}
+
+void genBushes(GLuint &bushTexture1, GLuint &bushTexture2)
+{
+	for (int i = 0; i < 27; i++) {
+		for (int j = 0; j < 2; j++){
+			if (j == 0) {
+				genBushTexture(Bushes[i][j], Bushes[i][j+1], bushTexture1);
+			}
+			else {
+				genBushTexture(Bushes[i][j],Bushes[i][j+1], bushTexture2);
+			}
+		}
 	}
 }
