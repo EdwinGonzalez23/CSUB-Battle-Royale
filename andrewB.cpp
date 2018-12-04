@@ -290,13 +290,11 @@ void genRockTexture(int x, int y, GLuint texid)
 void genRocks(GLuint &rockTexture1, GLuint &rockTexture2)
 {
 	for (int i = 0; i < 27; i++) {
-		for (int j = 0; j < 2; j++){
-			if (j == 0) {
-				genRockTexture(Rocks[i][j], Rocks[i][j+1], rockTexture1);
-			}
-			else {
-				genRockTexture(Rocks[i][j],Rocks[i][j+1], rockTexture2);
-			}
+		if ((i%2) == 0) {
+			genRockTexture(Rocks[i][0], Rocks[i][1], rockTexture1);
+		}
+		else {
+			genRockTexture(Rocks[i][0],Rocks[i][1], rockTexture2);
 		}
 	}
 }
@@ -447,13 +445,12 @@ void genRoads(GLuint &roadTexture)
 void genBushes(GLuint &bushTexture1, GLuint &bushTexture2)
 {
 	for (int i = 0; i < 27; i++) {
-		for (int j = 0; j < 2; j++){
-			if (j == 0) {
-				genBushTexture(Bushes[i][j], Bushes[i][j+1], bushTexture1);
-			}
-			else {
-				genBushTexture(Bushes[i][j],Bushes[i][j+1], bushTexture2);
-			}
+		if ((i%2) == 0) {
+			genBushTexture(Bushes[i][0], Bushes[i][1], bushTexture1);
 		}
+		else {
+			genBushTexture(Bushes[i][0],Bushes[i][1], bushTexture2);
+		}
+		
 	}
 }
