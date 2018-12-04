@@ -83,7 +83,8 @@ class Global {
 		ALuint sSound;
 		ALuint readySound;
 		ALuint goSound;
-		ALuint buffers[10];
+		ALuint bgmSound;
+		ALuint buffers[11];
 		int xres, yres;
 		int credits;
 		char keys[65536];

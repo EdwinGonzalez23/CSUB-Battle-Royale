@@ -158,11 +158,14 @@ void death_circle(float ex, float ey)
 	clock_gettime(CLOCK_REALTIME, &difference);
 	double ts = timeDiff(&circletimer, &difference);
 	if(ts>10)
-		circle_radius=500;
+		circle_radius=750;
 	float x = circle_radius;//we start at angle = 0 
 	float y = 0; 
 
+
+	glLineWidth(30);
 	glBegin(GL_LINE_LOOP); 
+	
 	for(int ii = 0; ii < 1000; ii++) 
 	{ 
 		glVertex2f(x + ex, y + ey);//output vertex 

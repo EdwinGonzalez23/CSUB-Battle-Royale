@@ -137,15 +137,15 @@ class X11_wrapper {
 			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
 		}
 } x11;
-Image img[37]={"art.jpg","joel_pic.jpg","edwinImg.png","bryan_picture.jpg","1.jpg",
+Image img[37]={"images/art.jpg","images/joel_pic.jpg","images/edwinImg.png","bryan_picture.jpg","1.jpg",
 	"rifleCrate.png","shotgunCrate.png","machineGunCrate.png", "./images/models/handgun.png",
 	"./images/models/rifle.png", "./images/models/shotgun.png", "./images/models/knife.png",
-	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","text.png","tile.png",
+	"bullet2.png","bg2.jpeg","tree2.png","you_died.png","csubbattlegrounds.png","images/text.png","tile.png",
 	"images/tiles/road.png", "images/tiles/grass.png", "images/tiles/housefloor.png", "images/tiles/wallB.png",
 	"images/tiles/wallL.png", "images/tiles/wallR.png", "images/tiles/wallT.png", "images/tiles/wallCorner.png",
-	"images/tiles/wallCenter.png","bullethole.png","hp.png", "images/tiles/rock1.png",
-	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","go.png",
-	"winFull2.png","./images/models/boss.png"};
+	"images/tiles/wallCenter.png","images/bullethole.png","images/hp.png", "images/tiles/rock1.png",
+	"images/tiles/rock2.png", "images/tiles/bush1.png", "images/tiles/bush2.png","images/go.png",
+	"winFull2.png","./images/models/dragon2.png"};
 void setup_sound(Global &gl){
 	alutInit (NULL, NULL);
 	gl.buffers[0] = alutCreateBufferFromFile ("./audio/gunshot.wav");
@@ -158,6 +158,7 @@ void setup_sound(Global &gl){
 	gl.buffers[7] = alutCreateBufferFromFile ("./audio/shotgun.wav");
 	gl.buffers[8] = alutCreateBufferFromFile ("./audio/ready.wav");
 	gl.buffers[9] = alutCreateBufferFromFile ("./audio/go.wav");
+	gl.buffers[10] = alutCreateBufferFromFile ("./audio/bgm.wav");
 	alGenSources (1, &gl.bulletSound);
 	alGenSources (1, &gl.youDiedSound);
 	alGenSources (1, &gl.playerHitSound);
@@ -168,6 +169,7 @@ void setup_sound(Global &gl){
 	alGenSources (1, &gl.sSound);
 	alGenSources (1, &gl.readySound);
 	alGenSources (1, &gl.goSound);
+	alGenSources (1, &gl.bgmSound);
 	alSourcei (gl.bulletSound, AL_BUFFER, gl.buffers[0]);
 	alSourcei (gl.youDiedSound, AL_BUFFER, gl.buffers[1]);
 	alSourcei (gl.playerHitSound, AL_BUFFER, gl.buffers[2]);
@@ -178,6 +180,7 @@ void setup_sound(Global &gl){
 	alSourcei (gl.sSound, AL_BUFFER, gl.buffers[7]);
 	alSourcei (gl.readySound, AL_BUFFER, gl.buffers[8]);
 	alSourcei (gl.goSound, AL_BUFFER, gl.buffers[9]);
+	alSourcei (gl.bgmSound, AL_BUFFER, gl.buffers[10]);
 }
 void readyGo(){
 	play_sound(gl.readySound);
@@ -1938,6 +1941,7 @@ void render()
 					ggprint16(&bR, 16, 0x00ffffff, "Itheral, devourer of souls.");
 					a->drawHealthBar(g.ship.pos[0]-150, g.ship.pos[1]-300);
 					death_circle(g.ahead->pos[0],g.ahead->pos[1]);
+					glLineWidth(3);
 					isInsideDeath(g.ahead->pos[0],g.ahead->pos[1], getcircleRadius(),g.ship.pos[0], g.ship.pos[1]);
 					glBegin(GL_LINES);
 					glVertex2i(g.ship.pos[0],g.ship.pos[1]);
